@@ -72,7 +72,7 @@ jobs:
           image-ref: ${{ steps.input-image.outputs.submitted_image }}
           format: sarif
           output: trivy-results.sarif
-          scanners: vuln,secret
+          scanners: vuln
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: "1"

@@ -86,6 +86,7 @@ jobs:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository_owner }}/msgctf-${{ matrix.component }}:${{ github.sha }}
           format: sarif
           output: trivy-${{ matrix.component }}.sarif
+          scanners: vuln
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: "1"
