@@ -2,21 +2,12 @@ name: Challenge Deployment
 
 on:
   workflow_call:
-    inputs:
-      submitted_image:
-        required: false
-        type: string
   push:
     branches:
       - main
       - master
   pull_request:
   workflow_dispatch:
-    inputs:
-      submitted_image:
-        description: Docker image submitted by the challenge author. Overrides challenge.toml image.ref.
-        required: false
-        type: string
 
 permissions:
   contents: read
@@ -52,10 +43,7 @@ jobs:
       - name: Resolve submitted image
         id: input-image
         run: |
-          submitted="${{ inputs.submitted_image }}"
-          if [ -z "$submitted" ]; then
-            submitted="${{ steps.spec.outputs.submitted_image }}"
-          fi
+          submitted="${{ steps.spec.outputs.submitted_image }}"
           echo "submitted_image=$submitted" >> "$GITHUB_OUTPUT"
 
       - name: Set promoted image name
@@ -70,8 +58,8 @@ jobs:
         run: |
           docker run --rm \
             -v "$PWD:/repo" \
-            zricethezav/gitleaks:latest \
-            detect --source=/repo --no-git --redact --verbose
+            ghcr.io/gitleaks/gitleaks:latest \
+            dir /repo --redact --verbose
 
       - name: Pull submitted image
         run: |
@@ -89,6 +77,7 @@ jobs:
 
       - name: Upload Trivy SARIF
         if: always()
+        continue-on-error: true
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-results.sarif

@@ -66,8 +66,8 @@ jobs:
         run: |
           docker run --rm \
             -v "$PWD:/repo" \
-            zricethezav/gitleaks:latest \
-            detect --source=/repo --no-git --redact --verbose
+            ghcr.io/gitleaks/gitleaks:latest \
+            dir /repo --redact --verbose
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -90,6 +90,7 @@ jobs:
 
       - name: Upload Trivy SARIF
         if: always()
+        continue-on-error: true
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-${{ matrix.component }}.sarif
@@ -114,7 +115,7 @@ jobs:
 
   deploy-gke:
     needs: build-scan-push
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && vars.ENABLE_GKE_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
