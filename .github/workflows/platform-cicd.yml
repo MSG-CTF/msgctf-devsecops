@@ -75,18 +75,26 @@ jobs:
       - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@v3
 
+      - name: GHCR 이미지 이름 설정
+        id: image
+        env:
+          COMPONENT: ${{ matrix.component }}
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "image=${REGISTRY}/${owner}/msgctf-${COMPONENT}" >> "$GITHUB_OUTPUT"
+
       - name: 검사할 이미지 빌드
         uses: docker/build-push-action@v6
         with:
           context: ./${{ matrix.component }}
           load: true
-          tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/msgctf-${{ matrix.component }}:${{ github.sha }}
+          tags: ${{ steps.image.outputs.image }}:${{ github.sha }}
 
       - name: Trivy 이미지 차단 검사
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ env.REGISTRY }}/${{ github.repository_owner }}/msgctf-${{ matrix.component }}:${{ github.sha }}
+          image-ref: ${{ steps.image.outputs.image }}:${{ github.sha }}
           format: table
           scanners: vuln
           severity: CRITICAL
@@ -98,7 +106,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ env.REGISTRY }}/${{ github.repository_owner }}/msgctf-${{ matrix.component }}:${{ github.sha }}
+          image-ref: ${{ steps.image.outputs.image }}:${{ github.sha }}
           format: sarif
           output: trivy-${{ matrix.component }}.sarif
           scanners: vuln
@@ -123,7 +131,7 @@ jobs:
       - name: 검사 통과 이미지를 GHCR에 push
         if: github.event_name != 'pull_request'
         env:
-          IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/msgctf-${{ matrix.component }}
+          IMAGE: ${{ steps.image.outputs.image }}
         run: |
           docker tag "${IMAGE}:${GITHUB_SHA}" "${IMAGE}:latest"
           docker push "${IMAGE}:${GITHUB_SHA}"
@@ -133,7 +141,7 @@ jobs:
         id: digest
         if: github.event_name != 'pull_request'
         env:
-          IMAGE: ${{ env.REGISTRY }}/${{ github.repository_owner }}/msgctf-${{ matrix.component }}
+          IMAGE: ${{ steps.image.outputs.image }}
         run: |
           digest="$(docker buildx imagetools inspect "${IMAGE}:${GITHUB_SHA}" --format '{{json .Manifest.Digest}}' | tr -d '"')"
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
@@ -165,15 +173,14 @@ jobs:
           location: ${{ secrets.GKE_LOCATION }}
 
       - name: 플랫폼 Kubernetes manifest 배포
-        env:
-          IMAGE_PREFIX: ${{ env.REGISTRY }}/${{ github.repository_owner }}
         run: |
+          image_prefix="${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}"
           kubectl apply -f k8s/base/namespaces.yaml
           kubectl apply -f k8s/platform/
-          kubectl set image deployment/frontend frontend="${IMAGE_PREFIX}/msgctf-frontend:${GITHUB_SHA}" -n platform
-          kubectl set image deployment/backend backend="${IMAGE_PREFIX}/msgctf-backend:${GITHUB_SHA}" -n platform
-          kubectl set image deployment/runtime runtime="${IMAGE_PREFIX}/msgctf-runtime:${GITHUB_SHA}" -n platform
-          kubectl set image deployment/scheduler scheduler="${IMAGE_PREFIX}/msgctf-scheduler:${GITHUB_SHA}" -n platform
+          kubectl set image deployment/frontend frontend="${image_prefix}/msgctf-frontend:${GITHUB_SHA}" -n platform
+          kubectl set image deployment/backend backend="${image_prefix}/msgctf-backend:${GITHUB_SHA}" -n platform
+          kubectl set image deployment/runtime runtime="${image_prefix}/msgctf-runtime:${GITHUB_SHA}" -n platform
+          kubectl set image deployment/scheduler scheduler="${image_prefix}/msgctf-scheduler:${GITHUB_SHA}" -n platform
           kubectl rollout status deployment/frontend -n platform --timeout=120s
           kubectl rollout status deployment/backend -n platform --timeout=120s
           kubectl rollout status deployment/runtime -n platform --timeout=120s

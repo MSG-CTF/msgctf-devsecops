@@ -194,7 +194,8 @@ jobs:
         env:
           CHALLENGE_ID: ${{ needs.validate-scan.outputs.challenge_id }}
         run: |
-          echo "image=${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${CHALLENGE_ID}" >> "$GITHUB_OUTPUT"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          echo "image=${REGISTRY}/${owner}/${CHALLENGE_ID}" >> "$GITHUB_OUTPUT"
 
       - name: GHCR 로그인
         uses: docker/login-action@v3
