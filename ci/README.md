@@ -1,94 +1,59 @@
-# MSGCTF DevSecOps CI/CD Plan
+# MSGCTF DevSecOps CI/CD
 
-## Role
+## 역할
 
-DevSecOps makes challenge images safe, traceable, repeatable, and ready for runtime deployment.
+DevSecOps는 문제 이미지를 안전하고 추적 가능하며 반복적으로 배포할 수 있는 상태로 만든다. 문제 변경 시 다음 정보를 확인할 수 있어야 한다.
 
-When a challenge changes, the pipeline must leave enough evidence to answer:
+- 어떤 문제에서 생성된 이미지인지
+- 어떤 commit 또는 제출 이미지에서 만들어졌는지
+- Runtime이 사용할 Registry URL과 digest가 무엇인지
+- Secret Scan과 Vulnerability Scan을 통과했는지
+- 배포 가능한 상태인지
 
-- Which challenge produced this image?
-- Which commit or submitted image did it come from?
-- Which registry URL and digest should runtime use?
-- Did secret scanning pass?
-- Did vulnerability scanning pass?
-- Is the result deployable or blocked?
+MSGCTF의 CI/CD는 단순한 빌드 자동화가 아니다. 이미지 내부의 secret 유출과 심각한 취약점을 차단하고, 이미지 출처를 기록하며, Runtime과 Scheduler가 사용할 배포 artifact를 생성한다.
 
-CI/CD must not stop at build automation. In MSGCTF, an unsafe image can become a live challenge during the event. The pipeline has to prevent secret leaks, block serious vulnerabilities, preserve image provenance, and generate a deployment artifact that runtime and scheduler can consume.
-
-## Pipeline Modes
-
-MSGCTF can support two challenge intake modes.
+## 문제 접수 방식
 
 ### Mode A: Source Build Pipeline
 
-Use this when challenge authors push source code to a challenge repository.
-
-Flow:
+출제자가 문제 저장소에 소스코드를 제출하고 CI가 이미지를 빌드하는 방식이다.
 
 ```text
-challenge repo push
--> validate challenge metadata
--> docker build
--> gitleaks scan
--> trivy scan
--> registry push
--> digest extraction
--> artifact.json generation
+Challenge Repo Push
+→ Metadata Validation
+→ Docker Build
+→ Gitleaks Scan
+→ Trivy Scan
+→ Registry Push
+→ Digest Extraction
+→ artifact.json Generation
 ```
 
-This mode is good when MSGCTF controls the repository format and wants reproducible builds from source.
+소스부터 재현 가능한 빌드를 만들 수 있지만 언어와 빌드 도구별 환경을 관리해야 한다.
 
 ### Mode B: Submitted Image Pipeline
 
-Use this when challenge authors build their own image and submit an image reference.
-
-Flow:
+출제자가 직접 빌드한 Docker 이미지와 문제 메타데이터를 제출하는 방식이다.
 
 ```text
-challenge metadata push
--> validate challenge.toml
--> docker pull submitted image
--> gitleaks scan on metadata repo
--> trivy scan on submitted image
--> health check
--> promote approved image to MSGCTF GHCR
--> digest extraction
--> artifact.json generation
+Challenge Metadata Push
+→ challenge.toml Validation
+→ Docker Image Pull
+→ Gitleaks Scan
+→ Trivy Scan
+→ Health Check
+→ GHCR Promotion
+→ Digest Extraction
+→ artifact.json Generation
 ```
 
-This mode is better when authors use many different languages and build systems. MSGCTF does not need to understand Python, Node.js, Go, PHP, Java, or native build steps. The platform only requires a runnable Docker image.
+언어와 프레임워크에 독립적이므로 현재 MVP는 Mode B를 사용한다. Mode A는 향후 관리형 문제 저장소가 필요할 때 확장한다.
 
-Current MVP direction: use Mode B for challenge intake, while keeping Mode A documented as a possible controlled-repo option.
+## 파이프라인 구성
 
-## Decisions To Lock First
+### Challenge Deployment Pipeline
 
-Before full automation, decide these rules:
-
-- Challenge repository structure
-- Docker image submission format
-- Build context rules for source-build challenges
-- Registry provider and naming convention
-- Image tag and digest policy
-- Vulnerability severity policy
-- Secret injection and rotation policy
-- Runtime artifact schema
-
-The first goal is repeatability and traceability. Given the same input, the system should produce the same class of output and leave a clear artifact.
-
-## MVP Deliverables
-
-### 1. Challenge Image Pipeline
-
-Required:
-
-- GitHub Actions workflow
-- Docker image pull or build
-- Image tag generation
-- Registry push
-- Digest extraction
-- Artifact generation
-
-Current files:
+관련 파일:
 
 - `.github/workflows/challenge-deployment.yml`
 - `challenge.toml`
@@ -96,54 +61,66 @@ Current files:
 - `scripts/generate_artifact.py`
 - `scripts/render_challenge_manifest.py`
 
-### 2. Registry Policy
+주요 작업:
 
-Recommended registry: GHCR.
+1. `challenge.toml`을 검증한다.
+2. 메타데이터 저장소에서 Gitleaks를 실행한다.
+3. 제출 이미지를 pull하고 digest로 고정한다.
+4. Trivy로 취약점과 이미지 secret을 검사한다.
+5. 제한된 권한으로 컨테이너를 실행해 health endpoint를 확인한다.
+6. 통과한 이미지를 MSGCTF GHCR로 승격한다.
+7. 배포용 `artifact.json`과 Kubernetes manifest를 생성한다.
 
-Naming convention:
+### Platform CI/CD Pipeline
+
+관련 파일:
+
+- `.github/workflows/platform-cicd.yml`
+- `frontend/`
+- `backend/`
+- `runtime/`
+- `scheduler/`
+- `k8s/`
+
+주요 작업:
+
+1. 각 컴포넌트의 테스트를 실행한다.
+2. 컴포넌트별 Docker 이미지를 빌드한다.
+3. Gitleaks와 Trivy를 실행한다.
+4. 통과한 이미지를 GHCR에 push한다.
+5. 배포 기능이 활성화된 경우 GKE에 배포한다.
+
+## Registry 정책
+
+Registry는 GHCR를 사용한다.
 
 ```text
 ghcr.io/msgctf/<challenge_id>:<commit_sha>
 ghcr.io/msgctf/<challenge_id>@sha256:<digest>
 ```
 
-Rules:
+- Runtime은 digest 기반 참조를 사용한다.
+- mutable tag에 의존해 배포하지 않는다.
+- 승격된 이미지는 하나의 `challenge_id`와 연결되어야 한다.
+- Registry credential은 저장소에 커밋하지 않는다.
 
-- Runtime must use digest references.
-- `latest` can exist for humans, but runtime must not depend on it.
-- Every promoted image must map to one `challenge_id`.
-- Registry credentials must never be committed to the repository.
+## 보안 검사 정책
 
-### 3. Security Scanning
+사용 도구:
 
-Tools:
+- Gitleaks: 저장소 secret 탐지
+- Trivy: 이미지 취약점과 이미지 내부 secret 탐지
 
-- Gitleaks for secret detection
-- Trivy for image vulnerability and secret scanning
+기본 정책:
 
-Policy:
+- Critical 취약점이 발견되면 배포를 차단한다.
+- High 취약점 처리 기준은 운영팀과 확정한다.
+- 보안 검사에 실패한 이미지는 배포 가능한 상태로 표시하지 않는다.
+- 예외 승인은 담당자와 사유가 기록되어야 한다.
 
-- Critical vulnerabilities block deployment.
-- High vulnerabilities should be reviewed; the team must decide whether High blocks MVP.
-- Scan failures must not be marked as deployable.
-- Exceptions must be explicit and auditable.
+## 배포 artifact
 
-### 4. Build Metadata
-
-Every artifact should include:
-
-- `challenge_id`
-- source repository or submitted image
-- commit hash
-- build time
-- registry URL
-- image digest
-- scan result
-- resource profile
-- container port
-- health path
-
-Example:
+Runtime과 Scheduler는 tag를 추측하지 않고 CI가 생성한 artifact를 사용한다.
 
 ```json
 {
@@ -160,22 +137,7 @@ Example:
 }
 ```
 
-### 5. Secret Management
-
-Rules:
-
-- Do not pass long-lived secrets through Docker build args.
-- Do not leave secrets in image layers.
-- Do not print secrets in CI logs.
-- Separate registry credentials, cloud credentials, and challenge runtime secrets.
-- Rotate registry tokens and cloud credentials before the event.
-- Challenge runtime secrets should be injected at runtime through Kubernetes secrets or an external secret manager.
-
-### 6. Runtime Artifact
-
-Runtime and scheduler should receive an artifact, not guess from tags.
-
-Required fields:
+필수 정보:
 
 - `challenge_id`
 - `image_ref`
@@ -185,121 +147,49 @@ Required fields:
 - `health_path`
 - `scan_result`
 
-Runtime must schedule the challenge from the digest-based reference.
+## Secret 관리
 
-## Monthly Plan
+- 장기 secret을 Docker build arg로 전달하지 않는다.
+- secret을 Docker image layer에 저장하지 않는다.
+- CI 로그에 secret을 출력하지 않는다.
+- Registry credential, cloud credential, challenge runtime secret을 분리한다.
+- 대회 전 Registry token과 cloud credential을 교체한다.
+- 실행 시 필요한 secret은 Kubernetes Secret 또는 외부 Secret Manager로 주입한다.
 
-### Month 1
+## 팀 간 합의 항목
 
-Goal: prove image build or image promotion works end to end.
+Runtime 및 격리보안팀:
 
-Tasks:
+- digest 기반 이미지 참조
+- pull secret 전달 방식
+- Pod SecurityContext와 NetworkPolicy
 
-- Create sample challenge image pipeline.
-- Push image to GHCR as a PoC.
-- Record image digest.
-- Document Dockerfile rules for source-build challenges.
-- Document rules that prevent secrets from entering image layers.
+Backend 및 Platform팀:
 
-Done when:
+- `challenge_id` 형식
+- 문제 메타데이터와 배포 artifact 구조
+- 이미지 버전과 상태 표시 방식
 
-- One sample challenge becomes an image through CI.
-- The result records commit, challenge ID, and image digest.
-- Runtime can reference the image by digest.
+Scheduler 및 Resource Broker팀:
 
-### Month 2
+- `resource_profile` 필드와 단위
+- Runtime에 전달할 workload 구조
+- revision 선택과 보존 방식
 
-Goal: add baseline security and runtime-facing artifact.
+Monitoring 및 SLA팀:
 
-Tasks:
+- image pull 실패 알림
+- Registry 장애 알림
+- health check 실패와 Pod 장애 알림
 
-- Automate challenge image handling per challenge.
-- Add vulnerability scanning.
-- Add Dockerfile lint or policy checks for source-build challenges.
-- Define registry credential management.
-- Finalize deployment artifact format for runtime and scheduler.
+## 금지 사항
 
-Policy:
+- Runtime 배포에 mutable `latest` tag를 사용하지 않는다.
+- secret을 저장소, image layer, CI 로그에 남기지 않는다.
+- 보안 검사 실패를 무시하지 않는다.
+- 출처를 알 수 없는 이미지를 Runtime에 전달하지 않는다.
+- CI가 Runtime scheduling을 직접 수행하지 않는다.
 
-- A critical vulnerability must not silently pass.
-- If an exception is needed, an operator approval record must remain.
+## MVP 완료 기준
 
-### Month 3
-
-Goal: harden registry, runtime access, and operations.
-
-Tasks:
-
-- Document provider and cluster registry access.
-- Define image pull failure detection.
-- Define retry behavior for image pull failures.
-- Plan secret rotation and registry token expiry handling.
-- Record image provenance.
-- Write rollback criteria.
-
-### Month 4
-
-Goal: rehearse competition operations.
-
-Tasks:
-
-- Rebuild or re-promote all challenge images.
-- Review vulnerability scan results.
-- Test registry outage fallback.
-- Define event-day image freeze procedure.
-- Define post-event image and secret cleanup.
-
-## Cross-Team Alignment
-
-Runtime:
-
-- Agree on digest-based image references.
-- Agree on pull secret handling.
-- Agree on pod security policy.
-
-Platform/API:
-
-- Agree on `challenge_id`.
-- Agree on challenge metadata format.
-- Agree on how image version and status are displayed.
-
-Monitoring:
-
-- Alert on image pull failures.
-- Alert on registry access failures.
-- Alert on failed challenge health checks.
-
-Security:
-
-- Agree on Dockerfile baseline.
-- Agree on Trivy severity threshold.
-- Agree on exception process.
-- Agree on secret handling rules.
-
-## Do Not Do
-
-- Do not depend on mutable `latest` tags for runtime deployment.
-- Do not put secrets in the repository.
-- Do not put secrets in Docker image layers.
-- Do not print secrets in CI logs.
-- Do not ignore scan failures.
-- Do not pass an image with unknown provenance to runtime.
-- Do not let CI directly perform runtime scheduling.
-
-CI produces a deployable artifact. Runtime and scheduler decide when and where it runs.
-
-## Meeting Summary
-
-DevSecOps owns the path from challenge input to deployable artifact.
-
-For MVP, the pipeline should:
-
-1. Validate challenge metadata.
-2. Build or pull a challenge image depending on intake mode.
-3. Scan for secrets and vulnerabilities.
-4. Push or promote the approved image to GHCR.
-5. Extract the immutable digest.
-6. Generate `artifact.json`.
-7. Hand the artifact to runtime and scheduler.
-
-MVP is complete when a sample challenge repository update creates a scanned image and a digest-based artifact that runtime and scheduler can use.
+샘플 문제의 메타데이터를 push했을 때 제출 이미지가 자동으로 검증되고, 보안 검사를 통과한 이미지가 GHCR에 등록되며, Runtime과 Scheduler가 digest 기반으로 사용할 수 있는 artifact가 생성되어야 한다.

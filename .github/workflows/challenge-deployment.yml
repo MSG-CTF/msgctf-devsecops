@@ -1,4 +1,4 @@
-name: Challenge Deployment
+name: 문제 이미지 배포
 
 on:
   workflow_call:
@@ -31,35 +31,35 @@ jobs:
       health_path: ${{ steps.spec.outputs.health_path }}
 
     steps:
-      - name: Checkout metadata repo
+      - name: 메타데이터 저장소 가져오기
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Validate challenge spec
+      - name: 문제 사양 검증
         id: spec
         run: |
           python scripts/validate_challenge_spec.py challenge.toml \
             --json-output challenge-meta.json \
             --github-output "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
+      - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@v3
 
-      - name: Run Gitleaks on metadata repo
+      - name: 메타데이터 저장소 Gitleaks 검사
         run: |
           docker run --rm \
             -v "$PWD:/repo" \
             ghcr.io/gitleaks/gitleaks:latest \
             dir /repo --redact --verbose
 
-      - name: Pull submitted image
+      - name: 제출 이미지 가져오기
         env:
           SUBMITTED_IMAGE: ${{ steps.spec.outputs.submitted_image }}
         run: |
           docker pull "$SUBMITTED_IMAGE"
 
-      - name: Pin submitted image digest
+      - name: 제출 이미지를 digest로 고정
         id: submitted-digest
         env:
           SUBMITTED_IMAGE: ${{ steps.spec.outputs.submitted_image }}
@@ -69,7 +69,7 @@ jobs:
           echo "submitted_pinned_image=$pinned" >> "$GITHUB_OUTPUT"
           echo "submitted_digest=$digest" >> "$GITHUB_OUTPUT"
 
-      - name: Gate Trivy vulnerability scan
+      - name: Trivy 취약점 차단 검사
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
@@ -80,7 +80,7 @@ jobs:
           ignore-unfixed: true
           exit-code: "1"
 
-      - name: Write Trivy vulnerability SARIF
+      - name: Trivy 취약점 SARIF 생성
         if: always()
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -92,7 +92,7 @@ jobs:
           ignore-unfixed: true
           exit-code: "0"
 
-      - name: Gate Trivy image secret scan
+      - name: Trivy 이미지 secret 차단 검사
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
@@ -102,7 +102,7 @@ jobs:
           severity: HIGH,CRITICAL
           exit-code: "1"
 
-      - name: Write Trivy secret SARIF
+      - name: Trivy secret SARIF 생성
         if: always()
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -113,21 +113,21 @@ jobs:
           scanners: secret
           exit-code: "0"
 
-      - name: Upload Trivy vulnerability SARIF
+      - name: Trivy 취약점 SARIF 업로드
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-vuln-results.sarif
           category: trivy-vulnerability
 
-      - name: Upload Trivy secret SARIF
+      - name: Trivy secret SARIF 업로드
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-secret-results.sarif
           category: trivy-secret
 
-      - name: Health check submitted image
+      - name: 제출 이미지 health check
         env:
           SUBMITTED_PINNED_IMAGE: ${{ steps.submitted-digest.outputs.submitted_pinned_image }}
           CONTAINER_PORT: ${{ steps.spec.outputs.container_port }}
@@ -160,7 +160,7 @@ jobs:
           docker logs "$container_id"
           exit 1
 
-      - name: Upload scan artifacts
+      - name: 검사 결과 업로드
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -183,27 +183,27 @@ jobs:
       digest: ${{ steps.digest.outputs.digest }}
 
     steps:
-      - name: Checkout metadata repo
+      - name: 메타데이터 저장소 가져오기
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@v3
 
-      - name: Set promoted image name
+      - name: 승격 이미지 이름 설정
         id: promoted-image
         env:
           CHALLENGE_ID: ${{ needs.validate-scan.outputs.challenge_id }}
         run: |
           echo "image=${REGISTRY}/${GITHUB_REPOSITORY_OWNER}/${CHALLENGE_ID}" >> "$GITHUB_OUTPUT"
 
-      - name: Log in to GHCR
+      - name: GHCR 로그인
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Promote image to MSGCTF GHCR
+      - name: MSGCTF GHCR로 이미지 승격
         env:
           SUBMITTED_PINNED_IMAGE: ${{ needs.validate-scan.outputs.submitted_pinned_image }}
           PROMOTED_IMAGE: ${{ steps.promoted-image.outputs.image }}
@@ -214,7 +214,7 @@ jobs:
           docker push "${PROMOTED_IMAGE}:${GITHUB_SHA}"
           docker push "${PROMOTED_IMAGE}:latest"
 
-      - name: Extract promoted digest
+      - name: 승격 이미지 digest 추출
         id: digest
         env:
           PROMOTED_IMAGE: ${{ steps.promoted-image.outputs.image }}
@@ -223,7 +223,7 @@ jobs:
           digest="$(docker buildx imagetools inspect "$promoted_ref" --format '{{json .Manifest.Digest}}' | tr -d '"')"
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
 
-      - name: Generate artifact
+      - name: 배포 artifact 생성
         env:
           SUBMITTED_IMAGE: ${{ needs.validate-scan.outputs.submitted_image }}
           SUBMITTED_DIGEST: ${{ needs.validate-scan.outputs.submitted_digest }}
@@ -239,14 +239,14 @@ jobs:
             --scan-result PASS \
             --output artifact.json
 
-      - name: Render challenge manifest
+      - name: 문제 Kubernetes manifest 생성
         run: |
           python scripts/render_challenge_manifest.py \
             --artifact artifact.json \
             --profiles config/resource-profiles.json \
             --output dist/challenge-manifest.yaml
 
-      - name: Upload deployment artifact
+      - name: 배포 artifact 업로드
         uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.validate-scan.outputs.challenge_id }}-deployment
