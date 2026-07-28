@@ -1,375 +1,169 @@
-MSGCTF DevSecOps CI/CD 계획서
-1. 역할 및 목표
-DevSecOps 역할
-DevSecOps는 출제자가 제출한 문제 이미지를 다음 상태로 만드는 것을 목표로 한다.
-* 안전한(Secure) 이미지
-* 추적 가능한(Traceable) 이미지
-* 재현 가능한(Repeatable) 이미지
-* Runtime이 즉시 사용할 수 있는(Deployable) 이미지
-즉, 단순히 Docker 이미지를 만드는 것이 아니라 다음 질문에 답할 수 있어야 한다.
-반드시 추적 가능해야 하는 정보
-* 어떤 Challenge가 생성한 이미지인가?
-* 어떤 Commit 또는 제출 이미지에서 생성되었는가?
-* Runtime이 사용해야 하는 Registry URL은 무엇인가?
-* Runtime이 사용해야 하는 Digest는 무엇인가?
-* Secret Scan은 통과했는가?
-* Vulnerability Scan은 통과했는가?
-* 배포 가능한 상태인가?
-* 누가 승인했는가?
+# MSGCTF DevSecOps
 
-2. DevSecOps 원칙
-MSGCTF는 제출된 이미지를 직접 신뢰하지 않는다.
-신뢰하는 것은 다음뿐이다.
-1. 검증된 Pipeline
-2. 승인된 Image Digest
-3. 생성된 Deployment Artifact
-즉,
-Challenge Input
-↓
-Validation
-↓
-Security Scan
-↓
-Approved Image
-↓
-Digest
-↓
-Artifact
-↓
-Runtime Deployment
-구조를 따른다.
+MSGCTF DevSecOps는 문제 저장소의 `info.yaml`을 기준으로 OCI image를 빌드·검사하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry revision 자료를 발행합니다.
 
-3. Challenge Intake 방식
-MSGCTF는 두 가지 입력 방식을 지원한다.
+## 전체 흐름
 
-Mode A : Source Build Pipeline
-출제자가 소스코드를 저장소에 업로드하는 방식
-흐름
-Challenge Repo Push
-↓
-Metadata Validation
-↓
-Docker Build
-↓
-Gitleaks
-↓
-Trivy
-↓
-Registry Push
-↓
-Digest Extraction
-↓
-Artifact Generation
-장점
-* 완전한 재현 가능성
-* 표준화된 저장소 구조
-* Build 과정 추적 가능
-단점
-* 언어별 Build 환경 관리 필요
-* 유지보수 비용 증가
+```text
+Challenge Repo
+→ GitHub Actions
+→ info.yaml 및 build context 검증
+→ 컨테이너별 Docker build 또는 외부 image pull
+→ Gitleaks
+→ Trivy 취약점·image secret 검사
+→ CycloneDX SBOM 생성
+→ OCI Registry에 commit SHA tag로 push
+→ OCI digest 추출
+→ Runtime artifact + Registry publish document 생성
+```
 
-Mode B : Submitted Image Pipeline
-출제자가 Docker 이미지를 제출하는 방식
-흐름
-Challenge Metadata Push
-↓
-Metadata Validation
-↓
-Docker Pull
-↓
-Gitleaks
-↓
-Trivy
-↓
-Health Check
-↓
-Promotion to GHCR
-↓
-Digest Extraction
-↓
-Artifact Generation
-장점
-* 언어와 프레임워크에 독립적
-* Python, Go, Node.js, PHP, Java 모두 지원
-* DevSecOps 부담 감소
-단점
-* 이미지 내부 Build 과정은 추적 불가
+Platform 실행 흐름은 다음과 같습니다.
 
-MVP 결정
-현재 MVP는
-Mode B
-를 기본 채택한다.
-Mode A는 향후 확장 옵션으로 문서화한다.
+```text
+Scheduler가 Challenge Registry의 active revision 조회
+→ Resource Broker가 target 선택
+→ Runtime API가 digest workload 수신
+→ Runtime이 K3s Namespace·Pod·Service·보안 정책 생성
+→ 참가자 URL 또는 TCP endpoint 반환
+```
 
-4. Challenge Deployment Pipeline
-담당
-DevSecOps
+CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 소유하지 않습니다. 해당 영역은 Runtime 및 격리보안팀의 책임입니다.
 
-Stage 1 : Metadata Validation
-필수 파일
-challenge.toml
-필수 필드
-challenge.id
-challenge.category
-deployment.resource_profile
-deployment.container_port
-monitoring.health_path
-검증 실패 시 즉시 중단
+## 문제 저장소 계약
 
-Stage 2 : Secret Scan
-도구
-* Gitleaks
-검사 대상
-* GitHub Token
-* GCP Credential
-* AWS Credential
-* Password
-* API Key
-* Private Key
-정책
-Secret 발견
-→ 즉시 Fail
+서버가 필요한 문제는 문제 디렉터리 바로 아래에 `info.yaml`을 둡니다.
 
-Stage 3 : Vulnerability Scan
-도구
-* Trivy
-정책
-Severity	정책
-Critical	Fail
-High	운영팀 검토
-Medium	Report
-Low	Report
-MVP 기준
-Critical 발견
-→ 배포 차단
+```yaml
+name: Web Notebook
+category: web
+description: |-
+  문제 설명
+flag: msgctf2026{...}
 
-Stage 4 : Image Validation
-실제 컨테이너 실행
-검사
-* 컨테이너 기동 여부
-* 포트 바인딩
-* Health Check
-예시
-GET /health
-성공 조건
-HTTP 200
+deployment:
+  runtime_type: KUBERNETES
+  architecture: AMD64
+  containers:
+    - name: web
+      build: ./prob/for_organizer/web
+      ports: [8080, 9090]
+      expose: true
+    - name: db
+      image: postgres:16
+      ports: [5432]
+      expose: false
+  healthcheck:
+    container: web
+    port: 9090
+    path: /healthz
+  resource_profile:
+    cpu_millicores: 700
+    memory_mib: 768
+    ephemeral_storage_mib: 1024
+```
 
-Stage 5 : Promotion
-승인된 이미지를
-GHCR
-로 승격
-예시
-ghcr.io/msgctf/web100
+주요 규칙:
 
-Stage 6 : Digest Extraction
-예시
-sha256:abcd1234...
-Runtime은 Digest만 사용한다.
+- `info.yaml`이 문제 사양의 단일 소스입니다.
+- `build`와 `image`는 컨테이너마다 하나만 사용합니다.
+- `build`는 문제 디렉터리 내부의 Docker build context만 가리킬 수 있습니다.
+- 외부 `image`는 `latest`나 암묵적 tag를 사용할 수 없으며 명시적 non-latest tag 또는 digest가 필요합니다.
+- `expose: true`인 컨테이너의 포트만 참가자에게 공개합니다.
+- `resource_profile`은 문제의 모든 컨테이너를 합산한 값입니다.
+- `flag`는 존재 여부만 검증하며 로그, output, artifact에 기록하지 않습니다.
 
-Stage 7 : Artifact Generation
-예시
-{
-  "schema_version": "1.0",
-  "challenge_id": "web100",
-  "submitted_image": "ghcr.io/author/web100:v1",
-  "image": "ghcr.io/msgctf/web100",
-  "digest": "sha256:abcd...",
-  "image_ref": "ghcr.io/msgctf/web100@sha256:abcd...",
-  "scan_result": "PASS",
-  "resource_profile": "small",
-  "container_port": 5000,
-  "health_path": "/health"
-}
+로컬 검증:
 
-5. Registry 정책
-Registry
-GHCR 사용
-이미지 태그
-ghcr.io/msgctf/<challenge_id>:<commit_sha>
-Runtime용
-ghcr.io/msgctf/<challenge_id>@sha256:<digest>
+```bash
+python3 -m pip install -r ci/requirements.txt
+python3 scripts/validate_info_spec.py path/to/challenge \
+  --metadata-output metadata.json \
+  --matrix-output matrix.json
+```
 
-규칙
-허용
-Digest 기반 참조
-금지
-latest 태그 기반 운영
-latest는 사람이 보기 위한 용도로만 사용한다.
+## Pipeline
 
-6. Secret Management
-원칙
-금지
-* Docker Build Args에 Secret 전달
-* Docker Layer 내 Secret 저장
-* CI 로그 출력
-* Repository 저장
+### Challenge Supply Chain
 
-권장 방식
-Kubernetes Secret
-또는
-Secret Manager
-예시
-* GCP Secret Manager
-* HashiCorp Vault
+[`.github/workflows/challenge-supply-chain.yml`](.github/workflows/challenge-supply-chain.yml)은 문제 저장소가 호출하는 reusable workflow입니다.
 
-운영 전 점검
-대회 시작 전
-* Registry Token 교체
-* Cloud Credential 교체
-* 불필요한 Secret 제거
+입력:
 
-7. Build Metadata 관리
-모든 Artifact는 다음 정보를 포함해야 한다.
-challenge_id
-source_repository
-submitted_image
-commit_hash
-build_time
-registry_url
-digest
-scan_result
-resource_profile
-container_port
-health_path
-목적
-추적성 확보
-감사 로그 확보
-사후 분석 지원
+- `challenge_path`: `info.yaml`이 있는 문제 디렉터리
+- `revision`: 새 Challenge Registry revision
 
-8. Runtime Contract
-Runtime 입력
-{
-  "challenge_id": "web100",
-  "image_ref": "ghcr.io/msgctf/web100@sha256:abcd...",
-  "digest": "sha256:abcd...",
-  "resource_profile": "small",
-  "container_port": 5000,
-  "health_path": "/health",
-  "scan_result": "PASS"
-}
-Runtime은 태그를 사용하지 않는다.
+출력 artifact:
 
-9. Scheduler Contract
-Scheduler는 Resource Profile을 Kubernetes Resource로 변환한다.
-예시
-{
-  "small": {
-    "requests": {
-      "cpu": "250m",
-      "memory": "256Mi"
-    },
-    "limits": {
-      "cpu": "500m",
-      "memory": "512Mi"
-    }
-  }
-}
+```text
+<challenge_slug>-publish-bundle/
+├ artifact-v2.json
+├ registry-publish.json
+├ input/metadata.json
+└ results/<container>/sbom/<container>.cdx.json
+```
 
-10. Kubernetes 보안 정책
-모든 Challenge Pod는 기본적으로
-runAsNonRoot: true
-readOnlyRootFilesystem: true
-allowPrivilegeEscalation: false
-설정 적용
-추가 정책
-* Privileged Container 금지
-* HostPath Mount 금지
-* Host Network 사용 금지
-* 기본 Namespace 격리
-* NetworkPolicy 적용
-목적
-문제 간 영향 최소화
-클러스터 보호
+최종 image 경로:
 
-11. 모니터링
-알림 대상
-Registry
-* Push 실패
-* Pull 실패
-Runtime
-* Health Check 실패
-* Pod CrashLoopBackOff
-Cluster
-* CPU 과다 사용
-* Memory 과다 사용
+```text
+ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
+```
 
-12. 롤백 정책
-배포 후 문제 발생 시
-Runtime은 이전 Digest로 롤백 가능해야 한다.
-예시
-Digest A
-↓
-Digest B 배포
-↓
-문제 발생
-↓
-Digest A 복구
-태그 기반 롤백은 금지
+`latest`는 생성하지 않습니다.
 
-13. 대회 당일 운영 절차
-Image Freeze
-대회 시작 전
-모든 Challenge Image 승인 완료
-Digest 확정
-Artifact 확정
-대회 중에는 원칙적으로 신규 이미지 배포 금지
+문제 저장소 caller 예시는 [`docs/challenge-caller-example.yml`](docs/challenge-caller-example.yml)에 있습니다.
 
-예외 배포
-필요 시
-1. 운영팀 승인
-2. 재스캔
-3. 신규 Digest 생성
-4. Artifact 재생성
-과정을 거쳐야 한다.
+### Platform Component CI
 
-14. 팀 간 협업 규격
-Runtime Team
-합의 사항
-* Digest 기반 배포
-* Pull Secret 사용 방식
-* Namespace 정책
-Backend Team
-합의 사항
-* challenge_id 형식
-* Metadata Schema
-Monitoring Team
-합의 사항
-* Alert 기준
-* Health Check 방식
-Security Team
-합의 사항
-* Trivy 기준
-* 예외 승인 절차
-* Secret 정책
+[`.github/workflows/component-cicd.yml`](.github/workflows/component-cicd.yml)은 Backend, Frontend, Scheduler, Broker, Runtime, Monitoring 저장소가 공통으로 호출하는 workflow입니다.
 
-15. MVP 완료 기준
-다음 조건을 만족하면 DevSecOps MVP 완료로 본다.
-* 샘플 Challenge 제출 가능
-* Metadata 검증 가능
-* Docker Image Pull 가능
-* Gitleaks Scan 가능
-* Trivy Scan 가능
-* GHCR Push 가능
-* Digest 추출 가능
-* artifact.json 생성 가능
-* Runtime이 Digest 기반으로 배포 가능
-* Scheduler가 Resource Profile 적용 가능
-즉,
-Challenge
-↓
-Validation
-↓
-Scan
-↓
-GHCR
-↓
-Digest
-↓
-Artifact
-↓
-Runtime
-↓
-Scheduler
-↓
-GKE
+각 팀은 다음 값만 전달합니다.
 
+- `component_name`
+- `context`
+- `dockerfile`
+- `test_command`
+- `push_image`
+
+호출 예시는 [`docs/component-caller-examples.md`](docs/component-caller-examples.md)에 있습니다.
+
+## Atomic Publish
+
+`artifact-v2.json`은 Runtime이 읽을 digest workload입니다. `registry-publish.json`은 Challenge Registry의 원자적 revision 등록 API가 소비할 자료입니다.
+
+발행 조건:
+
+- 모든 container image가 존재합니다.
+- 모든 image가 digest로 고정돼 있습니다.
+- Gitleaks와 Trivy 검사가 통과했습니다.
+- 모든 container의 CycloneDX SBOM이 생성됐습니다.
+- 위 조건을 모두 만족해야 active revision 전환을 요청합니다.
+
+Challenge Registry API 계약은 Backend와 확정한 뒤 연결합니다. 현재 workflow는 임의의 DB 쓰기를 수행하지 않고 검증된 publish bundle을 생성합니다.
+
+## 보안 기준
+
+- Critical 취약점 발견 시 발행을 차단합니다.
+- High 또는 Critical image secret 발견 시 발행을 차단합니다.
+- `latest` 기반 Runtime 배포를 금지합니다.
+- secret을 Docker build arg, image layer, GitHub Actions 로그에 남기지 않습니다.
+- Runtime·격리보안 계약은 challenge Namespace에 Kubernetes Pod Security `restricted`를 강제해야 합니다.
+- 실행 중 instance가 참조하는 이전 revision과 digest는 삭제하지 않습니다.
+
+## 현재 상태
+
+MVP의 source registry는 GHCR입니다. K3s는 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 수 있으며 CI에 GHCR 이외의 credential을 전달하지 않습니다.
+
+신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. 실제 Challenge Registry API 호출, Runtime 배포, OCI mirror 및 Terraform/Ansible 인프라는 각 담당 팀의 계약이 확정된 뒤 통합 테스트합니다.
+
+기존 `.github/workflows/challenge-deployment.yml`과 `.github/workflows/platform-cicd.yml`은 이전 PoC 회귀 확인을 위한 수동 workflow입니다.
+
+## 검증
+
+```bash
+python3 -m unittest discover -s tests -v
+python3 -m py_compile scripts/*.py
+make -C frontend test
+make -C backend test
+make -C runtime test
+make -C scheduler test
+```

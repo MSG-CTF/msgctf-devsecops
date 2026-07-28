@@ -1,5 +1,9 @@
 # MSGCTF 팀 저장소 계약 연동 구현 계획
 
+> 이 계획은 2026-07-29 승인된 전체 아키텍처를 반영한
+> `docs/superpowers/plans/2026-07-29-architecture-aligned-supply-chain.md`로
+> 대체되었습니다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 실제 문제 저장소의 `info.yaml`과 팀별 플랫폼 저장소 구조를 사용하는 reusable CI/CD 파이프라인을 제공한다.

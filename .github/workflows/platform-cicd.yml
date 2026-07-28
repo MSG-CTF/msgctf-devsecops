@@ -1,18 +1,6 @@
 name: 플랫폼 CI/CD
 
 on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - frontend/**
-      - backend/**
-      - runtime/**
-      - scheduler/**
-      - k8s/**
-      - .github/workflows/platform-cicd.yml
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -69,7 +57,7 @@ jobs:
         run: |
           docker run --rm \
             -v "$PWD:/repo" \
-            ghcr.io/gitleaks/gitleaks:latest \
+            ghcr.io/gitleaks/gitleaks:v8.24.3 \
             dir /repo --redact --verbose
 
       - name: Docker Buildx 설정
@@ -133,9 +121,7 @@ jobs:
         env:
           IMAGE: ${{ steps.image.outputs.image }}
         run: |
-          docker tag "${IMAGE}:${GITHUB_SHA}" "${IMAGE}:latest"
           docker push "${IMAGE}:${GITHUB_SHA}"
-          docker push "${IMAGE}:latest"
 
       - name: push된 이미지 digest 추출
         id: digest
@@ -145,43 +131,3 @@ jobs:
         run: |
           digest="$(docker buildx imagetools inspect "${IMAGE}:${GITHUB_SHA}" --format '{{json .Manifest.Digest}}' | tr -d '"')"
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
-
-  deploy-gke:
-    needs: build-scan-push
-    if: github.event_name != 'pull_request' && vars.ENABLE_GKE_DEPLOY == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: 저장소 가져오기
-        uses: actions/checkout@v4
-
-      - name: Google Cloud 인증
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-
-      - name: gcloud 설정
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: GKE credential 가져오기
-        uses: google-github-actions/get-gke-credentials@v2
-        with:
-          cluster_name: ${{ secrets.GKE_CLUSTER }}
-          location: ${{ secrets.GKE_LOCATION }}
-
-      - name: 플랫폼 Kubernetes manifest 배포
-        run: |
-          image_prefix="${REGISTRY}/${GITHUB_REPOSITORY_OWNER,,}"
-          kubectl apply -f k8s/base/namespaces.yaml
-          kubectl apply -f k8s/platform/
-          kubectl set image deployment/frontend frontend="${image_prefix}/msgctf-frontend:${GITHUB_SHA}" -n platform
-          kubectl set image deployment/backend backend="${image_prefix}/msgctf-backend:${GITHUB_SHA}" -n platform
-          kubectl set image deployment/runtime runtime="${image_prefix}/msgctf-runtime:${GITHUB_SHA}" -n platform
-          kubectl set image deployment/scheduler scheduler="${image_prefix}/msgctf-scheduler:${GITHUB_SHA}" -n platform
-          kubectl rollout status deployment/frontend -n platform --timeout=120s
-          kubectl rollout status deployment/backend -n platform --timeout=120s
-          kubectl rollout status deployment/runtime -n platform --timeout=120s
-          kubectl rollout status deployment/scheduler -n platform --timeout=120s

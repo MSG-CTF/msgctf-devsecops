@@ -1,0 +1,24 @@
+name: 문제 공급망 CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      challenge_path:
+        description: 배포할 문제 디렉터리
+        required: true
+        type: string
+      revision:
+        description: 새 Challenge Registry revision
+        required: true
+        type: number
+
+jobs:
+  supply-chain:
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
+    with:
+      challenge_path: ${{ inputs.challenge_path }}
+      revision: ${{ inputs.revision }}

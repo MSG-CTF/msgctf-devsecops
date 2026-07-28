@@ -2,11 +2,6 @@ name: 문제 이미지 배포
 
 on:
   workflow_call:
-  push:
-    branches:
-      - main
-      - master
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -50,7 +45,7 @@ jobs:
         run: |
           docker run --rm \
             -v "$PWD:/repo" \
-            ghcr.io/gitleaks/gitleaks:latest \
+            ghcr.io/gitleaks/gitleaks:v8.24.3 \
             dir /repo --redact --verbose
 
       - name: 제출 이미지 가져오기
@@ -151,7 +146,7 @@ jobs:
             -p "18080:${CONTAINER_PORT}" \
             "$SUBMITTED_PINNED_IMAGE")"
           trap 'docker rm -f "$container_id"' EXIT
-          for i in $(seq 1 20); do
+          for _ in $(seq 1 20); do
             if curl -fsS "http://127.0.0.1:18080${HEALTH_PATH}"; then
               exit 0
             fi
@@ -211,9 +206,7 @@ jobs:
         run: |
           docker pull "$SUBMITTED_PINNED_IMAGE"
           docker tag "$SUBMITTED_PINNED_IMAGE" "${PROMOTED_IMAGE}:${GITHUB_SHA}"
-          docker tag "$SUBMITTED_PINNED_IMAGE" "${PROMOTED_IMAGE}:latest"
           docker push "${PROMOTED_IMAGE}:${GITHUB_SHA}"
-          docker push "${PROMOTED_IMAGE}:latest"
 
       - name: 승격 이미지 digest 추출
         id: digest
@@ -240,17 +233,8 @@ jobs:
             --scan-result PASS \
             --output artifact.json
 
-      - name: 문제 Kubernetes manifest 생성
-        run: |
-          python scripts/render_challenge_manifest.py \
-            --artifact artifact.json \
-            --profiles config/resource-profiles.json \
-            --output dist/challenge-manifest.yaml
-
       - name: 배포 artifact 업로드
         uses: actions/upload-artifact@v4
         with:
           name: ${{ needs.validate-scan.outputs.challenge_id }}-deployment
-          path: |
-            artifact.json
-            dist/challenge-manifest.yaml
+          path: artifact.json

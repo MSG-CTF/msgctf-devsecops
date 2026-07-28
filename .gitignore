@@ -5,5 +5,6 @@ __pycache__/
 .env
 .DS_Store
 dist/
+supply-chain/
 trivy-report.json
 gitleaks-report.json

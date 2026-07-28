@@ -1,0 +1,26 @@
+name: Web Notebook
+category: web
+description: |-
+  멀티 컨테이너 검증용 문제입니다.
+flag: msgctf2026{do-not-print-this}
+
+deployment:
+  runtime_type: KUBERNETES
+  architecture: AMD64
+  containers:
+    - name: web
+      build: ./prob/for_organizer/web
+      ports: [8080, 9090]
+      expose: true
+    - name: db
+      image: postgres:16
+      ports: [5432]
+      expose: false
+  healthcheck:
+    container: web
+    port: 9090
+    path: /healthz
+  resource_profile:
+    cpu_millicores: 700
+    memory_mib: 768
+    ephemeral_storage_mib: 1024

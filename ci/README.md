@@ -1,195 +1,111 @@
-# MSGCTF DevSecOps CI/CD
+# Challenge Supply Chain 운영 기준
 
-## 역할
+## DevSecOps 책임
 
-DevSecOps는 문제 이미지를 안전하고 추적 가능하며 반복적으로 배포할 수 있는 상태로 만든다. 문제 변경 시 다음 정보를 확인할 수 있어야 한다.
+DevSecOps는 문제 source나 외부 OCI image를 다음 상태로 만들어 Challenge Registry와 Runtime에 전달합니다.
 
-- 어떤 문제에서 생성된 이미지인지
-- 어떤 commit 또는 제출 이미지에서 만들어졌는지
-- Runtime이 사용할 Registry URL과 digest가 무엇인지
-- Secret Scan과 Vulnerability Scan을 통과했는지
-- 배포 가능한 상태인지
+- 재현 가능한 build
+- secret과 Critical 취약점 검사를 통과한 image
+- OCI digest로 고정된 image
+- 컨테이너별 CycloneDX SBOM
+- commit과 revision을 추적할 수 있는 workload
 
-MSGCTF의 CI/CD는 단순한 빌드 자동화가 아니다. 이미지 내부의 secret 유출과 심각한 취약점을 차단하고, 이미지 출처를 기록하며, Runtime과 Scheduler가 사용할 배포 artifact를 생성한다.
+DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest 생성, endpoint 발급, instance cleanup을 수행하지 않습니다.
 
-## 문제 접수 방식
+## 처리 단계
 
-### Mode A: Source Build Pipeline
+### 1. 입력 검증
 
-출제자가 문제 저장소에 소스코드를 제출하고 CI가 이미지를 빌드하는 방식이다.
+`scripts/validate_info_spec.py`가 다음 항목을 검사합니다.
 
-```text
-Challenge Repo Push
-→ Metadata Validation
-→ Docker Build
-→ Gitleaks Scan
-→ Trivy Scan
-→ Registry Push
-→ Digest Extraction
-→ artifact.json Generation
-```
+- 문제 디렉터리 이름
+- `runtime_type`: `KUBERNETES | DOCKER | VM`
+- `architecture`: `AMD64 | ARM64`
+- container name 중복
+- `build`와 `image` 상호 배타성
+- build context의 문제 디렉터리 이탈
+- Dockerfile 존재 여부
+- port 범위
+- healthcheck container·port·path
+- CPU, memory, ephemeral storage 값
 
-소스부터 재현 가능한 빌드를 만들 수 있지만 언어와 빌드 도구별 환경을 관리해야 한다.
+검증 결과에는 `flag`가 포함되지 않습니다.
 
-### Mode B: Submitted Image Pipeline
+### 2. 컨테이너 image 처리
 
-출제자가 직접 빌드한 Docker 이미지와 문제 메타데이터를 제출하는 방식이다.
+`build` 컨테이너는 해당 디렉터리만 Docker build context로 사용합니다. `image` 컨테이너는 외부 Registry에서 명시적 non-latest tag 또는 digest로 image를 가져온 뒤 source digest를 기록합니다.
 
-```text
-Challenge Metadata Push
-→ challenge.toml Validation
-→ Docker Image Pull
-→ Gitleaks Scan
-→ Trivy Scan
-→ Health Check
-→ GHCR Promotion
-→ Digest Extraction
-→ artifact.json Generation
-```
+검사 대상과 push 대상은 동일한 로컬 image입니다. 검사 후 다시 build하지 않습니다.
 
-언어와 프레임워크에 독립적이므로 현재 MVP는 Mode B를 사용한다. Mode A는 향후 관리형 문제 저장소가 필요할 때 확장한다.
+### 3. 보안 검사
 
-## 파이프라인 구성
+- Gitleaks: 문제 저장소 secret 검사
+- Trivy vulnerability scanner: Critical 취약점 차단
+- Trivy secret scanner: High·Critical image secret 차단
+- Trivy CycloneDX: container별 SBOM 생성
 
-### Challenge Deployment Pipeline
+예외가 필요하면 운영 승인자, 사유, 만료일, 대상 digest를 별도 기록해야 합니다. workflow에서 검사 실패를 자동 무시하지 않습니다.
 
-관련 파일:
+### 4. OCI image 발행
 
-- `.github/workflows/challenge-deployment.yml`
-- `challenge.toml`
-- `scripts/validate_challenge_spec.py`
-- `scripts/generate_artifact.py`
-- `scripts/render_challenge_manifest.py`
-
-주요 작업:
-
-1. `challenge.toml`을 검증한다.
-2. 메타데이터 저장소에서 Gitleaks를 실행한다.
-3. 제출 이미지를 pull하고 digest로 고정한다.
-4. Trivy로 취약점과 이미지 secret을 검사한다.
-5. 제한된 권한으로 컨테이너를 실행해 health endpoint를 확인한다.
-6. 통과한 이미지를 MSGCTF GHCR로 승격한다.
-7. 배포용 `artifact.json`과 Kubernetes manifest를 생성한다.
-
-### Platform CI/CD Pipeline
-
-관련 파일:
-
-- `.github/workflows/platform-cicd.yml`
-- `frontend/`
-- `backend/`
-- `runtime/`
-- `scheduler/`
-- `k8s/`
-
-주요 작업:
-
-1. 각 컴포넌트의 테스트를 실행한다.
-2. 컴포넌트별 Docker 이미지를 빌드한다.
-3. Gitleaks와 Trivy를 실행한다.
-4. 통과한 이미지를 GHCR에 push한다.
-5. 배포 기능이 활성화된 경우 GKE에 배포한다.
-
-## Registry 정책
-
-Registry는 GHCR를 사용한다.
+검사 통과 image만 다음 경로로 push합니다.
 
 ```text
-ghcr.io/msgctf/<challenge_id>:<commit_sha>
-ghcr.io/msgctf/<challenge_id>@sha256:<digest>
+ghcr.io/<owner>/challenges/<challenge_slug>/<container>:<commit_sha>-<run_id>-<run_attempt>
 ```
 
-- Runtime은 digest 기반 참조를 사용한다.
-- mutable tag에 의존해 배포하지 않는다.
-- 승격된 이미지는 하나의 `challenge_id`와 연결되어야 한다.
-- Registry credential은 저장소에 커밋하지 않는다.
+Runtime에 전달하는 값은 다음과 같습니다.
 
-## 보안 검사 정책
+```text
+ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
+```
 
-사용 도구:
+commit tag는 추적과 발행을 위한 입력이고 Runtime 계약은 digest입니다. `latest`는 만들지 않습니다.
 
-- Gitleaks: 저장소 secret 탐지
-- Trivy: 이미지 취약점과 이미지 내부 secret 탐지
+### 5. Atomic Publish 자료
 
-기본 정책:
+`scripts/generate_publish_bundle.py`가 두 파일을 생성합니다.
 
-- Critical 취약점이 발견되면 배포를 차단한다.
-- High 취약점 처리 기준은 운영팀과 확정한다.
-- 보안 검사에 실패한 이미지는 배포 가능한 상태로 표시하지 않는다.
-- 예외 승인은 담당자와 사유가 기록되어야 한다.
+- `artifact-v2.json`: Runtime과 Scheduler가 읽을 immutable workload
+- `registry-publish.json`: Challenge Registry가 한 transaction으로 revision을 추가하고 active를 전환할 요청
 
-## 배포 artifact
+Registry는 기존 active revision을 먼저 해제한 뒤 새 row를 쓰는 방식으로 처리하면 안 됩니다. 새 revision 저장과 active 전환이 하나의 transaction에서 성공해야 합니다. 실패하면 기존 active revision을 유지해야 합니다.
 
-Runtime과 Scheduler는 tag를 추측하지 않고 CI가 생성한 artifact를 사용한다.
+실행 중 instance가 참조하는 revision은 active가 아니더라도 보존합니다.
+
+## 팀 계약
+
+### Challenge Registry
+
+- DevSecOps: 검증된 revision publish
+- Scheduler: active revision read-only 조회
+- Backend/Registry: slug와 `challenge_id` 매핑 및 transaction 제공
+
+### Resource Broker
+
+DevSecOps가 검증한 다음 필드를 그대로 사용합니다.
 
 ```json
 {
-  "schema_version": "1.0",
-  "challenge_id": "web100",
-  "submitted_image": "ghcr.io/author/web100:v1",
-  "image": "ghcr.io/msgctf/web100",
-  "digest": "sha256:abcd...",
-  "image_ref": "ghcr.io/msgctf/web100@sha256:abcd...",
-  "scan_result": "PASS",
-  "resource_profile": "small",
-  "container_port": 5000,
-  "health_path": "/health"
+  "cpu_millicores": 700,
+  "memory_mib": 768,
+  "ephemeral_storage_mib": 1024
 }
 ```
 
-필수 정보:
+### Runtime 및 격리보안
 
-- `challenge_id`
-- `image_ref`
-- `digest`
-- `resource_profile`
-- `container_port`
-- `health_path`
-- `scan_result`
+DevSecOps는 `workload.containers[]`, `ports[].public`, `healthcheck`, `resource_profile`을 전달합니다. Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy, SecurityContext와 cleanup을 구현합니다.
 
-## Secret 관리
+### Monitoring 및 SLA
 
-- 장기 secret을 Docker build arg로 전달하지 않는다.
-- secret을 Docker image layer에 저장하지 않는다.
-- CI 로그에 secret을 출력하지 않는다.
-- Registry credential, cloud credential, challenge runtime secret을 분리한다.
-- 대회 전 Registry token과 cloud credential을 교체한다.
-- 실행 시 필요한 secret은 Kubernetes Secret 또는 외부 Secret Manager로 주입한다.
-
-## 팀 간 합의 항목
-
-Runtime 및 격리보안팀:
-
-- digest 기반 이미지 참조
-- pull secret 전달 방식
-- Pod SecurityContext와 NetworkPolicy
-
-Backend 및 Platform팀:
-
-- `challenge_id` 형식
-- 문제 메타데이터와 배포 artifact 구조
-- 이미지 버전과 상태 표시 방식
-
-Scheduler 및 Resource Broker팀:
-
-- `resource_profile` 필드와 단위
-- Runtime에 전달할 workload 구조
-- revision 선택과 보존 방식
-
-Monitoring 및 SLA팀:
-
-- image pull 실패 알림
-- Registry 장애 알림
-- health check 실패와 Pod 장애 알림
+Monitoring은 Registry pull 실패, Pod 생성 실패, healthcheck 실패, CrashLoopBackOff와 resource saturation을 감시합니다.
 
 ## 금지 사항
 
-- Runtime 배포에 mutable `latest` tag를 사용하지 않는다.
-- secret을 저장소, image layer, CI 로그에 남기지 않는다.
-- 보안 검사 실패를 무시하지 않는다.
-- 출처를 알 수 없는 이미지를 Runtime에 전달하지 않는다.
-- CI가 Runtime scheduling을 직접 수행하지 않는다.
-
-## MVP 완료 기준
-
-샘플 문제의 메타데이터를 push했을 때 제출 이미지가 자동으로 검증되고, 보안 검사를 통과한 이미지가 GHCR에 등록되며, Runtime과 Scheduler가 digest 기반으로 사용할 수 있는 artifact가 생성되어야 한다.
+- `info.yaml` 외의 값을 문제 사양으로 추측하지 않습니다.
+- Runtime에 mutable tag를 전달하지 않습니다.
+- scan 전 image를 배포 가능 상태로 등록하지 않습니다.
+- flag와 secret을 로그 또는 artifact에 기록하지 않습니다.
+- CI가 Runtime API를 대신해 Pod를 만들지 않습니다.
+- 실행 중 revision의 image와 SBOM을 삭제하지 않습니다.

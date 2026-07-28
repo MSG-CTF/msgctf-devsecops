@@ -1,5 +1,10 @@
 # MSGCTF 팀 저장소 계약 연동 설계
 
+> 2026-07-29 전체 아키텍처 승인에 따라 구현 기준은
+> `docs/superpowers/plans/2026-07-29-architecture-aligned-supply-chain.md`로
+> 갱신되었습니다. 신규 기준은 SBOM, Atomic Publish, OCI Registry/Mirror,
+> Runtime의 Kubernetes manifest·policy·cleanup 소유권을 포함합니다.
+
 ## 목적
 
 DevSecOps 파이프라인을 `MSG-CTF` 조직의 실제 팀 저장소 구조와 계약에 맞춘다. 문제 저장소의 `info.yaml`을 기준으로 멀티 컨테이너 이미지를 빌드·검사·등록하고, 개별 플랫폼 저장소가 공통 CI를 호출할 수 있게 한다.
