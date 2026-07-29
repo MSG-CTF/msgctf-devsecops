@@ -1,6 +1,6 @@
 # MSGCTF 출제 문제 검증 CI/CD
 
-이 저장소는 플랫폼 Backend·Frontend를 빌드하는 저장소가 아닙니다.
+
 별도 `2026_MSG_CTF` 저장소에 제출된 문제의 `info.yaml`과 Dockerfile을
 검증하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry
 revision 자료를 발행하는 reusable CI/CD 도구 저장소입니다.
