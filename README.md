@@ -5,6 +5,20 @@
 검증하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry
 revision 자료를 발행하는 reusable CI/CD 도구 저장소입니다.
 
+## 저장소 구조
+
+| 경로 | 역할 |
+|---|---|
+| [`.github/workflows`](.github/workflows/README.md) | 문제 image build·scan·GHCR 발행 workflow와 자체 검증 workflow |
+| [`ci`](ci/README.md) | CI 실행 의존성과 문제 공급망 운영·보안 기준 |
+| [`docs`](docs/README.md) | 문제 저장소 연동 예제와 DevSecOps 운영 문서 |
+| [`scripts`](scripts/README.md) | 변경 문제 탐색, `info.yaml` 검증, Runtime·Registry 발행 자료 생성 |
+| [`tests`](tests/README.md) | 명세 validator, publish bundle, GitHub Actions 계약 테스트 |
+
+플랫폼 Backend·Frontend, Runtime, Scheduler의 애플리케이션 코드는 각 담당
+저장소에서 관리합니다. 이 저장소에는 출제 문제 검증과 image 공급망에 필요한
+workflow, 도구, 계약 테스트만 둡니다.
+
 ## 전체 흐름
 
 ```text
