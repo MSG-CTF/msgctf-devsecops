@@ -1,6 +1,9 @@
-# MSGCTF DevSecOps
+# MSGCTF 출제 문제 검증 CI/CD
 
-MSGCTF DevSecOps는 문제 저장소의 `info.yaml`을 기준으로 OCI image를 빌드·검사하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry revision 자료를 발행합니다.
+이 저장소는 플랫폼 Backend·Frontend를 빌드하는 저장소가 아닙니다.
+별도 `2026_MSG_CTF` 저장소에 제출된 문제의 `info.yaml`과 Dockerfile을
+검증하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry
+revision 자료를 발행하는 reusable CI/CD 도구 저장소입니다.
 
 ## 전체 흐름
 
@@ -31,7 +34,23 @@ CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 �
 
 ## 문제 저장소 계약
 
-서버가 필요한 문제는 문제 디렉터리 바로 아래에 `info.yaml`을 둡니다.
+출제 문제는 다음 구조를 사용합니다.
+
+```text
+2026_MSG_CTF/
+└─ <분야>-<문제명>/
+   ├─ exploit/
+   ├─ README.md
+   ├─ info.yaml
+   └─ prob/
+      ├─ for_organizer/
+      │  └─ <container>/
+      │     └─ Dockerfile
+      └─ for_user/
+```
+
+정적 문제는 `deployment`를 생략하며 metadata만 검증합니다. 서버가 필요한
+문제는 문제 디렉터리 바로 아래의 `info.yaml`에 `deployment`를 작성합니다.
 
 ```yaml
 name: Web Notebook
@@ -71,6 +90,8 @@ deployment:
 - `expose: true`인 컨테이너의 포트만 참가자에게 공개합니다.
 - `resource_profile`은 문제의 모든 컨테이너를 합산한 값입니다.
 - `flag`는 존재 여부만 검증하며 로그, output, artifact에 기록하지 않습니다.
+- `deployment`가 없는 정적 문제는 Docker build와 image 발행을 수행하지 않습니다.
+- 현재 Linux `AMD64`, `ARM64`만 지원하며 Windows container는 정책 확정 전까지 거부합니다.
 
 로컬 검증:
 
@@ -112,20 +133,6 @@ ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
 
 문제 저장소 caller 예시는 [`docs/challenge-caller-example.yml`](docs/challenge-caller-example.yml)에 있습니다.
 
-### Platform Component CI
-
-[`.github/workflows/component-cicd.yml`](.github/workflows/component-cicd.yml)은 Backend, Frontend, Scheduler, Broker, Runtime, Monitoring 저장소가 공통으로 호출하는 workflow입니다.
-
-각 팀은 다음 값만 전달합니다.
-
-- `component_name`
-- `context`
-- `dockerfile`
-- `test_command`
-- `push_image`
-
-호출 예시는 [`docs/component-caller-examples.md`](docs/component-caller-examples.md)에 있습니다.
-
 ## Atomic Publish
 
 `artifact-v2.json`은 Runtime이 읽을 digest workload입니다. `registry-publish.json`은 Challenge Registry의 원자적 revision 등록 API가 소비할 자료입니다.
@@ -149,21 +156,25 @@ Challenge Registry API 계약은 Backend와 확정한 뒤 연결합니다. 현�
 - Runtime·격리보안 계약은 challenge Namespace에 Kubernetes Pod Security `restricted`를 강제해야 합니다.
 - 실행 중 instance가 참조하는 이전 revision과 digest는 삭제하지 않습니다.
 
-## 현재 상태
+## Image 저장소와 architecture 정책
 
-MVP의 source registry는 GHCR입니다. K3s는 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 수 있으며 CI에 GHCR 이외의 credential을 전달하지 않습니다.
+MVP 자체 검증의 source registry는 GHCR입니다. 최종 image 저장 위치와
+Windows image 분리 위치는 아직 확정하지 않았습니다. 출제자는 Registry 주소를
+`info.yaml`의 `build` 항목에 적지 않으며, 저장 위치는 CI 정책으로 결정합니다.
+
+K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 수 있습니다.
+최종 Registry가 변경되더라도 Runtime에는 동일하게 digest 고정 reference만
+전달합니다.
 
 신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. 실제 Challenge Registry API 호출, Runtime 배포, OCI mirror 및 Terraform/Ansible 인프라는 각 담당 팀의 계약이 확정된 뒤 통합 테스트합니다.
 
-기존 `.github/workflows/challenge-deployment.yml`과 `.github/workflows/platform-cicd.yml`은 이전 PoC 회귀 확인을 위한 수동 workflow입니다.
+Windows container는 Linux image와 같은 build job에서 처리하지 않습니다.
+Windows runner, node pool, Runtime 및 Registry 계약이 확정된 뒤 별도 workflow로
+추가합니다.
 
 ## 검증
 
 ```bash
 python3 -m unittest discover -s tests -v
 python3 -m py_compile scripts/*.py
-make -C frontend test
-make -C backend test
-make -C runtime test
-make -C scheduler test
 ```

@@ -1,24 +1,70 @@
-name: 문제 공급망 CI
+name: 출제 문제 검증
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      challenge_path:
-        description: 배포할 문제 디렉터리
-        required: true
-        type: string
-      revision:
-        description: 새 Challenge Registry revision
-        required: true
-        type: number
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
 
 jobs:
-  supply-chain:
+  discover:
+    name: 변경된 문제 찾기
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+      count: ${{ steps.discover.outputs.count }}
+    steps:
+      - name: 문제 저장소 가져오기
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: DevSecOps 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: main
+          path: .msgctf-ci
+
+      - name: 변경 파일 목록 만들기
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] ||
+             [ -z "$BEFORE" ] ||
+             [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            find . -mindepth 2 -maxdepth 2 -name info.yaml -print \
+              > changed-files.txt
+          else
+            git diff --name-only "$BEFORE" "$GITHUB_SHA" \
+              > changed-files.txt
+          fi
+
+      - name: 문제 matrix 생성
+        id: discover
+        run: |
+          python3 .msgctf-ci/scripts/discover_changed_challenges.py \
+            --root . \
+            --paths-file changed-files.txt \
+            --github-output "$GITHUB_OUTPUT"
+
+  validate:
+    name: ${{ matrix.challenge_path }} 검증
+    needs: discover
+    if: needs.discover.outputs.count != '0'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     permissions:
       contents: read
       packages: write
       security-events: write
     uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
     with:
-      challenge_path: ${{ inputs.challenge_path }}
-      revision: ${{ inputs.revision }}
+      challenge_path: ${{ matrix.challenge_path }}
+      revision: ${{ github.run_number }}
+    secrets: inherit

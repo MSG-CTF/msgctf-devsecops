@@ -19,6 +19,8 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 `scripts/validate_info_spec.py`가 다음 항목을 검사합니다.
 
 - 문제 디렉터리 이름
+- `name`, `category`, `description`, `flag`
+- `deployment`가 없는 정적 문제와 서버 문제 구분
 - `runtime_type`: `KUBERNETES | DOCKER | VM`
 - `architecture`: `AMD64 | ARM64`
 - container name 중복
@@ -30,6 +32,9 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 - CPU, memory, ephemeral storage 값
 
 검증 결과에는 `flag`가 포함되지 않습니다.
+
+정적 문제는 이 단계에서 검증을 마치며 Docker build, 보안 image scan 및 OCI
+발행 job을 실행하지 않습니다.
 
 ### 2. 컨테이너 image 처리
 
@@ -109,3 +114,11 @@ Monitoring은 Registry pull 실패, Pod 생성 실패, healthcheck 실패, Crash
 - flag와 secret을 로그 또는 artifact에 기록하지 않습니다.
 - CI가 Runtime API를 대신해 Pod를 만들지 않습니다.
 - 실행 중 revision의 image와 SBOM을 삭제하지 않습니다.
+
+## 미확정 정책
+
+- 현재 자체 검증은 GHCR을 사용하지만 대회 운영용 최종 Registry와 mirror는
+  확정 전입니다.
+- 현재 Linux `AMD64`, `ARM64`만 지원합니다.
+- Windows container는 Windows runner, node pool, Runtime과 저장 위치가
+  확정될 때까지 허용하지 않습니다.

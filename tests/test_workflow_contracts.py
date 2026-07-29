@@ -50,51 +50,29 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn("kubectl", text)
         self.assertNotIn("render_challenge_manifest", text)
 
-    def test_component_workflow_has_required_contract(self):
-        path = ROOT / ".github/workflows/component-cicd.yml"
+    def test_repository_only_exposes_challenge_validation_workflows(self):
+        workflows = {
+            path.name
+            for path in (ROOT / ".github/workflows").glob("*.yml")
+        }
+
+        self.assertEqual(
+            workflows,
+            {"challenge-supply-chain.yml", "pipeline-self-test.yml"},
+        )
+
+    def test_pipeline_self_test_calls_reusable_supply_chain(self):
+        path = ROOT / ".github/workflows/pipeline-self-test.yml"
         workflow = load_workflow(path)
         text = path.read_text(encoding="utf-8")
 
-        self.assertIn("workflow_call", workflow["on"])
-        self.assertEqual(
-            set(workflow["on"]["workflow_call"]["inputs"]),
-            {
-                "component_name",
-                "context",
-                "dockerfile",
-                "test_command",
-                "push_image",
-            },
+        self.assertIn("push", workflow["on"])
+        self.assertIn("workflow_dispatch", workflow["on"])
+        self.assertIn(
+            "./.github/workflows/challenge-supply-chain.yml",
+            text,
         )
-        self.assertIn("REGISTRY: ghcr.io", text)
-        self.assertNotIn("inputs.registry", text)
-        for required in (
-            "Gitleaks",
-            "Trivy",
-            "format: cyclonedx",
-            "packages: write",
-            "github.run_id",
-            "github.run_attempt",
-        ):
-            self.assertIn(required, text)
-        self.assertNotIn(":latest", text)
-
-    def test_legacy_workflows_are_not_automatic(self):
-        challenge_path = ROOT / ".github/workflows/challenge-deployment.yml"
-        platform_path = ROOT / ".github/workflows/platform-cicd.yml"
-        challenge = load_workflow(challenge_path)
-        platform = load_workflow(platform_path)
-
-        self.assertEqual(
-            set(challenge["on"]),
-            {"workflow_call", "workflow_dispatch"},
-        )
-        self.assertEqual(set(platform["on"]), {"workflow_dispatch"})
-        self.assertNotIn(":latest", challenge_path.read_text(encoding="utf-8"))
-        platform_text = platform_path.read_text(encoding="utf-8")
-        self.assertNotIn(":latest", platform_text)
-        self.assertNotIn("deploy-gke", platform_text)
-        self.assertNotIn("kubectl", platform_text)
+        self.assertIn("tests/fixtures/info-valid", text)
 
 
 if __name__ == "__main__":

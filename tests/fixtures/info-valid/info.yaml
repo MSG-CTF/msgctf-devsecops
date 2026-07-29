@@ -12,9 +12,9 @@ deployment:
       build: ./prob/for_organizer/web
       ports: [8080, 9090]
       expose: true
-    - name: db
-      image: postgres:16
-      ports: [5432]
+    - name: helper
+      image: busybox:1.36.1-musl
+      ports: [9091]
       expose: false
   healthcheck:
     container: web

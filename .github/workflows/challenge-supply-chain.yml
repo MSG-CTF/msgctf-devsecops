@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       challenge_slug: ${{ steps.spec.outputs.challenge_slug }}
+      is_server: ${{ steps.spec.outputs.is_server }}
       matrix: ${{ steps.spec.outputs.matrix }}
     steps:
       - name: 문제 저장소 가져오기
@@ -75,6 +76,7 @@ jobs:
 
   build-scan-push:
     needs: validate
+    if: needs.validate.outputs.is_server == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -232,7 +234,12 @@ jobs:
     needs:
       - validate
       - build-scan-push
-    if: github.event_name != 'pull_request'
+    if: >-
+      always() &&
+      github.event_name != 'pull_request' &&
+      needs.validate.result == 'success' &&
+      needs.build-scan-push.result == 'success' &&
+      needs.validate.outputs.is_server == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read

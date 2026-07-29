@@ -1,0 +1,52 @@
+name: 문제 공급망 파이프라인 자체 검증
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/challenge-supply-chain.yml"
+      - ".github/workflows/pipeline-self-test.yml"
+      - "ci/**"
+      - "scripts/**"
+      - "tests/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  security-events: write
+
+jobs:
+  unit-test:
+    name: 명세 및 artifact 단위 테스트
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 가져오기
+        uses: actions/checkout@v4
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 검증 의존성 설치
+        run: python3 -m pip install -r ci/requirements.txt
+
+      - name: 전체 단위 테스트
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Python 문법 검사
+        run: python3 -m py_compile scripts/*.py
+
+  sample-server-challenge:
+    name: 샘플 서버 문제 build·scan·publish
+    needs: unit-test
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    uses: ./.github/workflows/challenge-supply-chain.yml
+    with:
+      challenge_path: tests/fixtures/info-valid
+      revision: ${{ github.run_number }}
+    secrets: inherit

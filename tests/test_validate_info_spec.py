@@ -35,13 +35,29 @@ class ValidateInfoSpecTests(unittest.TestCase):
                         "source": "prob/for_organizer/web",
                     },
                     {
-                        "name": "db",
+                        "name": "helper",
                         "source_type": "image",
-                        "source": "postgres:16",
+                        "source": "busybox:1.36.1-musl",
                     },
                 ]
             },
         )
+
+    def test_static_challenge_without_deployment_has_empty_container_matrix(self):
+        raw = self._raw_fixture()
+        del raw["deployment"]
+
+        metadata = self._validate_raw(raw)
+
+        self.assertFalse(metadata["is_server"])
+        self.assertNotIn("runtime_type", metadata)
+        self.assertEqual(container_matrix(metadata), {"include": []})
+        self.assertNotIn("flag", json.dumps(metadata))
+
+    def test_server_challenge_is_marked_as_server(self):
+        metadata = validate_spec(FIXTURE)
+
+        self.assertTrue(metadata["is_server"])
 
     def test_rejects_duplicate_container_names(self):
         raw = self._raw_fixture()

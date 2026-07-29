@@ -140,11 +140,21 @@ def validate_spec(challenge_path):
     category = _required_string(raw.get("category"), "category")
     if not CATEGORY.fullmatch(category):
         raise ValueError("category must be a lowercase identifier")
+    _required_string(raw.get("description"), "description")
     _required_string(raw.get("flag"), "flag")
 
     deployment = raw.get("deployment")
+    metadata = {
+        "schema_version": "2.0",
+        "challenge_slug": challenge_path.name,
+        "name": name,
+        "category": category,
+        "is_server": deployment is not None,
+    }
+    if deployment is None:
+        return metadata
     if not isinstance(deployment, dict):
-        raise ValueError("deployment must be present for a server challenge")
+        raise ValueError("deployment must be an object")
     runtime_type = deployment.get("runtime_type")
     if runtime_type not in RUNTIME_TYPES:
         raise ValueError("deployment.runtime_type is not supported")
@@ -171,16 +181,12 @@ def validate_spec(challenge_path):
         for field in RESOURCE_FIELDS
     }
 
-    metadata = {
-        "schema_version": "2.0",
-        "challenge_slug": challenge_path.name,
-        "name": name,
-        "category": category,
+    metadata.update({
         "runtime_type": runtime_type,
         "architecture": architecture,
         "containers": containers,
         "resource_profile": resource_profile,
-    }
+    })
     healthcheck = _validate_healthcheck(deployment.get("healthcheck"), containers)
     if healthcheck:
         metadata["healthcheck"] = healthcheck
@@ -189,7 +195,7 @@ def validate_spec(challenge_path):
 
 def container_matrix(metadata):
     include = []
-    for container in metadata["containers"]:
+    for container in metadata.get("containers", []):
         source_type = "build" if "build" in container else "image"
         include.append(
             {
@@ -226,6 +232,7 @@ def main():
     if args.github_output:
         with args.github_output.open("a", encoding="utf-8") as output:
             output.write(f"challenge_slug={metadata['challenge_slug']}\n")
+            output.write(f"is_server={str(metadata['is_server']).lower()}\n")
             output.write(
                 "matrix="
                 + json.dumps(matrix, ensure_ascii=True, separators=(",", ":"))
@@ -235,9 +242,10 @@ def main():
         json.dumps(
             {
                 "challenge_slug": metadata["challenge_slug"],
-                "container_count": len(metadata["containers"]),
-                "runtime_type": metadata["runtime_type"],
-                "architecture": metadata["architecture"],
+                "is_server": metadata["is_server"],
+                "container_count": len(metadata.get("containers", [])),
+                "runtime_type": metadata.get("runtime_type"),
+                "architecture": metadata.get("architecture"),
             },
             ensure_ascii=False,
             indent=2,
