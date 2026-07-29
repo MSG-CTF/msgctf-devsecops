@@ -23,6 +23,7 @@ class WorkflowContractTests(unittest.TestCase):
             set(inputs),
             {"challenge_path", "revision"},
         )
+        self.assertEqual(inputs["revision"]["type"], "string")
         self.assertIn("REGISTRY: ghcr.io", text)
         self.assertNotIn("inputs.registry", text)
         self.assertEqual(

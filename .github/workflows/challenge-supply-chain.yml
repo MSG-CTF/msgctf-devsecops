@@ -10,7 +10,7 @@ on:
       revision:
         description: Challenge Registry revision
         required: true
-        type: number
+        type: string
   workflow_dispatch:
     inputs:
       challenge_path:
@@ -20,7 +20,7 @@ on:
       revision:
         description: Challenge Registry revision
         required: true
-        type: number
+        type: string
 
 permissions:
   contents: read
