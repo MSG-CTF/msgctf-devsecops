@@ -72,6 +72,7 @@ class WorkflowContractTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
 
         self.assertIn("workflow_dispatch", workflow["on"])
+        self.assertIn("pull_request", workflow["on"])
         self.assertEqual(set(workflow["jobs"]), {"pwn-random6"})
         self.assertIn("./.github/workflows/challenge-supply-chain.yml", text)
         self.assertIn("MSG-CTF/2026_MSG_CTF", text)
