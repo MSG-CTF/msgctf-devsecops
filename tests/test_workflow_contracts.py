@@ -74,6 +74,15 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("workflow_dispatch", workflow["on"])
         self.assertIn("pull_request", workflow["on"])
         self.assertEqual(set(workflow["jobs"]), {"pwn-random6"})
+        self.assertEqual(
+            workflow["jobs"]["pwn-random6"]["permissions"],
+            {
+                "contents": "read",
+                "packages": "write",
+                "security-events": "write",
+                "id-token": "write",
+            },
+        )
         self.assertIn("./.github/workflows/challenge-supply-chain.yml", text)
         self.assertIn("MSG-CTF/2026_MSG_CTF", text)
         self.assertIn("pwn-random6", text)

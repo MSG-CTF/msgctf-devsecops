@@ -30,6 +30,11 @@ permissions:
 jobs:
   pwn-random6:
     name: pwn-random6 외부 문제 검증
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+      id-token: write
     uses: ./.github/workflows/challenge-supply-chain.yml
     with:
       challenge_path: ${{ inputs.challenge_path }}
