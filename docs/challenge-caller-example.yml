@@ -62,6 +62,7 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     permissions:
       contents: read
+      id-token: write
       packages: write
       security-events: write
     uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
