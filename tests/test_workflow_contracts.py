@@ -71,6 +71,7 @@ class WorkflowContractTests(unittest.TestCase):
 
         self.assertIn("push", workflow["on"])
         self.assertIn("workflow_dispatch", workflow["on"])
+        self.assertEqual(workflow["permissions"]["id-token"], "write")
         self.assertIn(
             "./.github/workflows/challenge-supply-chain.yml",
             text,
