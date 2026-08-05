@@ -21,14 +21,15 @@ class WorkflowContractTests(unittest.TestCase):
         inputs = workflow["on"]["workflow_call"]["inputs"]
         self.assertEqual(
             set(inputs),
-            {"challenge_path", "revision"},
+            {"challenge_path", "revision", "enable_k3s_smoke_deploy"},
         )
         self.assertEqual(inputs["revision"]["type"], "string")
+        self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
         self.assertIn("REGISTRY: ghcr.io", text)
         self.assertNotIn("inputs.registry", text)
         self.assertEqual(
             set(workflow["jobs"]),
-            {"validate", "build-scan-push", "aggregate"},
+            {"validate", "build-scan-push", "aggregate", "k3s-smoke-deploy"},
         )
         for required in (
             "validate_info_spec.py",
@@ -42,14 +43,15 @@ class WorkflowContractTests(unittest.TestCase):
         ):
             self.assertIn(required, text)
 
-    def test_challenge_supply_chain_respects_runtime_ownership(self):
+    def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
         text = (
             ROOT / ".github/workflows/challenge-supply-chain.yml"
         ).read_text(encoding="utf-8")
 
         self.assertNotIn(":latest", text)
-        self.assertNotIn("kubectl", text)
         self.assertNotIn("render_challenge_manifest", text)
+        self.assertIn("K3s smoke", text)
+        self.assertIn("Runtime을 대체하지", (ROOT / "docs/aws-k3s-cd-smoke.md").read_text(encoding="utf-8"))
 
     def test_repository_only_exposes_challenge_validation_workflows(self):
         workflows = {

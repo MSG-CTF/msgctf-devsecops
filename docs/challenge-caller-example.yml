@@ -67,4 +67,5 @@ jobs:
     with:
       challenge_path: ${{ matrix.challenge_path }}
       revision: ${{ github.run_number }}
+      enable_k3s_smoke_deploy: false
     secrets: inherit
