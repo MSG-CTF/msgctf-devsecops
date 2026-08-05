@@ -76,6 +76,7 @@ class WorkflowContractTests(unittest.TestCase):
             text,
         )
         self.assertIn("tests/fixtures/info-valid", text)
+        self.assertIn("enable_k3s_smoke_deploy: false", text)
 
 
 if __name__ == "__main__":
