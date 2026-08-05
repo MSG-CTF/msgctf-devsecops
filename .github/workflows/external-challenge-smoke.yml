@@ -37,10 +37,11 @@ jobs:
       id-token: write
     uses: ./.github/workflows/challenge-supply-chain.yml
     with:
-      challenge_path: ${{ inputs.challenge_path }}
-      revision: ${{ inputs.revision }}
+      # workflow_dispatch 입력값은 PR 이벤트에서 비어 있으므로 고정 기본값을 둔다.
+      challenge_path: ${{ github.event_name == 'pull_request' && 'pwn-random6' || inputs.challenge_path }}
+      revision: ${{ github.event_name == 'pull_request' && '0' || inputs.revision }}
       source_repository: MSG-CTF/2026_MSG_CTF
-      source_ref: ${{ inputs.source_ref }}
+      source_ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.source_ref }}
       publish_image: false
       enable_k3s_smoke_deploy: false
     secrets:
