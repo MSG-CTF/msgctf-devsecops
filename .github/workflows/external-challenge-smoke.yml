@@ -1,0 +1,37 @@
+name: 외부 출제 문제 CI dry-run
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 2026_MSG_CTF의 commit SHA 또는 branch
+        required: true
+        default: main
+        type: string
+      challenge_path:
+        description: 검증할 문제 디렉터리
+        required: true
+        default: pwn-random6
+        type: string
+      revision:
+        description: 검증용 revision 값
+        required: true
+        default: "0"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  pwn-random6:
+    name: pwn-random6 외부 문제 검증
+    uses: ./.github/workflows/challenge-supply-chain.yml
+    with:
+      challenge_path: ${{ inputs.challenge_path }}
+      revision: ${{ inputs.revision }}
+      source_repository: MSG-CTF/2026_MSG_CTF
+      source_ref: ${{ inputs.source_ref }}
+      publish_image: false
+      enable_k3s_smoke_deploy: false
+    secrets:
+      CHALLENGE_REPOSITORY_TOKEN: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN }}
