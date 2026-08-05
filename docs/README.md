@@ -15,3 +15,8 @@ GitHub Actions 예제입니다.
 문제 검증 실패, Docker build 실패, Gitleaks·Trivy 차단, GHCR 발행 실패에
 대응하기 위한 운영 절차입니다. Challenge Registry, Runtime, Broker,
 Monitoring 팀과 맞춰야 할 계약도 포함합니다.
+
+### `challenge-image-policy.md`
+
+문제 image의 GHCR 저장 경로, digest 사용, `latest` 금지, OCI mirror, 보존,
+Windows 분리, CI·Runtime 권한 분리를 정의합니다.

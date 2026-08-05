@@ -147,6 +147,24 @@ ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
 
 문제 저장소 caller 예시는 [`docs/challenge-caller-example.yml`](docs/challenge-caller-example.yml)에 있습니다.
 
+## 외부 문제 dry-run
+
+원본 문제 저장소를 수정하지 않고 실제 문제를 검사해야 할 때는
+`외부 출제 문제 CI dry-run` workflow를 수동 실행합니다. 이 workflow는
+`MSG-CTF/2026_MSG_CTF`를 read-only checkout하므로 repository secret
+`CHALLENGE_REPOSITORY_TOKEN`이 필요합니다.
+
+기본 입력은 다음과 같습니다.
+
+```text
+source_ref: main
+challenge_path: pwn-random6
+revision: 0
+```
+
+dry-run은 명세 검증, Docker build, Gitleaks, Trivy, CycloneDX SBOM을 실행하지만
+GHCR push, publish bundle 생성, Challenge Registry 등록은 수행하지 않습니다.
+
 ## Atomic Publish
 
 `artifact-v2.json`은 Runtime이 읽을 digest workload입니다. `registry-publish.json`은 Challenge Registry의 원자적 revision 등록 API가 소비할 자료입니다.
@@ -185,6 +203,9 @@ K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 
 Windows container는 Linux image와 같은 build job에서 처리하지 않습니다.
 Windows runner, node pool, Runtime 및 Registry 계약이 확정된 뒤 별도 workflow로
 추가합니다.
+
+상세 기준은 [`docs/challenge-image-policy.md`](docs/challenge-image-policy.md)를
+따릅니다.
 
 ## 검증
 

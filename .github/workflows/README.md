@@ -27,5 +27,15 @@ workflow를 관리합니다.
 - GHCR 발행
 - publish bundle 생성
 
+### `external-challenge-smoke.yml`
+
+`MSG-CTF/2026_MSG_CTF`의 실제 문제를 DevSecOps 저장소에서 read-only checkout해
+검증하는 수동 workflow입니다.
+
+- 기본 대상: `pwn-random6`
+- `CHALLENGE_REPOSITORY_TOKEN`으로 private 문제 저장소 read-only 접근
+- `publish_image: false`로 Docker build·Gitleaks·Trivy·SBOM만 실행
+- GHCR push, publish bundle, Challenge Registry 등록 요청은 수행하지 않음
+
 플랫폼 Backend·Frontend를 빌드하거나 Runtime이 Kubernetes workload를 직접
 배포하는 workflow는 이 디렉터리에서 관리하지 않습니다.

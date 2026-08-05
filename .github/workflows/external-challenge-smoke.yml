@@ -1,0 +1,48 @@
+name: 외부 출제 문제 CI dry-run
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/challenge-supply-chain.yml"
+      - ".github/workflows/external-challenge-smoke.yml"
+  workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 2026_MSG_CTF의 commit SHA 또는 branch
+        required: true
+        default: main
+        type: string
+      challenge_path:
+        description: 검증할 문제 디렉터리
+        required: true
+        default: pwn-random6
+        type: string
+      revision:
+        description: 검증용 revision 값
+        required: true
+        default: "0"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  pwn-random6:
+    name: pwn-random6 외부 문제 검증
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+      id-token: write
+    uses: ./.github/workflows/challenge-supply-chain.yml
+    with:
+      # workflow_dispatch 입력값은 PR 이벤트에서 비어 있으므로 고정 기본값을 둔다.
+      challenge_path: ${{ github.event_name == 'pull_request' && 'pwn-random6' || inputs.challenge_path }}
+      revision: ${{ github.event_name == 'pull_request' && '0' || inputs.revision }}
+      source_repository: MSG-CTF/2026_MSG_CTF
+      source_ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.source_ref }}
+      publish_image: false
+      enable_k3s_smoke_deploy: false
+    secrets:
+      CHALLENGE_REPOSITORY_TOKEN: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN }}

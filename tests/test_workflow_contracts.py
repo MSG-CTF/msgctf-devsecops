@@ -21,10 +21,19 @@ class WorkflowContractTests(unittest.TestCase):
         inputs = workflow["on"]["workflow_call"]["inputs"]
         self.assertEqual(
             set(inputs),
-            {"challenge_path", "revision", "enable_k3s_smoke_deploy"},
+            {
+                "challenge_path",
+                "revision",
+                "enable_k3s_smoke_deploy",
+                "source_repository",
+                "source_ref",
+                "publish_image",
+            },
         )
         self.assertEqual(inputs["revision"]["type"], "string")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
+        self.assertEqual(inputs["publish_image"]["type"], "boolean")
+        self.assertEqual(inputs["publish_image"]["default"], "true")
         self.assertIn("REGISTRY: ghcr.io", text)
         self.assertNotIn("inputs.registry", text)
         self.assertEqual(
@@ -42,6 +51,43 @@ class WorkflowContractTests(unittest.TestCase):
             "github.run_attempt",
         ):
             self.assertIn(required, text)
+
+    def test_challenge_supply_chain_supports_external_dry_run(self):
+        path = ROOT / ".github/workflows/challenge-supply-chain.yml"
+        workflow = load_workflow(path)
+        text = path.read_text(encoding="utf-8")
+
+        inputs = workflow["on"]["workflow_call"]["inputs"]
+        self.assertEqual(inputs["source_repository"]["default"], "")
+        self.assertEqual(inputs["source_ref"]["default"], "")
+        self.assertIn("CHALLENGE_REPOSITORY_TOKEN", workflow["on"]["workflow_call"]["secrets"])
+        self.assertIn("inputs.source_repository", text)
+        self.assertIn("inputs.source_ref", text)
+        self.assertIn("inputs.publish_image", text)
+        self.assertIn("inputs.publish_image &&", text)
+
+    def test_external_challenge_smoke_workflow_uses_dry_run(self):
+        path = ROOT / ".github/workflows/external-challenge-smoke.yml"
+        workflow = load_workflow(path)
+        text = path.read_text(encoding="utf-8")
+
+        self.assertIn("workflow_dispatch", workflow["on"])
+        self.assertIn("pull_request", workflow["on"])
+        self.assertEqual(set(workflow["jobs"]), {"pwn-random6"})
+        self.assertEqual(
+            workflow["jobs"]["pwn-random6"]["permissions"],
+            {
+                "contents": "read",
+                "packages": "write",
+                "security-events": "write",
+                "id-token": "write",
+            },
+        )
+        self.assertIn("./.github/workflows/challenge-supply-chain.yml", text)
+        self.assertIn("MSG-CTF/2026_MSG_CTF", text)
+        self.assertIn("pwn-random6", text)
+        self.assertIn("publish_image: false", text)
+        self.assertIn("CHALLENGE_REPOSITORY_TOKEN", text)
 
     def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
         text = (
@@ -61,7 +107,11 @@ class WorkflowContractTests(unittest.TestCase):
 
         self.assertEqual(
             workflows,
-            {"challenge-supply-chain.yml", "pipeline-self-test.yml"},
+            {
+                "challenge-supply-chain.yml",
+                "external-challenge-smoke.yml",
+                "pipeline-self-test.yml",
+            },
         )
 
     def test_pipeline_self_test_calls_reusable_supply_chain(self):
