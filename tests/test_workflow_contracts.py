@@ -66,6 +66,16 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("inputs.publish_image", text)
         self.assertIn("inputs.publish_image &&", text)
 
+    def test_public_external_repository_uses_anonymous_read_only_checkout(self):
+        path = ROOT / ".github/workflows/challenge-supply-chain.yml"
+        text = path.read_text(encoding="utf-8")
+
+        self.assertIn("외부 공개 문제 저장소 가져오기", text)
+        self.assertIn("git clone --no-checkout", text)
+        self.assertIn("env.HAS_CHALLENGE_REPOSITORY_TOKEN != 'true'", text)
+        self.assertIn("외부 비공개 문제 저장소 가져오기", text)
+        self.assertIn("env.HAS_CHALLENGE_REPOSITORY_TOKEN == 'true'", text)
+
     def test_external_challenge_smoke_workflow_uses_dry_run(self):
         path = ROOT / ".github/workflows/external-challenge-smoke.yml"
         workflow = load_workflow(path)

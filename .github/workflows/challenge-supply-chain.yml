@@ -84,18 +84,49 @@ env:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      HAS_CHALLENGE_REPOSITORY_TOKEN: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN != '' }}
     outputs:
       challenge_slug: ${{ steps.spec.outputs.challenge_slug }}
       is_server: ${{ steps.spec.outputs.is_server }}
       matrix: ${{ steps.spec.outputs.matrix }}
     steps:
-      - name: 문제 저장소 가져오기
+      - name: 호출 저장소 가져오기
+        if: inputs.source_repository == ''
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.source_repository || github.repository }}
-          ref: ${{ inputs.source_ref || github.sha }}
-          token: ${{ inputs.source_repository && secrets.CHALLENGE_REPOSITORY_TOKEN || github.token }}
+          ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - name: 외부 비공개 문제 저장소 가져오기
+        if: inputs.source_repository != '' && env.HAS_CHALLENGE_REPOSITORY_TOKEN == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.source_repository }}
+          ref: ${{ inputs.source_ref }}
+          token: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN }}
+          fetch-depth: 0
+
+      - name: 외부 공개 문제 저장소 가져오기
+        if: inputs.source_repository != '' && env.HAS_CHALLENGE_REPOSITORY_TOKEN != 'true'
+        env:
+          SOURCE_REPOSITORY: ${{ inputs.source_repository }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          if [[ ! "$SOURCE_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+            echo "source_repository 형식이 올바르지 않습니다" >&2
+            exit 1
+          fi
+          if [[ ! "$SOURCE_REF" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] ||
+             [[ "$SOURCE_REF" == *..* ]] ||
+             [[ "$SOURCE_REF" == *//* ]] ||
+             [[ "$SOURCE_REF" == *@\{* ]]; then
+            echo "source_ref 형식이 올바르지 않습니다" >&2
+            exit 1
+          fi
+          git clone --no-checkout "https://github.com/${SOURCE_REPOSITORY}.git" .
+          git fetch origin "$SOURCE_REF"
+          git checkout --detach FETCH_HEAD
 
       - name: DevSecOps 도구 가져오기
         uses: actions/checkout@v4
@@ -134,6 +165,8 @@ jobs:
     needs: validate
     if: needs.validate.outputs.is_server == 'true'
     runs-on: ubuntu-latest
+    env:
+      HAS_CHALLENGE_REPOSITORY_TOKEN: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN != '' }}
     permissions:
       contents: read
       packages: write
@@ -142,12 +175,40 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.validate.outputs.matrix) }}
     steps:
-      - name: 문제 저장소 가져오기
+      - name: 호출 저장소 가져오기
+        if: inputs.source_repository == ''
         uses: actions/checkout@v4
         with:
-          repository: ${{ inputs.source_repository || github.repository }}
-          ref: ${{ inputs.source_ref || github.sha }}
-          token: ${{ inputs.source_repository && secrets.CHALLENGE_REPOSITORY_TOKEN || github.token }}
+          ref: ${{ github.sha }}
+
+      - name: 외부 비공개 문제 저장소 가져오기
+        if: inputs.source_repository != '' && env.HAS_CHALLENGE_REPOSITORY_TOKEN == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.source_repository }}
+          ref: ${{ inputs.source_ref }}
+          token: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN }}
+
+      - name: 외부 공개 문제 저장소 가져오기
+        if: inputs.source_repository != '' && env.HAS_CHALLENGE_REPOSITORY_TOKEN != 'true'
+        env:
+          SOURCE_REPOSITORY: ${{ inputs.source_repository }}
+          SOURCE_REF: ${{ inputs.source_ref }}
+        run: |
+          if [[ ! "$SOURCE_REPOSITORY" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+            echo "source_repository 형식이 올바르지 않습니다" >&2
+            exit 1
+          fi
+          if [[ ! "$SOURCE_REF" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] ||
+             [[ "$SOURCE_REF" == *..* ]] ||
+             [[ "$SOURCE_REF" == *//* ]] ||
+             [[ "$SOURCE_REF" == *@\{* ]]; then
+            echo "source_ref 형식이 올바르지 않습니다" >&2
+            exit 1
+          fi
+          git clone --no-checkout "https://github.com/${SOURCE_REPOSITORY}.git" .
+          git fetch origin "$SOURCE_REF"
+          git checkout --detach FETCH_HEAD
 
       - name: 검증된 metadata 가져오기
         uses: actions/download-artifact@v4
