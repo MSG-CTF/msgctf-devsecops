@@ -44,5 +44,3 @@ jobs:
       source_ref: ${{ github.event_name == 'pull_request' && 'main' || inputs.source_ref }}
       publish_image: false
       enable_k3s_smoke_deploy: false
-    secrets:
-      CHALLENGE_REPOSITORY_TOKEN: ${{ secrets.CHALLENGE_REPOSITORY_TOKEN }}

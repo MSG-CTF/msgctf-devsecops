@@ -97,7 +97,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("MSG-CTF/2026_MSG_CTF", text)
         self.assertIn("pwn-random6", text)
         self.assertIn("publish_image: false", text)
-        self.assertIn("CHALLENGE_REPOSITORY_TOKEN", text)
+        self.assertNotIn("CHALLENGE_REPOSITORY_TOKEN", text)
 
     def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
         text = (
