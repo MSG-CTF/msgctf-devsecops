@@ -83,3 +83,51 @@
 - Registry 장애, mirror 지연, node 부족, image pull 실패를 리허설합니다.
 - Terraform/Ansible 변경은 검토와 승인을 거친 버전만 적용합니다.
 - Runtime·격리보안팀과 challenge Namespace의 Pod Security `restricted` 적용 상태를 확인합니다.
+
+## 현재 연동 계약 상태
+
+2026-08-12 기준으로 GitHub의 각 팀 저장소에서 확인한 상태입니다. 아래의
+미확정 항목은 DevSecOps workflow가 임의로 변환하거나 호출하지 않습니다.
+
+### 문제 저장소
+
+- `2026_MSG_CTF` 최상위의 `.github/workflows/challenge-validation.yml`이
+  `msgctf-devsecops` reusable workflow를 호출합니다.
+- `pwn-random6`은 validation, build, Gitleaks, Trivy, SBOM, GHCR 발행,
+  publish bundle 생성까지 통과했습니다.
+- `web-notebook`의 `db` image는 Trivy Critical 취약점
+  `CVE-2025-68121` 때문에 발행이 차단됐습니다. 이는 예외 처리하지 않고
+  문제 Dockerfile 또는 base image를 수정한 뒤 재검증해야 합니다.
+
+### Resource Broker
+
+- Broker의 `ResourceProfile`은 `cpu_millicores`, `memory_mib`,
+  `ephemeral_storage_mib`, `architecture`를 사용합니다.
+- publish bundle은 앞의 세 리소스 값을 `resource_profile`에, architecture를
+  artifact 최상위에 기록합니다. Scheduler가 Broker 요청을 만들 때
+  artifact의 `architecture`를 `resource_profile.architecture`로 옮기는 것이
+  현재 계약입니다.
+- CI는 Broker API를 직접 호출하지 않습니다. 대상 선택은 Scheduler와 Broker의
+  운영 요청 경로에서 수행합니다.
+
+### Scheduler와 Runtime
+
+- 현재 Scheduler의 `RuntimeWorkload` DTO는 단일 `image`, `container_port`,
+  `resource_limits`만 수용합니다.
+- DevSecOps artifact는 `info.yaml` 규약대로 멀티 컨테이너
+  `workload.containers[]`를 보존합니다. 따라서 멀티 컨테이너 문제를 운영에
+  연결하기 전에 Scheduler와 Runtime은 이 구조를 수용하는 DTO/API를 확정해야
+  합니다.
+- 단일 컨테이너 문제는 digest image, 공개 포트, resource profile을 현재
+  Scheduler DTO로 변환할 수 있습니다. 변환 책임은 Registry 또는
+  Scheduler/Runtime 경계에 두고, CI artifact를 단일 컨테이너로 손실 변환하지
+  않습니다.
+
+### Monitoring과 CD
+
+- Monitoring 팀의 현재 Prometheus 지표는 플랫폼 Django 상태 중심입니다.
+  Challenge Pod의 readiness, image pull 실패, healthcheck 실패 지표와 알림
+  규칙은 Runtime·Monitoring 팀이 별도로 확정해야 합니다.
+- GitHub Actions는 검증, GHCR 발행, publish bundle 생성까지 담당합니다.
+  참가자 요청에 따른 Namespace, Pod, Service, TTL cleanup은 Runtime과
+  Scheduler의 운영 책임입니다.

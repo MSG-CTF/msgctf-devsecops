@@ -15,3 +15,6 @@ GitHub Actions 예제입니다.
 문제 검증 실패, Docker build 실패, Gitleaks·Trivy 차단, GHCR 발행 실패에
 대응하기 위한 운영 절차입니다. Challenge Registry, Runtime, Broker,
 Monitoring 팀과 맞춰야 할 계약도 포함합니다.
+
+현재 GitHub 기준의 문제 저장소, Broker, Scheduler, Runtime, Monitoring 연동
+상태와 미확정 항목도 기록합니다.
