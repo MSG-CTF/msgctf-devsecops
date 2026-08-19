@@ -52,6 +52,8 @@ class WorkflowContractTests(unittest.TestCase):
         )
         self.assertIn("REGISTRY: ghcr.io", text)
         self.assertNotIn("\n      registry:\n", text)
+        self.assertNotIn("ref: main", text)
+        self.assertEqual(text.count("ref: ${{ github.workflow_sha }}"), 3)
         self.assertEqual(
             set(workflow["jobs"]),
             {

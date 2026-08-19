@@ -87,7 +87,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: ${{ github.workflow_sha }}
           path: .msgctf-ci
 
       - name: 검증 도구 설치
@@ -293,7 +293,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: ${{ github.workflow_sha }}
           path: .msgctf-ci
 
       - name: 검증된 metadata 가져오기
@@ -420,7 +420,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: ${{ github.workflow_sha }}
           path: .msgctf-ci
 
       - name: 발행 bundle 가져오기
