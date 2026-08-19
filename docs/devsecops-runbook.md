@@ -9,7 +9,7 @@
 5. 컨테이너별 CycloneDX SBOM 생성을 확인합니다.
 6. Actions Summary에서 GHCR 경로와 컨테이너별 digest를 확인합니다.
 7. 90일 보관되는 `<challenge_slug>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
-8. Challenge Registry API가 연결돼 있으면 publish document를 한 transaction으로 등록합니다.
+8. Challenge Registry API 연동이 활성화돼 있으면 workflow가 publish document를 한 transaction으로 등록하도록 요청합니다.
 9. Runtime 통합 테스트에서 digest workload로 instance를 생성합니다.
 
 ## 발행 전 검수
@@ -57,6 +57,33 @@
 - OCI image가 존재하더라도 publish document 처리 전에는 배포 가능 상태로 표시하지 않습니다.
 - Registry API 복구 후 같은 revision과 digest로 idempotent하게 재시도합니다.
 - 실행 중 revision을 정리 대상으로 표시하지 않습니다.
+
+## Challenge Registry API 연결
+
+Backend가 revision 등록 API를 제공한 뒤 문제 저장소에 다음 값을 설정합니다.
+
+- Repository 또는 Organization Secret `CHALLENGE_REGISTRY_URL`: HTTPS 등록 URL
+- Repository 또는 Organization Secret `CHALLENGE_REGISTRY_TOKEN`: 서비스 인증 token
+
+caller workflow의 reusable workflow 입력은 다음과 같이 설정합니다.
+
+```yaml
+with:
+  challenge_path: ${{ matrix.challenge_path }}
+  revision: ${{ github.run_number }}
+  publish_registry: true
+secrets: inherit
+```
+
+Backend API는 `registry-publish.json` 전체를 요청 body로 받고, Bearer token을
+검증하며, 문제, revision, 요청 body SHA-256으로 구성된 `Idempotency-Key`가 같은
+재시도를 중복 revision으로 만들지 않아야 합니다. 새 revision 저장과 active 전환은
+하나의 transaction으로 처리해야 합니다.
+API URL 또는 token이 없거나 API가 오류를 반환하면 Registry 등록 job이 실패합니다.
+
+현재 Backend API 계약과 운영 URL이 확정되기 전에는 `publish_registry: false`를
+유지합니다. 이 상태에서도 GHCR push, digest 추출, SBOM과 publish bundle 생성은
+정상 수행됩니다.
 
 ### Runtime image pull 실패
 
@@ -136,6 +163,7 @@ cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Run
   Challenge Pod의 readiness, image pull 실패, healthcheck 실패 지표와 알림
   규칙은 Runtime·Monitoring 팀이 별도로 확정해야 합니다.
 - GitHub Actions는 검증, GHCR 발행, publish bundle 생성까지 담당합니다.
+  Backend API가 준비되면 선택형 Registry publish job까지 담당합니다.
   참가자 요청에 따른 Namespace, Pod, Service, TTL cleanup은 Runtime과
   Scheduler의 운영 책임입니다.
 

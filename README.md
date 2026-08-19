@@ -32,6 +32,7 @@ Challenge Repo
 → OCI Registry에 commit SHA tag로 push
 → OCI digest 추출
 → Runtime artifact + Registry publish document 생성
+→ 선택적으로 Challenge Registry API에 revision 등록
 ```
 
 Platform 실행 흐름은 다음과 같습니다.
@@ -126,6 +127,8 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 
 - `challenge_path`: `info.yaml`이 있는 문제 디렉터리
 - `revision`: 새 Challenge Registry revision
+- `publish_registry`: Challenge Registry API 등록 여부, 기본값 `false`
+- `enable_k3s_smoke_deploy`: 임시 K3s 배포 검증 여부, 기본값 `false`
 
 출력 artifact:
 
@@ -164,7 +167,15 @@ ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
 - 모든 container의 CycloneDX SBOM이 생성됐습니다.
 - 위 조건을 모두 만족해야 active revision 전환을 요청합니다.
 
-Challenge Registry API 계약은 Backend와 확정한 뒤 연결합니다. 현재 workflow는 임의의 DB 쓰기를 수행하지 않고 검증된 publish bundle을 생성합니다.
+`publish_registry: true`이면 workflow가 검증된 `registry-publish.json`을
+`CHALLENGE_REGISTRY_URL` secret에 설정된 HTTPS API로 `POST`합니다. 인증에는
+`CHALLENGE_REGISTRY_TOKEN` secret을 사용하고, 문제, revision, 요청 body SHA-256을
+조합한 `Idempotency-Key`를 전달합니다. API 오류는 성공으로 처리하지 않으며
+Registry 등록 job이 실패합니다.
+
+이 기능은 Backend의 등록 API가 준비될 때까지 기본적으로 비활성화합니다. CI는
+Backend DB를 직접 수정하지 않고 API 계약만 사용하며, Scheduler, Broker, Runtime의
+API를 직접 호출하지 않습니다.
 
 ## 보안 기준
 

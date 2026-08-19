@@ -21,9 +21,16 @@ class WorkflowContractTests(unittest.TestCase):
         inputs = workflow["on"]["workflow_call"]["inputs"]
         self.assertEqual(
             set(inputs),
-            {"challenge_path", "revision", "enable_k3s_smoke_deploy"},
+            {
+                "challenge_path",
+                "revision",
+                "publish_registry",
+                "enable_k3s_smoke_deploy",
+            },
         )
         self.assertEqual(inputs["revision"]["type"], "string")
+        self.assertEqual(inputs["publish_registry"]["type"], "boolean")
+        self.assertEqual(inputs["publish_registry"]["default"], "false")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
         outputs = workflow["on"]["workflow_call"]["outputs"]
         self.assertEqual(
@@ -44,10 +51,16 @@ class WorkflowContractTests(unittest.TestCase):
             "${{ steps.summary.outputs.bundle_name }}",
         )
         self.assertIn("REGISTRY: ghcr.io", text)
-        self.assertNotIn("inputs.registry", text)
+        self.assertNotIn("\n      registry:\n", text)
         self.assertEqual(
             set(workflow["jobs"]),
-            {"validate", "build-scan-push", "aggregate", "k3s-smoke-deploy"},
+            {
+                "validate",
+                "build-scan-push",
+                "aggregate",
+                "publish-registry",
+                "k3s-smoke-deploy",
+            },
         )
         for required in (
             "validate_info_spec.py",
@@ -75,6 +88,34 @@ class WorkflowContractTests(unittest.TestCase):
             upload["with"]["name"],
             "${{ steps.summary.outputs.bundle_name }}",
         )
+
+        publish = workflow["jobs"]["publish-registry"]
+        self.assertEqual(publish["needs"], ["aggregate"])
+        self.assertIn("inputs.publish_registry", publish["if"])
+        self.assertEqual(publish["permissions"], {"contents": "read"})
+        self.assertIn("CHALLENGE_REGISTRY_TOKEN", workflow["on"]["workflow_call"]["secrets"])
+        self.assertIn("CHALLENGE_REGISTRY_URL", workflow["on"]["workflow_call"]["secrets"])
+
+        publish_run = next(
+            step["run"]
+            for step in publish["steps"]
+            if step.get("name") == "Challenge Registry revision 등록"
+        )
+        validation_run = next(
+            step["run"]
+            for step in publish["steps"]
+            if step.get("name") == "Challenge Registry 연결 설정 검증"
+        )
+        self.assertIn("https://", validation_run)
+        for required in (
+            "registry-publish.json",
+            "Authorization: Bearer",
+            "Idempotency-Key:",
+            "sha256sum dist/registry-publish.json",
+            "--fail-with-body",
+            "--retry 3",
+        ):
+            self.assertIn(required, publish_run)
 
     def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
         text = (
@@ -110,6 +151,7 @@ class WorkflowContractTests(unittest.TestCase):
             text,
         )
         self.assertIn("tests/fixtures/info-valid", text)
+        self.assertIn("publish_registry: false", text)
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
 

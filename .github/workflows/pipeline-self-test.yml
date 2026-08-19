@@ -51,5 +51,6 @@ jobs:
     with:
       challenge_path: tests/fixtures/info-valid
       revision: ${{ github.run_number }}
+      publish_registry: false
       enable_k3s_smoke_deploy: false
     secrets: inherit

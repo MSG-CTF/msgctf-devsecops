@@ -18,6 +18,13 @@ workflow를 관리합니다.
 - Runtime artifact와 Challenge Registry publish document 생성
 - Actions Summary에 컨테이너별 GHCR digest 표시
 - publish bundle을 90일 보관하고 artifact 이름을 caller output으로 제공
+- 설정된 경우 publish document를 Challenge Registry HTTPS API에 등록
+
+Challenge Registry 등록은 `publish_registry: true`,
+`CHALLENGE_REGISTRY_URL`, `CHALLENGE_REGISTRY_TOKEN`이 모두 설정된 경우에만
+실행합니다. URL과 token은 임의 실행 입력이 아닌 GitHub Secret으로 관리합니다.
+기본값은 비활성화이며 Backend DB, Scheduler, Broker, Runtime을 workflow가 직접
+조작하지 않습니다.
 
 ### `pipeline-self-test.yml`
 

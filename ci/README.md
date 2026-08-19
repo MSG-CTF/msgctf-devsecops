@@ -78,6 +78,11 @@ Registry는 기존 active revision을 먼저 해제한 뒤 새 row를 쓰는 방
 
 실행 중 instance가 참조하는 revision은 active가 아니더라도 보존합니다.
 
+Backend가 등록 API를 제공하면 reusable workflow의 `publish_registry`를 켜서
+`registry-publish.json`을 HTTPS로 전달합니다. API는 `Idempotency-Key`를 기준으로
+같은 문제와 revision의 중복 요청을 안전하게 처리해야 합니다. Registry 등록이
+실패하면 새 revision을 배포 가능 상태로 간주하지 않습니다.
+
 ## 팀 계약
 
 ### Challenge Registry
@@ -85,6 +90,7 @@ Registry는 기존 active revision을 먼저 해제한 뒤 새 row를 쓰는 방
 - DevSecOps: 검증된 revision publish
 - Scheduler: active revision read-only 조회
 - Backend/Registry: slug와 `challenge_id` 매핑 및 transaction 제공
+- DevSecOps와 Backend: `registry-publish.json` 요청 및 인증 계약 유지
 
 ### Resource Broker
 
