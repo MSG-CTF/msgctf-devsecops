@@ -7,8 +7,8 @@
 3. 각 container의 build 또는 pull 결과를 확인합니다.
 4. Trivy vulnerability 및 image secret gate를 확인합니다.
 5. 컨테이너별 CycloneDX SBOM 생성을 확인합니다.
-6. GHCR 또는 승인된 OCI Registry의 commit tag와 digest를 확인합니다.
-7. `<challenge_slug>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
+6. Actions Summary에서 GHCR 경로와 컨테이너별 digest를 확인합니다.
+7. 90일 보관되는 `<challenge_slug>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
 8. Challenge Registry API가 연결돼 있으면 publish document를 한 transaction으로 등록합니다.
 9. Runtime 통합 테스트에서 digest workload로 instance를 생성합니다.
 
@@ -77,22 +77,29 @@
 ## 대회 전 점검
 
 - 문제별 active revision과 digest 목록을 고정합니다.
-- 모든 digest가 OCI Registry와 mirror에 존재하는지 확인합니다.
+- 모든 digest가 GHCR에 존재하는지 확인합니다.
 - AMD64·ARM64 target과 image architecture가 일치하는지 확인합니다.
-- 100~150팀 규모에서 cold pull과 warm pull 시간을 측정합니다.
-- Registry 장애, mirror 지연, node 부족, image pull 실패를 리허설합니다.
+- 75팀 규모에서 GHCR cold pull과 cache 재사용 시간을 측정합니다.
+- GHCR 인증 실패, `ImagePullBackOff`, node 부족과 image pull 실패를 리허설합니다.
+- 실행 중인 container image ID가 CI artifact의 digest와 일치하는지 확인합니다.
 - Terraform/Ansible 변경은 검토와 승인을 거친 버전만 적용합니다.
 - Runtime·격리보안팀과 challenge Namespace의 Pod Security `restricted` 적용 상태를 확인합니다.
 
 ## 현재 연동 계약 상태
 
-2026-08-12 기준으로 GitHub의 각 팀 저장소에서 확인한 상태입니다. 아래의
+2026-08-13 확정 정책과 GitHub의 각 팀 저장소를 기준으로 확인한 상태입니다. 아래의
 미확정 항목은 DevSecOps workflow가 임의로 변환하거나 호출하지 않습니다.
+
+현재 증거 등급은 기획 결정인 E0이며 구현 완료로 계산하지 않습니다. GHCR
+cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Runtime과의
+통합 테스트 증거가 남아야 완료로 전환합니다.
 
 ### 문제 저장소
 
 - `2026_MSG_CTF` 최상위의 `.github/workflows/challenge-validation.yml`이
   `msgctf-devsecops` reusable workflow를 호출합니다.
+- 실제 문제 저장소가 caller이므로 DevSecOps 저장소에서 private 문제 저장소를
+  다시 clone하기 위한 별도 token이나 GitHub App은 현재 구조에 필요하지 않습니다.
 - `pwn-random6`은 validation, build, Gitleaks, Trivy, SBOM, GHCR 발행,
   publish bundle 생성까지 통과했습니다.
 - `web-notebook`의 `db` image는 Trivy Critical 취약점
@@ -131,3 +138,12 @@
 - GitHub Actions는 검증, GHCR 발행, publish bundle 생성까지 담당합니다.
   참가자 요청에 따른 Namespace, Pod, Service, TTL cleanup은 Runtime과
   Scheduler의 운영 책임입니다.
+
+### 8월 MVP 인스턴스 계약
+
+- 팀별 활성 instance는 최대 2개, 참가자별 활성 instance는 최대 1개입니다.
+- `user_id`는 소유자, `team_id`는 팀 상한과 격리 경계를 나타냅니다.
+- 교체, 종료와 초기화 권한은 Backend와 Scheduler가 소유자 기준으로 검사합니다.
+- Runtime은 선택된 node에서 GHCR digest image를 pull하며, 같은 digest가 이미
+  있으면 cache를 재사용할 수 있습니다.
+- 전체 node 사전 pull은 MVP 필수 범위가 아닙니다.

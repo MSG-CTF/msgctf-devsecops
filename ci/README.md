@@ -115,10 +115,12 @@ Monitoring은 Registry pull 실패, Pod 생성 실패, healthcheck 실패, Crash
 - CI가 Runtime API를 대신해 Pod를 만들지 않습니다.
 - 실행 중 revision의 image와 SBOM을 삭제하지 않습니다.
 
-## 미확정 정책
+## MVP Registry 정책
 
-- 현재 자체 검증은 GHCR을 사용하지만 대회 운영용 최종 Registry와 mirror는
-  확정 전입니다.
+- 2026년 8월 MVP의 원본 Registry는 GHCR입니다.
+- Runtime은 instance 생성 시 선택된 node에서 digest 고정 image를 pull합니다.
+- 전체 node 사전 pull은 MVP 필수 범위가 아닙니다.
+- 사전 pull, mirror 또는 별도 Registry 도입은 MVP 이후 결정합니다.
 - 현재 Linux `AMD64`, `ARM64`만 지원합니다.
 - Windows container는 Windows runner, node pool, Runtime과 저장 위치가
   확정될 때까지 허용하지 않습니다.

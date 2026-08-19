@@ -16,6 +16,8 @@ workflow를 관리합니다.
 - CycloneDX SBOM 생성
 - GHCR push와 image digest 추출
 - Runtime artifact와 Challenge Registry publish document 생성
+- Actions Summary에 컨테이너별 GHCR digest 표시
+- publish bundle을 90일 보관하고 artifact 이름을 caller output으로 제공
 
 ### `pipeline-self-test.yml`
 

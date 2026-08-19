@@ -19,6 +19,11 @@ port, healthcheck, resource profile 검증을 담당합니다.
 digest 고정, SBOM 증거, scan 결과, revision, flag 제외와 Runtime·Registry
 발행 자료 생성을 검증합니다.
 
+### `test_render_publish_summary.py`
+
+Actions Summary에 컨테이너별 GHCR digest와 publish bundle 이름이 표시되고,
+tag-only image가 거부되는지 검증합니다.
+
 ### `test_workflow_contracts.py`
 
 reusable workflow와 자체 검증 workflow가 필요한 단계만 포함하고 Runtime

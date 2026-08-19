@@ -137,6 +137,11 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 └ results/<container>/sbom/<container>.cdx.json
 ```
 
+publish bundle은 GitHub Actions artifact로 90일 보관합니다. 성공한 실행의
+Summary에는 문제 slug, revision, 보안 검사 결과와 컨테이너별 GHCR 경로 및
+OCI digest가 표시됩니다. reusable workflow 호출자는 `challenge_slug`와
+`publish_bundle_name` output을 후속 job에서 사용할 수 있습니다.
+
 최종 image 경로:
 
 ```text
@@ -172,13 +177,15 @@ Challenge Registry API 계약은 Backend와 확정한 뒤 연결합니다. 현�
 
 ## Image 저장소와 architecture 정책
 
-MVP 자체 검증의 source registry는 GHCR입니다. 최종 image 저장 위치와
-Windows image 분리 위치는 아직 확정하지 않았습니다. 출제자는 Registry 주소를
-`info.yaml`의 `build` 항목에 적지 않으며, 저장 위치는 CI 정책으로 결정합니다.
+2026년 8월 MVP의 원본 OCI Registry는 GHCR입니다. 출제자는 Registry 주소를
+`info.yaml`의 `build` 항목에 적지 않으며, CI가 검사한 image만 GHCR에 push하고
+digest로 고정합니다. Runtime은 instance 생성 시 선택된 node에서 해당 digest를
+pull합니다. 전체 node 사전 pull은 MVP 필수 범위가 아니며, node에 같은 digest가
+있으면 container runtime cache를 재사용할 수 있습니다.
 
 K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 수 있습니다.
-최종 Registry가 변경되더라도 Runtime에는 동일하게 digest 고정 reference만
-전달합니다.
+사전 pull, mirror 또는 별도 Registry 도입은 MVP 이후 결정하며, 이 경우에도
+Runtime에는 digest 고정 reference만 전달합니다.
 
 신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. 실제 Challenge Registry API 호출, Runtime 배포, OCI mirror 및 Terraform/Ansible 인프라는 각 담당 팀의 계약이 확정된 뒤 통합 테스트합니다.
 

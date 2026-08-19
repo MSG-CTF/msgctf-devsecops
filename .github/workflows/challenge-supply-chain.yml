@@ -16,6 +16,13 @@ on:
         required: false
         default: false
         type: boolean
+    outputs:
+      challenge_slug:
+        description: 검증 및 발행된 문제 slug
+        value: ${{ jobs.aggregate.outputs.challenge_slug }}
+      publish_bundle_name:
+        description: Runtime과 Challenge Registry가 내려받을 Actions artifact 이름
+        value: ${{ jobs.aggregate.outputs.publish_bundle_name }}
     secrets:
       AWS_ROLE_TO_ASSUME:
         required: false
@@ -264,6 +271,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       challenge_slug: ${{ needs.validate.outputs.challenge_slug }}
+      publish_bundle_name: ${{ steps.summary.outputs.bundle_name }}
     permissions:
       contents: read
     steps:
@@ -299,11 +307,24 @@ jobs:
             --artifact-output dist/artifact-v2.json \
             --registry-output dist/registry-publish.json
 
+      - name: GHCR digest 발행 결과 요약
+        id: summary
+        env:
+          BUNDLE_NAME: ${{ needs.validate.outputs.challenge_slug }}-publish-bundle
+        run: |
+          echo "bundle_name=$BUNDLE_NAME" >> "$GITHUB_OUTPUT"
+          python3 .msgctf-ci/scripts/render_publish_summary.py \
+            --artifact dist/artifact-v2.json \
+            --bundle-name "$BUNDLE_NAME" \
+            >> "$GITHUB_STEP_SUMMARY"
+
       - name: Atomic Publish bundle 업로드
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ needs.validate.outputs.challenge_slug }}-publish-bundle
+          name: ${{ steps.summary.outputs.bundle_name }}
           path: dist/
+          if-no-files-found: error
+          retention-days: 90
 
   k3s-smoke-deploy:
     needs:

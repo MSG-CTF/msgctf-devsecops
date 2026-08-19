@@ -25,6 +25,24 @@ class WorkflowContractTests(unittest.TestCase):
         )
         self.assertEqual(inputs["revision"]["type"], "string")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
+        outputs = workflow["on"]["workflow_call"]["outputs"]
+        self.assertEqual(
+            set(outputs),
+            {"challenge_slug", "publish_bundle_name"},
+        )
+        self.assertEqual(
+            outputs["challenge_slug"]["value"],
+            "${{ jobs.aggregate.outputs.challenge_slug }}",
+        )
+        self.assertEqual(
+            outputs["publish_bundle_name"]["value"],
+            "${{ jobs.aggregate.outputs.publish_bundle_name }}",
+        )
+        aggregate_outputs = workflow["jobs"]["aggregate"]["outputs"]
+        self.assertEqual(
+            aggregate_outputs["publish_bundle_name"],
+            "${{ steps.summary.outputs.bundle_name }}",
+        )
         self.assertIn("REGISTRY: ghcr.io", text)
         self.assertNotIn("inputs.registry", text)
         self.assertEqual(
@@ -38,10 +56,25 @@ class WorkflowContractTests(unittest.TestCase):
             "scanners: secret",
             "format: cyclonedx",
             "generate_publish_bundle.py",
+            "render_publish_summary.py",
+            "GITHUB_STEP_SUMMARY",
             "github.run_id",
             "github.run_attempt",
         ):
             self.assertIn(required, text)
+
+        upload = next(
+            step
+            for step in workflow["jobs"]["aggregate"]["steps"]
+            if step.get("name") == "Atomic Publish bundle 업로드"
+        )
+        self.assertEqual(upload["uses"], "actions/upload-artifact@v4")
+        self.assertEqual(upload["with"]["retention-days"], "90")
+        self.assertEqual(upload["with"]["if-no-files-found"], "error")
+        self.assertEqual(
+            upload["with"]["name"],
+            "${{ steps.summary.outputs.bundle_name }}",
+        )
 
     def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
         text = (
