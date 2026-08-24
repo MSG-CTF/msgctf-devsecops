@@ -334,6 +334,13 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("github.event.before", text)
         self.assertIn("github.event.pull_request.base.sha", text)
         self.assertIn("git merge-base origin/main", text)
+        self.assertIn('if [ -n "${{ inputs.source_ref }}" ]; then', text)
+        self.assertIn('target_sha="$(git rev-parse HEAD)"', text)
+        self.assertIn('git diff --name-only "$base" "$target_sha"', text)
+        self.assertIn(
+            "find . -mindepth 2 -maxdepth 2 -name info.yaml -print",
+            text,
+        )
 
         validation = workflow["jobs"]["validate-branch"]
         self.assertEqual(validation["permissions"], {"contents": "read"})

@@ -48,8 +48,15 @@ jobs:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            find . -mindepth 2 -maxdepth 2 -name info.yaml -print \
-              > changed-files.txt
+            if [ -n "${{ inputs.source_ref }}" ]; then
+              target_sha="$(git rev-parse HEAD)"
+              base="$(git merge-base origin/main "$target_sha")"
+              git diff --name-only "$base" "$target_sha" \
+                > changed-files.txt
+            else
+              find . -mindepth 2 -maxdepth 2 -name info.yaml -print \
+                > changed-files.txt
+            fi
           elif [ "${{ github.event_name }}" = "pull_request" ]; then
             git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA" \
               > changed-files.txt
