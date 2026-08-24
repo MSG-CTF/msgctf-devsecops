@@ -59,42 +59,6 @@ on:
         required: false
       CHALLENGE_REGISTRY_URL:
         required: false
-  workflow_dispatch:
-    inputs:
-      challenge_path:
-        description: info.yaml이 있는 문제 디렉터리
-        required: true
-        type: string
-      revision:
-        description: Challenge Registry revision
-        required: true
-        type: string
-      devsecops_ref:
-        description: 공급망 도구를 가져올 msgctf-devsecops ref
-        required: false
-        default: main
-        type: string
-      publish_images:
-        description: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부
-        required: false
-        default: true
-        type: boolean
-      publish_registry:
-        description: 검증된 revision을 Challenge Registry API에 등록할지 여부
-        required: false
-        default: false
-        type: boolean
-      enable_k3s_smoke_deploy:
-        description: Secure Provisioner API를 통한 AWS K3s 임시 배포 검증 실행 여부
-        required: false
-        default: false
-        type: boolean
-      runtime_target_id:
-        description: Secure Provisioner Registry에 등록된 K3s target_id
-        required: false
-        default: ""
-        type: string
-
 permissions:
   contents: read
 

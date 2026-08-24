@@ -18,6 +18,7 @@ class WorkflowContractTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
 
         self.assertIn("workflow_call", workflow["on"])
+        self.assertNotIn("workflow_dispatch", workflow["on"])
         inputs = workflow["on"]["workflow_call"]["inputs"]
         self.assertEqual(
             set(inputs),
@@ -291,7 +292,7 @@ class WorkflowContractTests(unittest.TestCase):
 
         self.assertIn("push", workflow["on"])
         self.assertIn("workflow_dispatch", workflow["on"])
-        self.assertEqual(workflow["permissions"]["id-token"], "write")
+        self.assertEqual(workflow["permissions"], {"contents": "read"})
         self.assertIn(
             "./.github/workflows/challenge-supply-chain.yml",
             text,
@@ -314,6 +315,11 @@ class WorkflowContractTests(unittest.TestCase):
             branch_validation["with"]["source_ref"],
             "${{ github.sha }}",
         )
+        for job_name in ("sample-server-challenge", "koth-challenge"):
+            self.assertIn(
+                "github.ref == 'refs/heads/main'",
+                workflow["jobs"][job_name].get("if", ""),
+            )
 
     def test_caller_example_separates_branch_validation_from_main_publish(self):
         path = ROOT / "docs/challenge-caller-example.yml"
@@ -334,9 +340,16 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("github.event.before", text)
         self.assertIn("github.event.pull_request.base.sha", text)
         self.assertIn("git merge-base origin/main", text)
-        self.assertIn('if [ -n "${{ inputs.source_ref }}" ]; then', text)
+        self.assertNotIn('if [ -n "${{ inputs.source_ref }}" ]; then', text)
+        self.assertIn('if [ -n "$SOURCE_REF" ]; then', text)
+        self.assertIn("SOURCE_REF: ${{ inputs.source_ref }}", text)
         self.assertIn('target_sha="$(git rev-parse HEAD)"', text)
         self.assertIn('git diff --name-only "$base" "$target_sha"', text)
+        self.assertIn(
+            'base="$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")"',
+            text,
+        )
+        self.assertIn('git diff --name-only "$base" "$PR_HEAD_SHA"', text)
         self.assertIn(
             "find . -mindepth 2 -maxdepth 2 -name info.yaml -print",
             text,
@@ -345,7 +358,10 @@ class WorkflowContractTests(unittest.TestCase):
         validation = workflow["jobs"]["validate-branch"]
         self.assertEqual(validation["permissions"], {"contents": "read"})
         self.assertNotIn("secrets", validation)
-        self.assertIn("challenge-branch-validation.yml@main", validation["uses"])
+        self.assertRegex(
+            validation["uses"],
+            r"challenge-branch-validation\.yml@[0-9a-f]{40}$",
+        )
         self.assertEqual(
             set(validation["with"]),
             {"challenge_path", "source_ref", "devsecops_ref"},
@@ -358,7 +374,6 @@ class WorkflowContractTests(unittest.TestCase):
         publish = workflow["jobs"]["publish-main"]
         self.assertEqual(publish["permissions"]["packages"], "write")
         self.assertEqual(publish["permissions"]["id-token"], "write")
-        self.assertEqual(publish["secrets"], "inherit")
         inputs = publish["with"]
 
         self.assertEqual(inputs["publish_images"], "true")
@@ -371,6 +386,22 @@ class WorkflowContractTests(unittest.TestCase):
             "${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}",
         )
         self.assertEqual(inputs["runtime_target_id"], "${{ vars.RUNTIME_TARGET_ID }}")
+        self.assertRegex(
+            publish["uses"],
+            r"challenge-supply-chain\.yml@[0-9a-f]{40}$",
+        )
+        self.assertNotEqual(publish["secrets"], "inherit")
+        self.assertEqual(
+            set(publish["secrets"]),
+            {
+                "AWS_ROLE_TO_ASSUME",
+                "AWS_REGION",
+                "AWS_K3S_INSTANCE_ID",
+                "AWS_CD_ARTIFACT_BUCKET",
+                "CHALLENGE_REGISTRY_TOKEN",
+                "CHALLENGE_REGISTRY_URL",
+            },
+        )
 
 
 if __name__ == "__main__":
