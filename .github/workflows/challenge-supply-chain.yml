@@ -16,6 +16,11 @@ on:
         required: false
         default: main
         type: string
+      publish_images:
+        description: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부
+        required: false
+        default: true
+        type: boolean
       publish_registry:
         description: 검증된 revision을 Challenge Registry API에 등록할지 여부
         required: false
@@ -69,6 +74,11 @@ on:
         required: false
         default: main
         type: string
+      publish_images:
+        description: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부
+        required: false
+        default: true
+        type: boolean
       publish_registry:
         description: 검증된 revision을 Challenge Registry API에 등록할지 여부
         required: false
@@ -291,7 +301,7 @@ jobs:
             --phase scan
 
       - name: OCI Registry 로그인
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -299,7 +309,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: GHCR push 시간 측정 시작
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         env:
           CONTAINER_NAME: ${{ matrix.name }}
         run: |
@@ -309,7 +319,7 @@ jobs:
 
       - name: 검사한 동일 image 발행
         id: publish
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         env:
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
           SOURCE_DIGEST: ${{ steps.external.outputs.source_digest }}
@@ -325,7 +335,7 @@ jobs:
           echo "source_digest=$SOURCE_DIGEST" >> "$GITHUB_OUTPUT"
 
       - name: GHCR push 시간 측정 종료 및 보고서 생성
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         env:
           CONTAINER_NAME: ${{ matrix.name }}
         run: |
@@ -337,7 +347,7 @@ jobs:
             --output "results/${CONTAINER_NAME}/timing.json"
 
       - name: 컨테이너 발행 결과 생성
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         env:
           CONTAINER_NAME: ${{ matrix.name }}
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
@@ -361,7 +371,7 @@ jobs:
             }' > "results/${CONTAINER_NAME}/container-result.json"
 
       - name: 컨테이너 결과 업로드
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: container-result-${{ needs.validate.outputs.artifact_scope }}-${{ matrix.name }}
@@ -373,6 +383,7 @@ jobs:
       - build-scan-push
     if: >-
       always() &&
+      inputs.publish_images &&
       github.event_name != 'pull_request' &&
       needs.validate.result == 'success' &&
       needs.build-scan-push.result == 'success' &&
@@ -439,6 +450,7 @@ jobs:
     needs:
       - aggregate
     if: >-
+      inputs.publish_images &&
       inputs.publish_registry &&
       needs.aggregate.result == 'success'
     runs-on: ubuntu-latest
@@ -503,6 +515,7 @@ jobs:
       - validate
       - aggregate
     if: >-
+      inputs.publish_images &&
       inputs.enable_k3s_smoke_deploy &&
       needs.aggregate.result == 'success' &&
       needs.validate.outputs.is_server == 'true'

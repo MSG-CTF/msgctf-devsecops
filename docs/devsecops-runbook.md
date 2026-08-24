@@ -60,6 +60,18 @@
 
 ## Challenge Registry API 연결
 
+출제자 branch와 PR 검증은 다음 입력을 사용하고 `secrets: inherit`를 사용하지
+않습니다.
+
+```yaml
+with:
+  publish_images: false
+  publish_registry: false
+  enable_k3s_smoke_deploy: false
+```
+
+GHCR 발행과 외부 연동은 승인된 `main` 실행으로 제한합니다.
+
 Backend가 revision 등록 API를 제공한 뒤 문제 저장소에 다음 값을 설정합니다.
 
 - Repository 또는 Organization Secret `CHALLENGE_REGISTRY_URL`: HTTPS 등록 URL

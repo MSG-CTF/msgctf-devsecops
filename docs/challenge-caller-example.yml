@@ -2,14 +2,17 @@ name: 출제 문제 검증
 
 on:
   push:
+    branches: ["**"]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: challenge-validation-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
-  id-token: write
-  packages: write
-  security-events: write
 
 jobs:
   discover:
@@ -34,11 +37,19 @@ jobs:
       - name: 변경 파일 목록 만들기
         env:
           BEFORE: ${{ github.event.before }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] ||
-             [ -z "$BEFORE" ] ||
-             [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             find . -mindepth 2 -maxdepth 2 -name info.yaml -print \
+              > changed-files.txt
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only "$PR_BASE_SHA" "$PR_HEAD_SHA" \
+              > changed-files.txt
+          elif [ -z "$BEFORE" ] ||
+               [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            base="$(git merge-base origin/main "$GITHUB_SHA")"
+            git diff --name-only "$base" "$GITHUB_SHA" \
               > changed-files.txt
           else
             git diff --name-only "$BEFORE" "$GITHUB_SHA" \
@@ -53,10 +64,33 @@ jobs:
             --paths-file changed-files.txt \
             --github-output "$GITHUB_OUTPUT"
 
-  validate:
-    name: ${{ matrix.challenge_path }} 검증
+  validate-branch:
+    name: ${{ matrix.challenge_path }} branch CI
     needs: discover
-    if: needs.discover.outputs.count != '0'
+    if: >-
+      needs.discover.outputs.count != '0' &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    permissions:
+      contents: read
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
+    with:
+      challenge_path: ${{ matrix.challenge_path }}
+      revision: ${{ github.run_number }}
+      devsecops_ref: main
+      publish_images: false
+      publish_registry: false
+      enable_k3s_smoke_deploy: false
+
+  publish-main:
+    name: ${{ matrix.challenge_path }} main 발행
+    needs: discover
+    if: >-
+      needs.discover.outputs.count != '0' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
@@ -70,6 +104,7 @@ jobs:
       challenge_path: ${{ matrix.challenge_path }}
       revision: ${{ github.run_number }}
       devsecops_ref: main
+      publish_images: true
       publish_registry: ${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}
       enable_k3s_smoke_deploy: ${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}
       runtime_target_id: ${{ vars.RUNTIME_TARGET_ID }}

@@ -128,6 +128,7 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 - `challenge_path`: `info.yaml`이 있는 문제 디렉터리
 - `revision`: 새 Challenge Registry revision
 - `devsecops_ref`: 공급망 도구 version, 기본값 `main`
+- `publish_images`: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부, 기본값 `true`
 - `publish_registry`: Challenge Registry API 등록 여부, 기본값 `false`
 - `enable_k3s_smoke_deploy`: Secure Provisioner API 경유 임시 K3s 배포 검증 여부, 기본값 `false`
 - `runtime_target_id`: Secure Provisioner Registry의 K3s target ID
@@ -135,6 +136,11 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 운영 문제 저장소는 `devsecops_ref: main`을 사용합니다. DevSecOps 기능 브랜치의
 자체 검증에서는 workflow와 script가 같은 commit을 사용하도록 `github.sha`를
 전달합니다.
+
+출제자 branch와 PR 검증에서는 `publish_images: false`를 사용하고 Secret을 전달하지
+않습니다. 이 모드는 Docker build, Gitleaks, Trivy와 SBOM 생성까지만 수행합니다.
+GHCR push, Challenge Registry 등록과 Runtime smoke는 승인된 `main` 실행에서만
+활성화합니다.
 
 출력 artifact:
 

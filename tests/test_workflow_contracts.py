@@ -25,6 +25,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "challenge_path",
                 "revision",
                 "devsecops_ref",
+                "publish_images",
                 "publish_registry",
                 "enable_k3s_smoke_deploy",
                 "runtime_target_id",
@@ -33,6 +34,8 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(inputs["revision"]["type"], "string")
         self.assertEqual(inputs["devsecops_ref"]["type"], "string")
         self.assertEqual(inputs["devsecops_ref"]["default"], "main")
+        self.assertEqual(inputs["publish_images"]["type"], "boolean")
+        self.assertEqual(inputs["publish_images"]["default"], "true")
         self.assertEqual(inputs["publish_registry"]["type"], "boolean")
         self.assertEqual(inputs["publish_registry"]["default"], "false")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
@@ -182,6 +185,32 @@ class WorkflowContractTests(unittest.TestCase):
         ):
             self.assertIn(required, publish_run)
 
+    def test_branch_validation_can_disable_all_publish_and_deploy_steps(self):
+        path = ROOT / ".github/workflows/challenge-supply-chain.yml"
+        workflow = load_workflow(path)
+
+        build_steps = workflow["jobs"]["build-scan-push"]["steps"]
+        protected_steps = {
+            "OCI Registry 로그인",
+            "GHCR push 시간 측정 시작",
+            "검사한 동일 image 발행",
+            "GHCR push 시간 측정 종료 및 보고서 생성",
+            "컨테이너 발행 결과 생성",
+            "컨테이너 결과 업로드",
+        }
+        found_steps = set()
+        for step in build_steps:
+            if step.get("name") in protected_steps:
+                found_steps.add(step["name"])
+                self.assertIn("inputs.publish_images", step.get("if", ""))
+        self.assertEqual(found_steps, protected_steps)
+
+        for job_name in ("aggregate", "publish-registry", "k3s-smoke-deploy"):
+            self.assertIn(
+                "inputs.publish_images",
+                workflow["jobs"][job_name].get("if", ""),
+            )
+
     def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
         path = ROOT / ".github/workflows/challenge-supply-chain.yml"
         workflow = load_workflow(path)
@@ -232,11 +261,33 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
 
-    def test_caller_example_uses_integration_rollout_variables(self):
+    def test_caller_example_separates_branch_validation_from_main_publish(self):
         path = ROOT / "docs/challenge-caller-example.yml"
         workflow = load_workflow(path)
-        inputs = workflow["jobs"]["validate"]["with"]
+        text = path.read_text(encoding="utf-8")
 
+        self.assertEqual(workflow["on"]["push"]["branches"], ["**"])
+        self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
+        self.assertIn("workflow_dispatch", workflow["on"])
+        self.assertEqual(workflow["permissions"], {"contents": "read"})
+        self.assertIn("github.event.before", text)
+        self.assertIn("github.event.pull_request.base.sha", text)
+        self.assertIn("git merge-base origin/main", text)
+
+        validation = workflow["jobs"]["validate-branch"]
+        self.assertEqual(validation["permissions"], {"contents": "read"})
+        self.assertNotIn("secrets", validation)
+        self.assertEqual(validation["with"]["publish_images"], "false")
+        self.assertEqual(validation["with"]["publish_registry"], "false")
+        self.assertEqual(validation["with"]["enable_k3s_smoke_deploy"], "false")
+
+        publish = workflow["jobs"]["publish-main"]
+        self.assertEqual(publish["permissions"]["packages"], "write")
+        self.assertEqual(publish["permissions"]["id-token"], "write")
+        self.assertEqual(publish["secrets"], "inherit")
+        inputs = publish["with"]
+
+        self.assertEqual(inputs["publish_images"], "true")
         self.assertEqual(
             inputs["publish_registry"],
             "${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}",

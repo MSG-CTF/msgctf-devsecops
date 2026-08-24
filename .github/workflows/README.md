@@ -22,6 +22,10 @@ workflow를 관리합니다.
 - 설정된 경우 publish document를 Challenge Registry HTTPS API에 등록
 - 설정된 경우 SSM을 통해 Secure Provisioner API로 K3s 생성·삭제 smoke test
 
+출제자 branch와 PR은 `publish_images: false`로 호출합니다. 이 경우 build와 scan만
+실행하며 GHCR, Challenge Registry, AWS/K3s credential을 전달하지 않습니다.
+`publish_images: true`인 승인된 `main` 실행만 image와 publish bundle을 발행합니다.
+
 Challenge Registry 등록은 `publish_registry: true`,
 `CHALLENGE_REGISTRY_URL`, `CHALLENGE_REGISTRY_TOKEN`이 모두 설정된 경우에만
 실행합니다. URL과 token은 임의 실행 입력이 아닌 GitHub Secret으로 관리합니다.
