@@ -17,6 +17,31 @@ def _required_string(value, field):
     return value.strip()
 
 
+def _timing_by_container(artifact, container_names):
+    evidence = artifact.get("evidence")
+    containers = evidence.get("containers") if isinstance(evidence, dict) else None
+    if not isinstance(containers, list):
+        raise ValueError("evidence.containers must be a list")
+    by_name = {}
+    for container in containers:
+        if not isinstance(container, dict):
+            raise ValueError("each evidence container must be an object")
+        name = _required_string(container.get("name"), "evidence container name")
+        timing = container.get("timing")
+        if not isinstance(timing, dict):
+            raise ValueError(f"{name}.timing must be an object")
+        values = []
+        for field in ("build_seconds", "scan_seconds", "push_seconds", "total_seconds"):
+            value = timing.get(field)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+                raise ValueError(f"{name}.timing.{field} must be non-negative")
+            values.append(float(value))
+        by_name[name] = values
+    if set(by_name) != set(container_names):
+        raise ValueError("timing evidence must match workload containers")
+    return by_name
+
+
 def render_summary(artifact, bundle_name):
     challenge_slug = _required_string(
         artifact.get("challenge_slug"), "challenge_slug"
@@ -34,6 +59,7 @@ def render_summary(artifact, bundle_name):
         raise ValueError("workload.containers must be a non-empty list")
 
     rows = []
+    container_names = []
     for container in containers:
         if not isinstance(container, dict):
             raise ValueError("each container must be an object")
@@ -42,7 +68,13 @@ def render_summary(artifact, bundle_name):
         if not DIGEST_IMAGE.fullmatch(image):
             raise ValueError(f"{name}.image must be digest-pinned")
         repository, digest = image.rsplit("@", 1)
+        container_names.append(name)
         rows.append(f"| {name} | `{repository}` | `{digest}` |")
+
+    timing_rows = []
+    for name, values in _timing_by_container(artifact, container_names).items():
+        formatted = " | ".join(f"`{value:.2f}s`" for value in values)
+        timing_rows.append(f"| {name} | {formatted} |")
 
     return "\n".join(
         [
@@ -56,6 +88,12 @@ def render_summary(artifact, bundle_name):
             "| 컨테이너 | GHCR image | OCI digest |",
             "|---|---|---|",
             *rows,
+            "",
+            "## GHCR 공급망 소요 시간",
+            "",
+            "| 컨테이너 | Build/Pull | Scan | GHCR Push | Total |",
+            "|---|---:|---:|---:|---:|",
+            *timing_rows,
             "",
             "Runtime은 GHCR tag가 아니라 위 digest가 포함된 image reference를 사용합니다.",
             "Challenge Registry 등록 전까지 이 publish bundle은 배포 가능 사양의 전달 자료입니다.",

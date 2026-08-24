@@ -13,6 +13,28 @@ class RenderPublishSummaryTests(unittest.TestCase):
             "challenge_slug": "web-notebook",
             "revision": 7,
             "scan_result": "PASS",
+            "evidence": {
+                "containers": [
+                    {
+                        "name": "web",
+                        "timing": {
+                            "build_seconds": 2.5,
+                            "scan_seconds": 5.25,
+                            "push_seconds": 1.75,
+                            "total_seconds": 9.5,
+                        },
+                    },
+                    {
+                        "name": "db",
+                        "timing": {
+                            "build_seconds": 1.0,
+                            "scan_seconds": 2.0,
+                            "push_seconds": 3.0,
+                            "total_seconds": 6.0,
+                        },
+                    },
+                ]
+            },
             "workload": {
                 "containers": [
                     {
@@ -35,6 +57,8 @@ class RenderPublishSummaryTests(unittest.TestCase):
         self.assertIn(DIGEST_A, summary)
         self.assertIn("| db |", summary)
         self.assertIn(DIGEST_B, summary)
+        self.assertIn("| 컨테이너 | Build/Pull | Scan | GHCR Push | Total |", summary)
+        self.assertIn("| web | `2.50s` | `5.25s` | `1.75s` | `9.50s` |", summary)
 
     def test_rejects_tag_only_image(self):
         artifact = {

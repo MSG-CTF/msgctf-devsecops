@@ -127,23 +127,38 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 
 - `challenge_path`: `info.yaml`이 있는 문제 디렉터리
 - `revision`: 새 Challenge Registry revision
+- `devsecops_ref`: 공급망 도구 version, 기본값 `main`
 - `publish_registry`: Challenge Registry API 등록 여부, 기본값 `false`
 - `enable_k3s_smoke_deploy`: 임시 K3s 배포 검증 여부, 기본값 `false`
+
+운영 문제 저장소는 `devsecops_ref: main`을 사용합니다. DevSecOps 기능 브랜치의
+자체 검증에서는 workflow와 script가 같은 commit을 사용하도록 `github.sha`를
+전달합니다.
 
 출력 artifact:
 
 ```text
-<challenge_slug>-publish-bundle/
+<challenge_slug>-<artifact_scope>-publish-bundle/
 ├ artifact-v2.json
 ├ registry-publish.json
 ├ input/metadata.json
-└ results/<container>/sbom/<container>.cdx.json
+└ results/<container>/
+   ├ timing.json
+   └ sbom/<container>.cdx.json
 ```
 
 publish bundle은 GitHub Actions artifact로 90일 보관합니다. 성공한 실행의
-Summary에는 문제 slug, revision, 보안 검사 결과와 컨테이너별 GHCR 경로 및
-OCI digest가 표시됩니다. reusable workflow 호출자는 `challenge_slug`와
+Summary에는 문제 slug, revision, 보안 검사 결과, 컨테이너별 GHCR 경로,
+OCI digest와 단계별 소요 시간이 표시됩니다. reusable workflow 호출자는 `challenge_slug`와
 `publish_bundle_name` output을 후속 job에서 사용할 수 있습니다.
+
+`artifact_scope`는 workflow 호출마다 생성되는 고유값입니다. 같은 문제를 한
+Actions run에서 중복 호출하거나 job을 재실행해도 metadata, 컨테이너 결과와 최종
+publish bundle 이름이 충돌하지 않습니다.
+
+측정 시간은 컨테이너별 `Build/Pull`, `Scan`, `GHCR Push`와 세 구간의 합계입니다.
+GitHub runner 대기 시간과 job 준비 시간은 포함하지 않습니다. 원본 수치는
+`artifact-v2.json`의 `evidence.containers[].timing`에도 기록합니다.
 
 최종 image 경로:
 
@@ -154,6 +169,20 @@ ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
 `latest`는 생성하지 않습니다.
 
 문제 저장소 caller 예시는 [`docs/challenge-caller-example.yml`](docs/challenge-caller-example.yml)에 있습니다.
+
+## KOTH 문제
+
+백엔드팀의 `koth-template`은 일반 문제와 동일한 `info.yaml` 공급망 계약을
+사용합니다. `category: koth`, `deployment.containers[].build`, 참가자 포트,
+healthcheck 포트와 `resource_profile`을 검증한 뒤 다음 경로로 발행합니다.
+
+```text
+ghcr.io/<owner>/challenges/<koth_slug>/service@sha256:<digest>
+```
+
+`prob/for_organizer/docker-compose.yml`은 출제자 로컬 테스트용입니다. GHCR에는
+`info.yaml`의 `deployment.containers`에 선언된 컨테이너만 발행하므로 Compose의
+보조 `checker`는 자동 발행하지 않습니다.
 
 ## Atomic Publish
 

@@ -10,6 +10,7 @@ from scripts.validate_info_spec import container_matrix, validate_spec
 
 
 FIXTURE = Path(__file__).parent / "fixtures" / "info-valid"
+KOTH_FIXTURE = Path(__file__).parent / "fixtures" / "koth-template"
 
 
 class ValidateInfoSpecTests(unittest.TestCase):
@@ -58,6 +59,27 @@ class ValidateInfoSpecTests(unittest.TestCase):
         metadata = validate_spec(FIXTURE)
 
         self.assertTrue(metadata["is_server"])
+
+    def test_accepts_backend_team_koth_template_contract(self):
+        metadata = validate_spec(KOTH_FIXTURE)
+
+        self.assertEqual(metadata["challenge_slug"], "koth-template")
+        self.assertEqual(metadata["category"], "koth")
+        self.assertEqual(
+            metadata["containers"],
+            [
+                {
+                    "name": "service",
+                    "ports": [8080, 9090],
+                    "expose": True,
+                    "build": "prob/for_organizer/service",
+                }
+            ],
+        )
+        self.assertEqual(
+            metadata["healthcheck"],
+            {"container": "service", "port": 9090, "path": "/healthz"},
+        )
 
     def test_rejects_duplicate_container_names(self):
         raw = self._raw_fixture()

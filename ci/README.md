@@ -67,6 +67,13 @@ ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
 
 commit tag는 추적과 발행을 위한 입력이고 Runtime 계약은 digest입니다. `latest`는 만들지 않습니다.
 
+각 컨테이너는 Build 또는 외부 image pull, Trivy Scan, GHCR Push 시간을 초 단위로
+측정합니다. 세 구간의 합계와 원본 수치는 publish bundle 및 Actions Summary에
+남기며 runner 대기와 job 준비 시간은 제외합니다.
+
+KOTH 문제도 같은 규칙을 사용합니다. `info.yaml`의 `deployment.containers`에
+선언된 `service`를 발행하며 로컬 Compose 전용 `checker`는 발행 대상이 아닙니다.
+
 ### 5. Atomic Publish 자료
 
 `scripts/generate_publish_bundle.py`가 두 파일을 생성합니다.

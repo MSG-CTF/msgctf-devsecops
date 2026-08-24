@@ -51,6 +51,24 @@ jobs:
     with:
       challenge_path: tests/fixtures/info-valid
       revision: ${{ github.run_number }}
+      devsecops_ref: ${{ github.sha }}
+      publish_registry: false
+      enable_k3s_smoke_deploy: false
+    secrets: inherit
+
+  koth-challenge:
+    name: KOTH 공식 양식 build·scan·publish
+    needs: unit-test
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+      security-events: write
+    uses: ./.github/workflows/challenge-supply-chain.yml
+    with:
+      challenge_path: tests/fixtures/koth-template
+      revision: ${{ github.run_number }}
+      devsecops_ref: ${{ github.sha }}
       publish_registry: false
       enable_k3s_smoke_deploy: false
     secrets: inherit

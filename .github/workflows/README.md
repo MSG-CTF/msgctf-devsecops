@@ -17,6 +17,7 @@ workflow를 관리합니다.
 - GHCR push와 image digest 추출
 - Runtime artifact와 Challenge Registry publish document 생성
 - Actions Summary에 컨테이너별 GHCR digest 표시
+- Build/Pull, Trivy Scan, GHCR Push와 합계 시간 측정
 - publish bundle을 90일 보관하고 artifact 이름을 caller output으로 제공
 - 설정된 경우 publish document를 Challenge Registry HTTPS API에 등록
 
@@ -32,9 +33,11 @@ Challenge Registry 등록은 `publish_registry: true`,
 
 - Python 단위 테스트와 문법 검사
 - 샘플 서버 문제 image build
+- 백엔드팀 KOTH 공식 양식과 동일한 `service` image build
 - Trivy 보안 검사
 - GHCR 발행
 - publish bundle 생성
+- 일반 문제와 KOTH 문제를 한 run에서 실행해 artifact 이름 충돌 방지 확인
 
 플랫폼 Backend·Frontend를 빌드하거나 Runtime이 Kubernetes workload를 직접
 배포하는 workflow는 이 디렉터리에서 관리하지 않습니다.

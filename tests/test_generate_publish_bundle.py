@@ -43,6 +43,12 @@ RESULTS = [
         "source_digest": DIGEST_A,
         "sbom": "results/web/sbom/web.cdx.json",
         "scan_result": "PASS",
+        "timing": {
+            "build_seconds": 2.5,
+            "scan_seconds": 5.25,
+            "push_seconds": 1.75,
+            "total_seconds": 9.5,
+        },
     },
     {
         "name": "db",
@@ -50,6 +56,12 @@ RESULTS = [
         "source_digest": DIGEST_B,
         "sbom": "results/db/sbom/db.cdx.json",
         "scan_result": "PASS",
+        "timing": {
+            "build_seconds": 1.0,
+            "scan_seconds": 2.0,
+            "push_seconds": 3.0,
+            "total_seconds": 6.0,
+        },
     },
 ]
 EVIDENCE_ROOT = Path(__file__).parent / "fixtures" / "publish-evidence"
@@ -92,6 +104,22 @@ class GeneratePublishBundleTests(unittest.TestCase):
             bundle["artifact"]["evidence"]["containers"][0]["sbom"],
             "results/web/sbom/web.cdx.json",
         )
+        self.assertEqual(
+            bundle["artifact"]["evidence"]["containers"][0]["timing"],
+            RESULTS[0]["timing"],
+        )
+
+    def test_rejects_inconsistent_pipeline_timing(self):
+        results = [
+            dict(
+                RESULTS[0],
+                timing=dict(RESULTS[0]["timing"], total_seconds=99.0),
+            ),
+            RESULTS[1],
+        ]
+
+        with self.assertRaisesRegex(ValueError, "timing.total_seconds"):
+            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
 
     def test_never_includes_flag(self):
         metadata = dict(METADATA, flag="msgctf2026{secret}")

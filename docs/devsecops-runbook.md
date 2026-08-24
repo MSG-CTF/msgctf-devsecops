@@ -8,7 +8,7 @@
 4. Trivy vulnerability 및 image secret gate를 확인합니다.
 5. 컨테이너별 CycloneDX SBOM 생성을 확인합니다.
 6. Actions Summary에서 GHCR 경로와 컨테이너별 digest를 확인합니다.
-7. 90일 보관되는 `<challenge_slug>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
+7. 90일 보관되는 `<challenge_slug>-<artifact_scope>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
 8. Challenge Registry API 연동이 활성화돼 있으면 workflow가 publish document를 한 transaction으로 등록하도록 요청합니다.
 9. Runtime 통합 테스트에서 digest workload로 instance를 생성합니다.
 

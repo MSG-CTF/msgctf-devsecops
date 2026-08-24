@@ -28,8 +28,17 @@ healthcheck, resource profile을 검증합니다. 검증 결과에서는 flag를
 - `artifact-v2.json`: Runtime과 Scheduler가 사용할 immutable workload
 - `registry-publish.json`: Challenge Registry revision 등록 요청 자료
 
+컨테이너별 공급망 소요 시간을 검증해
+`artifact-v2.json`의 `evidence.containers[].timing`에 보존합니다.
+
+### `pipeline_timing.py`
+
+GitHub Actions의 컨테이너별 `Build/Pull`, `Scan`, `GHCR Push` 구간을 측정하고
+`timing.json`을 생성합니다. `total_seconds`는 세 구간의 합계이며 runner 대기와
+job 준비 시간은 포함하지 않습니다.
+
 ### `render_publish_summary.py`
 
-`artifact-v2.json`을 검증한 뒤 문제 slug, revision과 컨테이너별 GHCR digest를
-GitHub Actions Summary용 Markdown으로 출력합니다. tag-only image나 검사 실패
-artifact는 요약하지 않습니다.
+`artifact-v2.json`을 검증한 뒤 문제 slug, revision, 컨테이너별 GHCR digest와
+공급망 소요 시간을 GitHub Actions Summary용 Markdown으로 출력합니다. tag-only
+image나 검사 실패 artifact는 요약하지 않습니다.

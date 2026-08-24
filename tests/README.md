@@ -13,16 +13,21 @@
 
 정적·서버 문제 구분, Docker build context, 외부 image tag, container,
 port, healthcheck, resource profile 검증을 담당합니다.
+백엔드팀의 공식 KOTH 템플릿 계약도 같은 validator로 검증합니다.
 
 ### `test_generate_publish_bundle.py`
 
 digest 고정, SBOM 증거, scan 결과, revision, flag 제외와 Runtime·Registry
-발행 자료 생성을 검증합니다.
+발행 자료 생성과 컨테이너별 공급망 시간 보존을 검증합니다.
+
+### `test_pipeline_timing.py`
+
+Build/Pull, Scan, GHCR Push 시간과 합계 계산, 잘못된 시각 입력 차단을 검증합니다.
 
 ### `test_render_publish_summary.py`
 
-Actions Summary에 컨테이너별 GHCR digest와 publish bundle 이름이 표시되고,
-tag-only image가 거부되는지 검증합니다.
+Actions Summary에 컨테이너별 GHCR digest, publish bundle 이름과 단계별 시간이
+표시되고, tag-only image가 거부되는지 검증합니다.
 
 ### `test_workflow_contracts.py`
 
@@ -31,8 +36,8 @@ reusable workflow와 자체 검증 workflow가 필요한 단계만 포함하고 
 
 ### `fixtures/`
 
-멀티 컨테이너 `info.yaml`, 샘플 Dockerfile, 컨테이너별 CycloneDX SBOM 등
-자동 테스트 입력 자료를 보관합니다.
+멀티 컨테이너와 KOTH `info.yaml`, 샘플 Dockerfile, 컨테이너별 CycloneDX SBOM
+등 자동 테스트 입력 자료를 보관합니다.
 
 ## 실행
 

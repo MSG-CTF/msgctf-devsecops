@@ -11,6 +11,11 @@ on:
         description: Challenge Registry revision
         required: true
         type: string
+      devsecops_ref:
+        description: 공급망 도구를 가져올 msgctf-devsecops ref
+        required: false
+        default: main
+        type: string
       publish_registry:
         description: 검증된 revision을 Challenge Registry API에 등록할지 여부
         required: false
@@ -53,6 +58,11 @@ on:
         description: Challenge Registry revision
         required: true
         type: string
+      devsecops_ref:
+        description: 공급망 도구를 가져올 msgctf-devsecops ref
+        required: false
+        default: main
+        type: string
       publish_registry:
         description: 검증된 revision을 Challenge Registry API에 등록할지 여부
         required: false
@@ -75,6 +85,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       challenge_slug: ${{ steps.spec.outputs.challenge_slug }}
+      artifact_scope: ${{ steps.scope.outputs.artifact_scope }}
+      devsecops_sha: ${{ steps.tools.outputs.commit }}
       is_server: ${{ steps.spec.outputs.is_server }}
       matrix: ${{ steps.spec.outputs.matrix }}
     steps:
@@ -84,10 +96,11 @@ jobs:
           fetch-depth: 0
 
       - name: DevSecOps 도구 가져오기
+        id: tools
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: ${{ github.workflow_sha }}
+          ref: ${{ inputs.devsecops_ref }}
           path: .msgctf-ci
 
       - name: 검증 도구 설치
@@ -110,10 +123,16 @@ jobs:
             --matrix-output supply-chain/matrix.json \
             --github-output "$GITHUB_OUTPUT"
 
+      - name: 발행 artifact scope 생성
+        id: scope
+        run: |
+          nonce="$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
+          echo "artifact_scope=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${nonce}" >> "$GITHUB_OUTPUT"
+
       - name: 검증된 metadata 업로드
         uses: actions/upload-artifact@v4
         with:
-          name: challenge-metadata
+          name: challenge-metadata-${{ steps.scope.outputs.artifact_scope }}
           path: supply-chain/
 
   build-scan-push:
@@ -131,10 +150,17 @@ jobs:
       - name: 문제 저장소 가져오기
         uses: actions/checkout@v4
 
+      - name: DevSecOps 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
+          path: .msgctf-ci
+
       - name: 검증된 metadata 가져오기
         uses: actions/download-artifact@v4
         with:
-          name: challenge-metadata
+          name: challenge-metadata-${{ needs.validate.outputs.artifact_scope }}
           path: supply-chain
 
       - name: QEMU 설정
@@ -148,6 +174,7 @@ jobs:
         env:
           CHALLENGE_SLUG: ${{ needs.validate.outputs.challenge_slug }}
           CONTAINER_NAME: ${{ matrix.name }}
+          ARTIFACT_SCOPE: ${{ needs.validate.outputs.artifact_scope }}
         run: |
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           architecture="$(jq -r .architecture supply-chain/metadata.json)"
@@ -158,6 +185,15 @@ jobs:
           esac
           echo "target=${REGISTRY}/${owner}/challenges/${CHALLENGE_SLUG}/${CONTAINER_NAME}" >> "$GITHUB_OUTPUT"
           echo "platform=$platform" >> "$GITHUB_OUTPUT"
+          echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build 또는 pull 시간 측정 시작
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py start \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase build
 
       - name: build 컨테이너 image 생성
         if: matrix.source_type == 'build'
@@ -166,7 +202,7 @@ jobs:
           context: ${{ inputs.challenge_path }}/${{ matrix.source }}
           platforms: ${{ steps.image.outputs.platform }}
           load: true
-          tags: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          tags: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
 
       - name: 외부 OCI image 가져오기
         if: matrix.source_type == 'image'
@@ -175,7 +211,7 @@ jobs:
           SOURCE_IMAGE: ${{ matrix.source }}
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
           PLATFORM: ${{ steps.image.outputs.platform }}
-          RUN_TAG: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_TAG: ${{ steps.image.outputs.run_tag }}
         run: |
           docker pull --platform "$PLATFORM" "$SOURCE_IMAGE"
           pinned="$(docker image inspect "$SOURCE_IMAGE" --format '{{index .RepoDigests 0}}')"
@@ -183,11 +219,27 @@ jobs:
           docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:${RUN_TAG}"
           echo "source_digest=$source_digest" >> "$GITHUB_OUTPUT"
 
+      - name: Build 또는 pull 시간 측정 종료
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py stop \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase build
+
+      - name: 보안 검사 시간 측정 시작
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py start \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase scan
+
       - name: Trivy 취약점 차단 검사
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          image-ref: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
           format: table
           scanners: vuln
           severity: CRITICAL
@@ -198,7 +250,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          image-ref: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
           format: table
           scanners: secret
           severity: HIGH,CRITICAL
@@ -213,11 +265,19 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          image-ref: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
           format: cyclonedx
           output: results/${{ matrix.name }}/sbom/${{ matrix.name }}.cdx.json
           scanners: vuln
           exit-code: "0"
+
+      - name: 보안 검사 시간 측정 종료
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py stop \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase scan
 
       - name: OCI Registry 로그인
         if: github.event_name != 'pull_request'
@@ -227,13 +287,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: GHCR push 시간 측정 시작
+        if: github.event_name != 'pull_request'
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py start \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase push
+
       - name: 검사한 동일 image 발행
         id: publish
         if: github.event_name != 'pull_request'
         env:
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
           SOURCE_DIGEST: ${{ steps.external.outputs.source_digest }}
-          RUN_TAG: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_TAG: ${{ steps.image.outputs.run_tag }}
         run: |
           local_ref="${TARGET_IMAGE}:${RUN_TAG}"
           if [ -z "$SOURCE_DIGEST" ]; then
@@ -244,6 +313,18 @@ jobs:
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
           echo "source_digest=$SOURCE_DIGEST" >> "$GITHUB_OUTPUT"
 
+      - name: GHCR push 시간 측정 종료 및 보고서 생성
+        if: github.event_name != 'pull_request'
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py stop \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase push
+          python3 .msgctf-ci/scripts/pipeline_timing.py report \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --output "results/${CONTAINER_NAME}/timing.json"
+
       - name: 컨테이너 발행 결과 생성
         if: github.event_name != 'pull_request'
         env:
@@ -252,24 +333,27 @@ jobs:
           PUBLISHED_DIGEST: ${{ steps.publish.outputs.digest }}
           SOURCE_DIGEST: ${{ steps.publish.outputs.source_digest }}
         run: |
+          timing="$(cat "results/${CONTAINER_NAME}/timing.json")"
           jq -n \
             --arg name "$CONTAINER_NAME" \
             --arg image "${TARGET_IMAGE}@${PUBLISHED_DIGEST}" \
             --arg source_digest "$SOURCE_DIGEST" \
             --arg sbom "results/${CONTAINER_NAME}/sbom/${CONTAINER_NAME}.cdx.json" \
+            --argjson timing "$timing" \
             '{
               name: $name,
               image: $image,
               source_digest: $source_digest,
               sbom: $sbom,
-              scan_result: "PASS"
+              scan_result: "PASS",
+              timing: $timing
             }' > "results/${CONTAINER_NAME}/container-result.json"
 
       - name: 컨테이너 결과 업로드
         if: github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: container-result-${{ matrix.name }}
+          name: container-result-${{ needs.validate.outputs.artifact_scope }}-${{ matrix.name }}
           path: results/
 
   aggregate:
@@ -293,19 +377,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: ${{ github.workflow_sha }}
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
           path: .msgctf-ci
 
       - name: 검증된 metadata 가져오기
         uses: actions/download-artifact@v4
         with:
-          name: challenge-metadata
+          name: challenge-metadata-${{ needs.validate.outputs.artifact_scope }}
           path: dist/input
 
       - name: 컨테이너 결과와 SBOM 가져오기
         uses: actions/download-artifact@v4
         with:
-          pattern: container-result-*
+          pattern: container-result-${{ needs.validate.outputs.artifact_scope }}-*
           path: dist/results
           merge-multiple: true
 
@@ -324,7 +408,7 @@ jobs:
       - name: GHCR digest 발행 결과 요약
         id: summary
         env:
-          BUNDLE_NAME: ${{ needs.validate.outputs.challenge_slug }}-publish-bundle
+          BUNDLE_NAME: ${{ needs.validate.outputs.challenge_slug }}-${{ needs.validate.outputs.artifact_scope }}-publish-bundle
         run: |
           echo "bundle_name=$BUNDLE_NAME" >> "$GITHUB_OUTPUT"
           python3 .msgctf-ci/scripts/render_publish_summary.py \
@@ -420,13 +504,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: ${{ github.workflow_sha }}
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
           path: .msgctf-ci
 
       - name: 발행 bundle 가져오기
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.validate.outputs.challenge_slug }}-publish-bundle
+          name: ${{ needs.aggregate.outputs.publish_bundle_name }}
           path: dist
 
       - name: K3s smoke manifest 생성

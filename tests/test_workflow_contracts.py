@@ -24,11 +24,14 @@ class WorkflowContractTests(unittest.TestCase):
             {
                 "challenge_path",
                 "revision",
+                "devsecops_ref",
                 "publish_registry",
                 "enable_k3s_smoke_deploy",
             },
         )
         self.assertEqual(inputs["revision"]["type"], "string")
+        self.assertEqual(inputs["devsecops_ref"]["type"], "string")
+        self.assertEqual(inputs["devsecops_ref"]["default"], "main")
         self.assertEqual(inputs["publish_registry"]["type"], "boolean")
         self.assertEqual(inputs["publish_registry"]["default"], "false")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
@@ -50,10 +53,28 @@ class WorkflowContractTests(unittest.TestCase):
             aggregate_outputs["publish_bundle_name"],
             "${{ steps.summary.outputs.bundle_name }}",
         )
+        self.assertEqual(
+            workflow["jobs"]["validate"]["outputs"].get("artifact_scope"),
+            "${{ steps.scope.outputs.artifact_scope }}",
+        )
+        self.assertEqual(
+            workflow["jobs"]["validate"]["outputs"].get("devsecops_sha"),
+            "${{ steps.tools.outputs.commit }}",
+        )
         self.assertIn("REGISTRY: ghcr.io", text)
         self.assertNotIn("\n      registry:\n", text)
         self.assertNotIn("ref: main", text)
-        self.assertEqual(text.count("ref: ${{ github.workflow_sha }}"), 3)
+        self.assertNotIn("github.workflow_sha", text)
+        self.assertEqual(text.count("ref: ${{ inputs.devsecops_ref }}"), 1)
+        self.assertEqual(
+            text.count("ref: ${{ needs.validate.outputs.devsecops_sha }}"),
+            3,
+        )
+        self.assertIn(
+            'echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}"',
+            text,
+        )
+        self.assertEqual(text.count("${{ steps.image.outputs.run_tag }}"), 6)
         self.assertEqual(
             set(workflow["jobs"]),
             {
@@ -73,8 +94,8 @@ class WorkflowContractTests(unittest.TestCase):
             "generate_publish_bundle.py",
             "render_publish_summary.py",
             "GITHUB_STEP_SUMMARY",
-            "github.run_id",
-            "github.run_attempt",
+            "GITHUB_RUN_ID",
+            "GITHUB_RUN_ATTEMPT",
         ):
             self.assertIn(required, text)
 
@@ -90,6 +111,46 @@ class WorkflowContractTests(unittest.TestCase):
             upload["with"]["name"],
             "${{ steps.summary.outputs.bundle_name }}",
         )
+
+        metadata_upload = next(
+            step
+            for step in workflow["jobs"]["validate"]["steps"]
+            if step.get("name") == "검증된 metadata 업로드"
+        )
+        self.assertEqual(
+            metadata_upload["with"]["name"],
+            "challenge-metadata-${{ steps.scope.outputs.artifact_scope }}",
+        )
+        container_upload = next(
+            step
+            for step in workflow["jobs"]["build-scan-push"]["steps"]
+            if step.get("name") == "컨테이너 결과 업로드"
+        )
+        self.assertEqual(
+            container_upload["with"]["name"],
+            "container-result-${{ needs.validate.outputs.artifact_scope }}-${{ matrix.name }}",
+        )
+        self.assertIn("uuid.uuid4().hex", text)
+        self.assertIn(
+            "${{ needs.validate.outputs.artifact_scope }}-publish-bundle",
+            text,
+        )
+        k3s_download = next(
+            step
+            for step in workflow["jobs"]["k3s-smoke-deploy"]["steps"]
+            if step.get("name") == "발행 bundle 가져오기"
+        )
+        self.assertEqual(
+            k3s_download["with"]["name"],
+            "${{ needs.aggregate.outputs.publish_bundle_name }}",
+        )
+        for required in (
+            "pipeline_timing.py start",
+            "pipeline_timing.py stop",
+            "pipeline_timing.py report",
+            "--argjson timing",
+        ):
+            self.assertIn(required, text)
 
         publish = workflow["jobs"]["publish-registry"]
         self.assertEqual(publish["needs"], ["aggregate"])
@@ -153,6 +214,8 @@ class WorkflowContractTests(unittest.TestCase):
             text,
         )
         self.assertIn("tests/fixtures/info-valid", text)
+        self.assertIn("tests/fixtures/koth-template", text)
+        self.assertEqual(text.count("devsecops_ref: ${{ github.sha }}"), 2)
         self.assertIn("publish_registry: false", text)
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
