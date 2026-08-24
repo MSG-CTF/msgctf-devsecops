@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: 9d150be5dada2438d8d503010626e19bb1267940
+          ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
           path: .msgctf-ci
 
       - name: 변경 파일 목록 만들기
@@ -91,11 +91,11 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     permissions:
       contents: read
-    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@9d150be5dada2438d8d503010626e19bb1267940
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
     with:
       challenge_path: ${{ matrix.challenge_path }}
       source_ref: ${{ inputs.source_ref || github.sha }}
-      devsecops_ref: 9d150be5dada2438d8d503010626e19bb1267940
+      devsecops_ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
 
   publish-main:
     name: ${{ matrix.challenge_path }} main 발행
@@ -112,11 +112,11 @@ jobs:
       id-token: write
       packages: write
       security-events: write
-    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@9d150be5dada2438d8d503010626e19bb1267940
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
     with:
       challenge_path: ${{ matrix.challenge_path }}
       revision: ${{ github.run_number }}
-      devsecops_ref: 9d150be5dada2438d8d503010626e19bb1267940
+      devsecops_ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
       publish_images: true
       publish_registry: ${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}
       enable_k3s_smoke_deploy: ${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}
