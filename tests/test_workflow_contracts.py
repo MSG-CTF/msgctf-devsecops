@@ -240,7 +240,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(workflow["permissions"], {"contents": "read"})
         self.assertEqual(
             set(workflow["on"]["workflow_call"]["inputs"]),
-            {"challenge_path", "devsecops_ref"},
+            {"challenge_path", "source_ref", "devsecops_ref"},
         )
         self.assertNotIn("secrets", workflow["on"]["workflow_call"])
         self.assertEqual(set(workflow["jobs"]), {"validate", "build-scan"})
@@ -267,6 +267,7 @@ class WorkflowContractTests(unittest.TestCase):
             "runtime_api_smoke_runner.py",
         ):
             self.assertNotIn(forbidden, text)
+        self.assertEqual(text.count("ref: ${{ inputs.source_ref }}"), 2)
 
     def test_repository_only_exposes_challenge_validation_workflows(self):
         workflows = {
@@ -308,6 +309,11 @@ class WorkflowContractTests(unittest.TestCase):
         branch_validation = workflow["jobs"]["branch-validation"]
         self.assertEqual(branch_validation["permissions"], {"contents": "read"})
         self.assertNotIn("secrets", branch_validation)
+        self.assertIn("source_ref", branch_validation["with"])
+        self.assertEqual(
+            branch_validation["with"]["source_ref"],
+            "${{ github.sha }}",
+        )
 
     def test_caller_example_separates_branch_validation_from_main_publish(self):
         path = ROOT / "docs/challenge-caller-example.yml"
@@ -316,7 +322,10 @@ class WorkflowContractTests(unittest.TestCase):
 
         self.assertEqual(workflow["on"]["push"]["branches"], ["**"])
         self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
-        self.assertIn("workflow_dispatch", workflow["on"])
+        dispatch = workflow["on"]["workflow_dispatch"]
+        self.assertIsInstance(dispatch, dict)
+        dispatch_inputs = dispatch["inputs"]
+        self.assertEqual(set(dispatch_inputs), {"source_ref"})
         self.assertEqual(workflow["permissions"], {"contents": "read"})
         self.assertIn("github.event.before", text)
         self.assertIn("github.event.pull_request.base.sha", text)
@@ -328,7 +337,11 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("challenge-branch-validation.yml@main", validation["uses"])
         self.assertEqual(
             set(validation["with"]),
-            {"challenge_path", "devsecops_ref"},
+            {"challenge_path", "source_ref", "devsecops_ref"},
+        )
+        self.assertEqual(
+            validation["with"]["source_ref"],
+            "${{ inputs.source_ref || github.sha }}",
         )
 
         publish = workflow["jobs"]["publish-main"]

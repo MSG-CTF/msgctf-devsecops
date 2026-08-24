@@ -127,6 +127,10 @@ Docker build context와 secret을 검사하고 image를 build한 뒤 Trivy와 Cy
 생성합니다. GHCR push, publish bundle, Challenge Registry와 Runtime 호출은 포함하지
 않습니다.
 
+입력은 `challenge_path`, 검사할 commit 또는 branch인 `source_ref`, 도구 version인
+`devsecops_ref`입니다. 기존 문제 branch를 다시 검사할 때 caller의 수동 실행 입력으로
+`source_ref`를 전달할 수 있습니다.
+
 ### Challenge Supply Chain
 
 [`.github/workflows/challenge-supply-chain.yml`](.github/workflows/challenge-supply-chain.yml)은 문제 저장소가 호출하는 reusable workflow입니다.

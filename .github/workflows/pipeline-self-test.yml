@@ -65,6 +65,7 @@ jobs:
     uses: ./.github/workflows/challenge-branch-validation.yml
     with:
       challenge_path: tests/fixtures/info-valid
+      source_ref: ${{ github.sha }}
       devsecops_ref: ${{ github.sha }}
 
   koth-challenge:

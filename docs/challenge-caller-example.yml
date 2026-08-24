@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 수동으로 검사할 branch 또는 commit SHA
+        required: false
+        default: ""
+        type: string
 
 concurrency:
   group: challenge-validation-${{ github.event.pull_request.head.ref || github.ref_name }}
@@ -26,6 +32,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.source_ref || github.sha }}
 
       - name: DevSecOps 도구 가져오기
         uses: actions/checkout@v4
@@ -78,6 +85,7 @@ jobs:
     uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@main
     with:
       challenge_path: ${{ matrix.challenge_path }}
+      source_ref: ${{ inputs.source_ref || github.sha }}
       devsecops_ref: main
 
   publish-main:

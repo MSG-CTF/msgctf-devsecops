@@ -16,6 +16,9 @@ workflow를 관리합니다.
 - CycloneDX SBOM을 Actions artifact로 14일 보관
 - GHCR, Challenge Registry, AWS/K3s credential을 사용하지 않음
 
+caller는 자동 실행에서 `source_ref: ${{ github.sha }}`를 전달합니다. 기존 branch를
+수동 재검사할 때는 해당 branch명을 `source_ref`로 전달합니다.
+
 ### `challenge-supply-chain.yml`
 
 문제 저장소가 호출하는 reusable workflow입니다.

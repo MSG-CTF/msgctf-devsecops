@@ -7,6 +7,10 @@ on:
         description: info.yaml이 있는 문제 디렉터리
         required: true
         type: string
+      source_ref:
+        description: 검사할 문제 저장소 commit SHA 또는 branch
+        required: true
+        type: string
       devsecops_ref:
         description: 검증 도구를 가져올 msgctf-devsecops ref
         required: false
@@ -33,6 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.source_ref }}
 
       - name: DevSecOps 도구 가져오기
         id: tools
@@ -89,6 +94,8 @@ jobs:
     steps:
       - name: 문제 저장소 가져오기
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref }}
 
       - name: DevSecOps 도구 가져오기
         uses: actions/checkout@v4

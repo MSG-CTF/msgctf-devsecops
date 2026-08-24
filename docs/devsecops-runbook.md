@@ -67,6 +67,7 @@
 uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@<commit-sha>
 with:
   challenge_path: ${{ matrix.challenge_path }}
+  source_ref: ${{ inputs.source_ref || github.sha }}
   devsecops_ref: <commit-sha>
 ```
 
