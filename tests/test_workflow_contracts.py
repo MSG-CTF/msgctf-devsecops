@@ -27,6 +27,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "devsecops_ref",
                 "publish_registry",
                 "enable_k3s_smoke_deploy",
+                "runtime_target_id",
             },
         )
         self.assertEqual(inputs["revision"]["type"], "string")
@@ -35,6 +36,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(inputs["publish_registry"]["type"], "boolean")
         self.assertEqual(inputs["publish_registry"]["default"], "false")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
+        self.assertEqual(inputs["runtime_target_id"]["type"], "string")
         outputs = workflow["on"]["workflow_call"]["outputs"]
         self.assertEqual(
             set(outputs),
@@ -181,14 +183,24 @@ class WorkflowContractTests(unittest.TestCase):
             self.assertIn(required, publish_run)
 
     def test_challenge_supply_chain_keeps_production_runtime_ownership(self):
-        text = (
-            ROOT / ".github/workflows/challenge-supply-chain.yml"
-        ).read_text(encoding="utf-8")
+        path = ROOT / ".github/workflows/challenge-supply-chain.yml"
+        workflow = load_workflow(path)
+        text = path.read_text(encoding="utf-8")
+        smoke = workflow["jobs"]["k3s-smoke-deploy"]
 
         self.assertNotIn(":latest", text)
         self.assertNotIn("render_challenge_manifest", text)
-        self.assertIn("K3s smoke", text)
-        self.assertIn("Runtime을 대체하지", (ROOT / "docs/aws-k3s-cd-smoke.md").read_text(encoding="utf-8"))
+        self.assertNotIn("render_k3s_smoke_manifest.py", text)
+        self.assertNotIn("kubectl", text)
+        self.assertIn("runtime_api_smoke_runner.py", text)
+        self.assertIn("inputs.runtime_target_id", text)
+        self.assertIn("GHCR_PULL_SECRET_ARN", workflow["on"]["workflow_call"]["secrets"])
+        self.assertNotIn("GHCR_PULL_SECRET_ARN", str(smoke))
+        self.assertIn(
+            "${GITHUB_REPOSITORY_ID}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}",
+            str(smoke),
+        )
+        self.assertEqual(smoke["permissions"], {"contents": "read", "id-token": "write"})
 
     def test_repository_only_exposes_challenge_validation_workflows(self):
         workflows = {
@@ -219,6 +231,21 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("publish_registry: false", text)
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
+
+    def test_caller_example_uses_integration_rollout_variables(self):
+        path = ROOT / "docs/challenge-caller-example.yml"
+        workflow = load_workflow(path)
+        inputs = workflow["jobs"]["validate"]["with"]
+
+        self.assertEqual(
+            inputs["publish_registry"],
+            "${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}",
+        )
+        self.assertEqual(
+            inputs["enable_k3s_smoke_deploy"],
+            "${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}",
+        )
+        self.assertEqual(inputs["runtime_target_id"], "${{ vars.RUNTIME_TARGET_ID }}")
 
 
 if __name__ == "__main__":

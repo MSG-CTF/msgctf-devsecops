@@ -34,6 +34,11 @@ Actions Summary에 컨테이너별 GHCR digest, publish bundle 이름과 단계�
 reusable workflow와 자체 검증 workflow가 필요한 단계만 포함하고 Runtime
 배포 책임을 침범하지 않는지 확인합니다.
 
+### `test_runtime_api_smoke_runner.py`
+
+publish artifact를 Secure Provisioner 다중 컨테이너 계약으로 변환하고, 실제 로컬
+HTTP 경계에서 생성·조회·삭제 Operation이 순서대로 완료되는지 검증합니다.
+
 ### `fixtures/`
 
 멀티 컨테이너와 KOTH `info.yaml`, 샘플 Dockerfile, 컨테이너별 CycloneDX SBOM

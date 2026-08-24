@@ -3,9 +3,9 @@
 GitHub Actions에서 호출하는 문제 명세 검증 및 발행 자료 생성 도구를
 관리합니다.
 
-`render_k3s_smoke_manifest.py`는 발행 artifact를 AWS K3s smoke test용 단일 컨테이너 Deployment와 ClusterIP Service로 변환합니다. 운영 Runtime manifest를 대신하지 않습니다.
-
-`k3s_smoke_runner.py`는 SSM managed K3s node에서 임시 namespace 생성, GHCR image pull secret 생성, rollout/TCP probe, namespace 정리를 실행합니다.
+`runtime_api_smoke_runner.py`는 SSM managed K3s node에서 발행 artifact를 Secure
+Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 같은 API로 즉시
+삭제하고 cleanup 결과까지 검증합니다. Kubernetes manifest는 생성하지 않습니다.
 
 ## 파일
 

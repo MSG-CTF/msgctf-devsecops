@@ -11,6 +11,8 @@ DevSecOps는 문제 source나 외부 OCI image를 다음 상태로 만들어 Cha
 - commit과 revision을 추적할 수 있는 workload
 
 DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest 생성, endpoint 발급, instance cleanup을 수행하지 않습니다.
+선택형 통합 smoke test는 Runtime이 고른 고정 target에 임시 instance를 생성하고
+즉시 삭제하지만, 이 경우에도 Secure Provisioner API만 사용합니다.
 
 ## 처리 단계
 
@@ -114,6 +116,8 @@ DevSecOps가 검증한 다음 필드를 그대로 사용합니다.
 ### Runtime 및 격리보안
 
 DevSecOps는 `workload.containers[]`, `ports[].public`, `healthcheck`, `resource_profile`을 전달합니다. Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy, SecurityContext와 cleanup을 구현합니다.
+발행 후 smoke test는 SSM으로 Runtime node 안의 Secure Provisioner API를 호출해
+생성과 삭제 Operation이 모두 성공하는지만 확인합니다.
 
 ### Monitoring 및 SLA
 

@@ -10,7 +10,7 @@
 6. Actions Summary에서 GHCR 경로와 컨테이너별 digest를 확인합니다.
 7. 90일 보관되는 `<challenge_slug>-<artifact_scope>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
 8. Challenge Registry API 연동이 활성화돼 있으면 workflow가 publish document를 한 transaction으로 등록하도록 요청합니다.
-9. Runtime 통합 테스트에서 digest workload로 instance를 생성합니다.
+9. Runtime smoke가 활성화돼 있으면 SSM을 통해 Secure Provisioner API로 digest workload를 생성하고 즉시 삭제합니다.
 
 ## 발행 전 검수
 
@@ -81,9 +81,26 @@ Backend API는 `registry-publish.json` 전체를 요청 body로 받고, Bearer t
 하나의 transaction으로 처리해야 합니다.
 API URL 또는 token이 없거나 API가 오류를 반환하면 Registry 등록 job이 실패합니다.
 
-현재 Backend API 계약과 운영 URL이 확정되기 전에는 `publish_registry: false`를
-유지합니다. 이 상태에서도 GHCR push, digest 추출, SBOM과 publish bundle 생성은
-정상 수행됩니다.
+Backend `main`에는 아직 Challenge Registry 등록 API와 revision 모델이 없습니다.
+endpoint, Bearer token과 transaction 구현이 들어오기 전에는
+`publish_registry: false`를 유지합니다. 이 상태에서도 GHCR push, digest 추출,
+SBOM과 publish bundle 생성은 정상 수행됩니다.
+
+## Secure Provisioner K3s 연결
+
+문제 저장소 caller에서 다음 값을 설정합니다.
+
+```yaml
+with:
+  enable_k3s_smoke_deploy: true
+  runtime_target_id: aws-k3s-001
+secrets: inherit
+```
+
+필요한 GitHub Secret은 `AWS_ROLE_TO_ASSUME`, `AWS_REGION`,
+`AWS_K3S_INSTANCE_ID`, `AWS_CD_ARTIFACT_BUCKET`입니다. Runtime Service token은
+GitHub에 저장하지 않고 node의 `/etc/secure-provisioner/service-token`을 사용합니다.
+세부 IAM과 실행 흐름은 `docs/aws-k3s-cd-smoke.md`를 따릅니다.
 
 ### Runtime image pull 실패
 
@@ -146,16 +163,14 @@ cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Run
 
 ### Scheduler와 Runtime
 
-- 현재 Scheduler의 `RuntimeWorkload` DTO는 단일 `image`, `container_port`,
-  `resource_limits`만 수용합니다.
-- DevSecOps artifact는 `info.yaml` 규약대로 멀티 컨테이너
-  `workload.containers[]`를 보존합니다. 따라서 멀티 컨테이너 문제를 운영에
-  연결하기 전에 Scheduler와 Runtime은 이 구조를 수용하는 DTO/API를 확정해야
-  합니다.
-- 단일 컨테이너 문제는 digest image, 공개 포트, resource profile을 현재
-  Scheduler DTO로 변환할 수 있습니다. 변환 책임은 Registry 또는
-  Scheduler/Runtime 경계에 두고, CI artifact를 단일 컨테이너로 손실 변환하지
-  않습니다.
+- Secure Provisioner `dev`는 멀티 컨테이너, digest image, port, `expose`,
+  resource limit와 `WEB | PWN` 격리 profile을 수용합니다.
+- Scheduler `feature/live-e2e-contract`도 멀티 컨테이너 Runtime DTO를 반영했지만
+  아직 `dev` 병합 전입니다.
+- DevSecOps smoke runner는 현재 Runtime API 계약으로 변환하되 CI가 Kubernetes
+  manifest나 운영 target 선택을 소유하지 않습니다.
+- `info.yaml`에는 `run_as_user`가 없으므로 smoke 기본 UID는 `10001`입니다. 운영
+  계약에서 이미지별 UID가 필요하면 Runtime·출제 양식 담당과 필드를 확정해야 합니다.
 
 ### Monitoring과 CD
 

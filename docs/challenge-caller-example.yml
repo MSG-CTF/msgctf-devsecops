@@ -70,6 +70,7 @@ jobs:
       challenge_path: ${{ matrix.challenge_path }}
       revision: ${{ github.run_number }}
       devsecops_ref: main
-      publish_registry: false
-      enable_k3s_smoke_deploy: false
+      publish_registry: ${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}
+      enable_k3s_smoke_deploy: ${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}
+      runtime_target_id: ${{ vars.RUNTIME_TARGET_ID }}
     secrets: inherit

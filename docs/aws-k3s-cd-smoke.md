@@ -1,71 +1,96 @@
-# AWS K3s CD Smoke Test 구현 계획
+# Secure Provisioner 경유 AWS K3s Smoke Test
 
-**목표:** 출제 문제 공급망 workflow가 생성한 digest 고정 artifact를 AWS EC2의 AMD64 K3s에 임시 배포하고, TCP 또는 HTTP 연결을 확인한 뒤 정리한다.
+## 목적
 
-**구조:** GitHub Actions는 OIDC로 제한된 AWS role을 가정하고, 생성한 manifest와 배포 도구를 S3에 올린다. SSM이 K3s node 내부에서 image pull secret 생성, namespace 배포, readiness 확인, TCP/HTTP probe, cleanup을 수행한다. 이 흐름은 Runtime API가 준비되기 전의 CD smoke test이며 운영 Runtime을 대체하지 않는다.
+문제 공급망이 생성한 digest 고정 `artifact-v2.json`을 Runtime팀의 Secure
+Provisioner API로 전달해 실제 K3s 생성과 삭제를 검증합니다. CI가 Kubernetes
+manifest를 만들거나 `kubectl`을 직접 실행하지 않으므로 Namespace, 보안 정책,
+Service와 cleanup의 소유권은 Runtime에 유지됩니다.
 
-## 제약
+## 연결 구조
 
-- 대상 node는 AMD64 Linux EC2 한 대의 K3s smoke 환경이다.
-- 문제 image는 GHCR private package이며 node는 AWS Secrets Manager의 read-only deploy token으로 pull한다.
-- GitHub Actions는 장기 AWS access key를 사용하지 않고 OIDC role만 사용한다.
-- 문제 Pod는 `ci-smoke-` namespace에만 생성하며 성공·실패와 관계없이 삭제한다.
-- Runtime이 운영 Pod, NetworkPolicy, 외부 endpoint, lifecycle을 소유한다. 이 구현은 image 실행 검증 목적이다.
+```text
+GitHub Actions
+  -> AWS OIDC
+  -> S3 임시 staging
+  -> SSM Run Command
+  -> Secure Provisioner API (127.0.0.1:8080)
+  -> K3s create
+  -> Operation poll
+  -> K3s delete
+  -> Operation poll
+```
 
-## GitHub Actions 설정
+Secure Provisioner가 노드에서 loopback 주소로 수신하므로 API를 인터넷에 공개하지
+않습니다. Service Bearer token도 GitHub Secret으로 복사하지 않고 노드의
+`/etc/secure-provisioner/service-token`에서만 읽습니다.
 
-문제를 올리는 저장소에서 reusable workflow를 호출할 때 아래 secret을 전달한다.
+## GitHub 설정
+
+문제 저장소 또는 Organization에 다음 Secret을 설정합니다.
 
 | Secret | 용도 |
 |---|---|
 | `AWS_ROLE_TO_ASSUME` | GitHub OIDC가 assume할 최소 권한 IAM role ARN |
-| `AWS_REGION` | K3s EC2, S3, SSM이 있는 AWS Region |
-| `AWS_K3S_INSTANCE_ID` | SSM managed AMD64 K3s EC2 instance ID |
-| `AWS_CD_ARTIFACT_BUCKET` | manifest와 runner를 잠시 저장할 private S3 bucket |
-| `GHCR_PULL_SECRET_ARN` | GHCR pull token을 가진 Secrets Manager secret ARN |
+| `AWS_REGION` | EC2, S3, SSM이 있는 AWS Region |
+| `AWS_K3S_INSTANCE_ID` | Secure Provisioner와 K3s가 실행 중인 SSM managed EC2 ID |
+| `AWS_CD_ARTIFACT_BUCKET` | artifact와 runner를 잠시 저장할 private S3 bucket |
 
-Secrets Manager의 GHCR credential은 다음 JSON 형식으로 저장한다. PAT에는 필요한 package read 권한만 부여한다.
-
-```json
-{
-  "username": "msgctf-registry-bot",
-  "token": "ghp_..."
-}
-```
-
-호출 저장소 workflow에서는 `enable_k3s_smoke_deploy: true`와 함께 위 secret을 전달한다. 기본값은 `false`이므로 기존 CI 호출과 정적 문제에는 영향이 없다.
+caller는 다음 입력을 전달합니다.
 
 ```yaml
-jobs:
-  publish:
-    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
-    with:
-      challenge_path: pwn-random6
-      revision: "1"
-      enable_k3s_smoke_deploy: true
-    secrets: inherit
+with:
+  enable_k3s_smoke_deploy: true
+  runtime_target_id: aws-k3s-001
+secrets: inherit
 ```
 
-K3s node에는 `k3s kubectl`이 `kubectl`로 동작하도록 설정하고, Python 3와 AWS CLI를 설치한다. node IAM role에는 staging S3 prefix의 `s3:GetObject`, 지정한 `GHCR_PULL_SECRET_ARN`의 `secretsmanager:GetSecretValue`, SSM managed instance 기본 권한만 부여한다.
+`runtime_target_id`는 Secure Provisioner의 `PROVISIONER_CLUSTER_REGISTRY`에 등록된
+활성 target과 정확히 일치해야 합니다.
 
-GitHub OIDC role에는 staging bucket의 `s3:PutObject`, `s3:DeleteObject`와 해당 instance의 `ssm:SendCommand`, `ssm:GetCommandInvocation`만 부여한다.
+## AWS 권한
 
-## 실행 흐름
+GitHub OIDC role에는 다음 최소 권한이 필요합니다.
 
-1. CI가 `artifact-v2.json`에서 digest 고정 image와 resource profile을 읽는다.
-2. `ci-smoke-<challenge>-<run>` namespace용 Deployment와 ClusterIP Service를 렌더링한다.
-3. manifest와 runner를 private staging S3에 업로드한다.
-4. SSM이 K3s node에서 GHCR pull secret을 만들고 Deployment rollout을 기다린다.
-5. node 내부 `kubectl port-forward`로 공개 TCP port에 연결한다.
-6. 성공과 실패 모두 namespace와 S3 staging object를 정리한다.
+- 지정 S3 prefix의 `s3:PutObject`, `s3:DeleteObject`
+- 지정 EC2 instance의 `ssm:SendCommand`
+- 실행한 command의 `ssm:GetCommandInvocation`
 
-이 smoke test는 단일 컨테이너·공개 TCP port 하나만 지원한다. 멀티 컨테이너, HTTP health path, NetworkPolicy, 외부 Service/Gateway, TTL 관리는 Runtime 계약이 확정된 뒤 Runtime이 구현한다.
+EC2 instance role에는 다음 권한이 필요합니다.
 
-## 작업
+- 지정 S3 `runtime-smoke/` prefix의 `s3:GetObject`
+- SSM managed instance 기본 권한
 
-1. artifact-v2.json을 K3s Deployment와 ClusterIP Service manifest로 변환하는 Python 도구와 단위 테스트를 추가한다.
-2. K3s node 내부에서 deploy, probe, cleanup을 실행하는 smoke runner를 추가한다.
-3. challenge-supply-chain reusable workflow에 선택적 AWS K3s CD smoke job을 추가한다.
-4. AWS VPC, EC2, SSM, S3 staging bucket, 최소 IAM policy를 만드는 Terraform 모듈을 추가한다.
-5. K3s node bootstrap과 Registry Mirror를 관리하는 Ansible Playbook 및 운영 문서를 추가한다.
-6. pwn-random6 caller workflow에서 `runtime_type: KUBERNETES`와 CD smoke input을 사용해 실제 배포를 검증한다.
+GHCR 인증은 Runtime node의 K3s/containerd Registry 설정에서 관리합니다. CI 요청,
+S3 파일과 Runtime API body에는 GHCR credential을 포함하지 않습니다.
+
+## 실행과 정리
+
+1. CI가 `artifact-v2.json`, Runtime 요청 변환 runner와 검증된 config를 S3에 올립니다.
+2. SSM이 EC2 내부에서 세 파일을 내려받습니다.
+3. runner가 `POST /internal/v1/instances`를 호출합니다.
+4. `GET /internal/v1/operations/{operation_id}`를 `SUCCEEDED`까지 조회합니다.
+5. 같은 instance를 `DELETE /internal/v1/instances/{instance_id}`로 정리합니다.
+6. 삭제 Operation도 `SUCCEEDED`인지 확인합니다.
+7. Actions Summary에 `target_id`, `runtime_workload_id`, 생성·삭제 결과를 남깁니다.
+8. 성공과 실패 모두 S3 staging 파일을 삭제합니다.
+
+Smoke instance와 team UUID는 GitHub run 정보로 결정적으로 생성됩니다. 같은 run을
+재시도해도 Runtime의 `request_id` 멱등 계약을 사용할 수 있습니다.
+
+## 현재 제약
+
+- Runtime팀 API의 현재 격리 profile에 맞춰 `pwn`은 `PWN`, 나머지는 `WEB`을 사용합니다.
+- `info.yaml`에 `run_as_user`가 없으면 smoke 요청은 non-root UID `10001`을 사용합니다.
+- 한 컨테이너 안에서 public 포트와 private 포트를 섞는 artifact는 Runtime의 현재
+  container 단위 `expose` 계약으로 손실 없이 변환할 수 없어 거부합니다.
+- 운영 참가자 instance 생성은 Backend, Scheduler, Broker, Runtime 경로가 담당합니다.
+  이 job은 문제 revision 발행 직후의 임시 통합 검증입니다.
+
+## 실행 전 확인
+
+- Secure Provisioner `dev` 버전이 EC2에서 실행 중이어야 합니다.
+- `/etc/secure-provisioner/service-token` 권한과 token 형식이 유효해야 합니다.
+- `PROVISIONER_CLUSTER_REGISTRY`의 target과 K3s kubeconfig가 유효해야 합니다.
+- K3s/containerd가 private GHCR digest를 pull할 수 있어야 합니다.
+- 실패 후 Runtime Operation과 Namespace가 남지 않았는지 확인해야 합니다.

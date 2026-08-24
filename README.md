@@ -129,7 +129,8 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 - `revision`: 새 Challenge Registry revision
 - `devsecops_ref`: 공급망 도구 version, 기본값 `main`
 - `publish_registry`: Challenge Registry API 등록 여부, 기본값 `false`
-- `enable_k3s_smoke_deploy`: 임시 K3s 배포 검증 여부, 기본값 `false`
+- `enable_k3s_smoke_deploy`: Secure Provisioner API 경유 임시 K3s 배포 검증 여부, 기본값 `false`
+- `runtime_target_id`: Secure Provisioner Registry의 K3s target ID
 
 운영 문제 저장소는 `devsecops_ref: main`을 사용합니다. DevSecOps 기능 브랜치의
 자체 검증에서는 workflow와 script가 같은 commit을 사용하도록 `github.sha`를
@@ -203,8 +204,21 @@ ghcr.io/<owner>/challenges/<koth_slug>/service@sha256:<digest>
 Registry 등록 job이 실패합니다.
 
 이 기능은 Backend의 등록 API가 준비될 때까지 기본적으로 비활성화합니다. CI는
-Backend DB를 직접 수정하지 않고 API 계약만 사용하며, Scheduler, Broker, Runtime의
-API를 직접 호출하지 않습니다.
+Backend DB를 직접 수정하지 않고 API 계약만 사용합니다. 선택형 K3s smoke job만
+SSM을 통해 Secure Provisioner API를 호출하며 Scheduler와 Broker의 운영 흐름은
+직접 호출하지 않습니다.
+
+## Runtime K3s Smoke
+
+`enable_k3s_smoke_deploy: true`이면 GitHub Actions가 AWS OIDC와 SSM을 사용해 K3s
+노드 내부의 Secure Provisioner API에 임시 instance 생성을 요청합니다. 생성
+Operation이 성공하면 같은 API로 즉시 삭제하고, 두 결과를 Actions Summary에
+기록합니다. CI는 Kubernetes manifest, Namespace, Service와 보안 정책을 직접
+만들지 않습니다.
+
+필요한 Secret은 `AWS_ROLE_TO_ASSUME`, `AWS_REGION`, `AWS_K3S_INSTANCE_ID`,
+`AWS_CD_ARTIFACT_BUCKET`입니다. caller는 `runtime_target_id`도 전달해야 합니다.
+자세한 설정은 [`docs/aws-k3s-cd-smoke.md`](docs/aws-k3s-cd-smoke.md)에 있습니다.
 
 ## 보안 기준
 
@@ -227,7 +241,7 @@ K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 
 사전 pull, mirror 또는 별도 Registry 도입은 MVP 이후 결정하며, 이 경우에도
 Runtime에는 digest 고정 reference만 전달합니다.
 
-신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. 실제 Challenge Registry API 호출, Runtime 배포, OCI mirror 및 Terraform/Ansible 인프라는 각 담당 팀의 계약이 확정된 뒤 통합 테스트합니다.
+신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. Challenge Registry API는 Backend endpoint가 준비된 뒤 활성화하고, Runtime 배포 smoke는 Secure Provisioner API를 경유합니다. OCI mirror와 Terraform/Ansible 인프라는 각 담당 팀의 계약에 맞춰 통합 테스트합니다.
 
 Windows container는 Linux image와 같은 build job에서 처리하지 않습니다.
 Windows runner, node pool, Runtime 및 Registry 계약이 확정된 뒤 별도 workflow로
