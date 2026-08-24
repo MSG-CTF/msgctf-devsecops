@@ -119,6 +119,14 @@ python3 scripts/validate_info_spec.py path/to/challenge \
 
 ## Pipeline
 
+### Challenge Branch Validation
+
+[`.github/workflows/challenge-branch-validation.yml`](.github/workflows/challenge-branch-validation.yml)은
+출제자 branch와 PR에서 호출하는 읽기 전용 reusable workflow입니다. `info.yaml`,
+Docker build context와 secret을 검사하고 image를 build한 뒤 Trivy와 CycloneDX SBOM을
+생성합니다. GHCR push, publish bundle, Challenge Registry와 Runtime 호출은 포함하지
+않습니다.
+
 ### Challenge Supply Chain
 
 [`.github/workflows/challenge-supply-chain.yml`](.github/workflows/challenge-supply-chain.yml)은 문제 저장소가 호출하는 reusable workflow입니다.

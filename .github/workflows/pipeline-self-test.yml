@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - ".github/workflows/challenge-branch-validation.yml"
       - ".github/workflows/challenge-supply-chain.yml"
       - ".github/workflows/pipeline-self-test.yml"
       - "ci/**"
@@ -55,6 +56,16 @@ jobs:
       publish_registry: false
       enable_k3s_smoke_deploy: false
     secrets: inherit
+
+  branch-validation:
+    name: 출제 branch 최소 권한 build·scan
+    needs: unit-test
+    permissions:
+      contents: read
+    uses: ./.github/workflows/challenge-branch-validation.yml
+    with:
+      challenge_path: tests/fixtures/info-valid
+      devsecops_ref: ${{ github.sha }}
 
   koth-challenge:
     name: KOTH 공식 양식 build·scan·publish

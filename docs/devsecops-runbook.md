@@ -60,14 +60,14 @@
 
 ## Challenge Registry API 연결
 
-출제자 branch와 PR 검증은 다음 입력을 사용하고 `secrets: inherit`를 사용하지
-않습니다.
+출제자 branch와 PR 검증은 `challenge-branch-validation.yml`을 호출하고
+`secrets: inherit`를 사용하지 않습니다.
 
 ```yaml
+uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@<commit-sha>
 with:
-  publish_images: false
-  publish_registry: false
-  enable_k3s_smoke_deploy: false
+  challenge_path: ${{ matrix.challenge_path }}
+  devsecops_ref: <commit-sha>
 ```
 
 GHCR 발행과 외부 연동은 승인된 `main` 실행으로 제한합니다.

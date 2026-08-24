@@ -231,6 +231,43 @@ class WorkflowContractTests(unittest.TestCase):
         )
         self.assertEqual(smoke["permissions"], {"contents": "read", "id-token": "write"})
 
+    def test_branch_validation_workflow_has_no_publish_or_deploy_permissions(self):
+        path = ROOT / ".github/workflows/challenge-branch-validation.yml"
+        self.assertTrue(path.exists(), "branch 검증 reusable workflow가 필요합니다")
+        workflow = load_workflow(path)
+        text = path.read_text(encoding="utf-8")
+
+        self.assertEqual(workflow["permissions"], {"contents": "read"})
+        self.assertEqual(
+            set(workflow["on"]["workflow_call"]["inputs"]),
+            {"challenge_path", "devsecops_ref"},
+        )
+        self.assertNotIn("secrets", workflow["on"]["workflow_call"])
+        self.assertEqual(set(workflow["jobs"]), {"validate", "build-scan"})
+        for job in workflow["jobs"].values():
+            self.assertEqual(job["permissions"], {"contents": "read"})
+
+        for required in (
+            "validate_info_spec.py",
+            "Gitleaks",
+            "docker/build-push-action@v6",
+            "scanners: vuln",
+            "scanners: secret",
+            "format: cyclonedx",
+        ):
+            self.assertIn(required, text)
+        for forbidden in (
+            "docker/login-action",
+            "docker push",
+            "packages: write",
+            "id-token: write",
+            "secrets: inherit",
+            "generate_publish_bundle.py",
+            "CHALLENGE_REGISTRY",
+            "runtime_api_smoke_runner.py",
+        ):
+            self.assertNotIn(forbidden, text)
+
     def test_repository_only_exposes_challenge_validation_workflows(self):
         workflows = {
             path.name
@@ -239,7 +276,11 @@ class WorkflowContractTests(unittest.TestCase):
 
         self.assertEqual(
             workflows,
-            {"challenge-supply-chain.yml", "pipeline-self-test.yml"},
+            {
+                "challenge-branch-validation.yml",
+                "challenge-supply-chain.yml",
+                "pipeline-self-test.yml",
+            },
         )
 
     def test_pipeline_self_test_calls_reusable_supply_chain(self):
@@ -254,12 +295,19 @@ class WorkflowContractTests(unittest.TestCase):
             "./.github/workflows/challenge-supply-chain.yml",
             text,
         )
+        self.assertIn(
+            "./.github/workflows/challenge-branch-validation.yml",
+            text,
+        )
         self.assertIn("tests/fixtures/info-valid", text)
         self.assertIn("tests/fixtures/koth-template", text)
-        self.assertEqual(text.count("devsecops_ref: ${{ github.sha }}"), 2)
+        self.assertEqual(text.count("devsecops_ref: ${{ github.sha }}"), 3)
         self.assertIn("publish_registry: false", text)
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
+        branch_validation = workflow["jobs"]["branch-validation"]
+        self.assertEqual(branch_validation["permissions"], {"contents": "read"})
+        self.assertNotIn("secrets", branch_validation)
 
     def test_caller_example_separates_branch_validation_from_main_publish(self):
         path = ROOT / "docs/challenge-caller-example.yml"
@@ -277,9 +325,11 @@ class WorkflowContractTests(unittest.TestCase):
         validation = workflow["jobs"]["validate-branch"]
         self.assertEqual(validation["permissions"], {"contents": "read"})
         self.assertNotIn("secrets", validation)
-        self.assertEqual(validation["with"]["publish_images"], "false")
-        self.assertEqual(validation["with"]["publish_registry"], "false")
-        self.assertEqual(validation["with"]["enable_k3s_smoke_deploy"], "false")
+        self.assertIn("challenge-branch-validation.yml@main", validation["uses"])
+        self.assertEqual(
+            set(validation["with"]),
+            {"challenge_path", "devsecops_ref"},
+        )
 
         publish = workflow["jobs"]["publish-main"]
         self.assertEqual(publish["permissions"]["packages"], "write")

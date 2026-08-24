@@ -75,14 +75,10 @@ jobs:
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
     permissions:
       contents: read
-    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@main
     with:
       challenge_path: ${{ matrix.challenge_path }}
-      revision: ${{ github.run_number }}
       devsecops_ref: main
-      publish_images: false
-      publish_registry: false
-      enable_k3s_smoke_deploy: false
 
   publish-main:
     name: ${{ matrix.challenge_path }} main 발행

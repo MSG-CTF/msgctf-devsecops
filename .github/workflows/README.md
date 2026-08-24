@@ -5,6 +5,17 @@ workflow를 관리합니다.
 
 ## 파일
 
+### `challenge-branch-validation.yml`
+
+출제자 branch와 PR에서 호출하는 최소 권한 reusable workflow입니다.
+
+- `contents: read`만 사용
+- `info.yaml`과 Docker build context 검증
+- Gitleaks와 Trivy 취약점·image secret 검사
+- Docker build 또는 외부 OCI image pull
+- CycloneDX SBOM을 Actions artifact로 14일 보관
+- GHCR, Challenge Registry, AWS/K3s credential을 사용하지 않음
+
 ### `challenge-supply-chain.yml`
 
 문제 저장소가 호출하는 reusable workflow입니다.
@@ -22,9 +33,8 @@ workflow를 관리합니다.
 - 설정된 경우 publish document를 Challenge Registry HTTPS API에 등록
 - 설정된 경우 SSM을 통해 Secure Provisioner API로 K3s 생성·삭제 smoke test
 
-출제자 branch와 PR은 `publish_images: false`로 호출합니다. 이 경우 build와 scan만
-실행하며 GHCR, Challenge Registry, AWS/K3s credential을 전달하지 않습니다.
-`publish_images: true`인 승인된 `main` 실행만 image와 publish bundle을 발행합니다.
+승인된 `main` 실행만 이 workflow를 호출해 image와 publish bundle을 발행합니다.
+출제자 branch와 PR은 `challenge-branch-validation.yml`을 호출합니다.
 
 Challenge Registry 등록은 `publish_registry: true`,
 `CHALLENGE_REGISTRY_URL`, `CHALLENGE_REGISTRY_TOKEN`이 모두 설정된 경우에만
