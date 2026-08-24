@@ -322,6 +322,10 @@ class WorkflowContractTests(unittest.TestCase):
 
         self.assertEqual(workflow["on"]["push"]["branches"], ["**"])
         self.assertEqual(workflow["on"]["pull_request"]["branches"], ["main"])
+        self.assertEqual(
+            workflow["concurrency"]["group"],
+            "challenge-validation-${{ inputs.source_ref || github.event.pull_request.head.ref || github.ref_name }}",
+        )
         dispatch = workflow["on"]["workflow_dispatch"]
         self.assertIsInstance(dispatch, dict)
         dispatch_inputs = dispatch["inputs"]
