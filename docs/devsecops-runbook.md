@@ -7,10 +7,10 @@
 3. 각 container의 build 또는 pull 결과를 확인합니다.
 4. Trivy vulnerability 및 image secret gate를 확인합니다.
 5. 컨테이너별 CycloneDX SBOM 생성을 확인합니다.
-6. GHCR 또는 승인된 OCI Registry의 commit tag와 digest를 확인합니다.
-7. `<challenge_slug>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
-8. Challenge Registry API가 연결돼 있으면 publish document를 한 transaction으로 등록합니다.
-9. Runtime 통합 테스트에서 digest workload로 instance를 생성합니다.
+6. Actions Summary에서 GHCR 경로와 컨테이너별 digest를 확인합니다.
+7. 90일 보관되는 `<challenge_slug>-<artifact_scope>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
+8. Challenge Registry API 연동이 활성화돼 있으면 workflow가 publish document를 한 transaction으로 등록하도록 요청합니다.
+9. Runtime smoke가 활성화돼 있으면 SSM을 통해 Secure Provisioner API로 digest workload를 생성하고 즉시 삭제합니다.
 
 ## 발행 전 검수
 
@@ -58,6 +58,63 @@
 - Registry API 복구 후 같은 revision과 digest로 idempotent하게 재시도합니다.
 - 실행 중 revision을 정리 대상으로 표시하지 않습니다.
 
+## Challenge Registry API 연결
+
+출제자 branch와 PR 검증은 `challenge-branch-validation.yml`을 호출하고
+`secrets: inherit`를 사용하지 않습니다.
+
+```yaml
+uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@<commit-sha>
+with:
+  challenge_path: ${{ matrix.challenge_path }}
+  source_ref: ${{ inputs.source_ref || github.sha }}
+  devsecops_ref: <commit-sha>
+```
+
+GHCR 발행과 외부 연동은 승인된 `main` 실행으로 제한합니다.
+
+Backend가 revision 등록 API를 제공한 뒤 문제 저장소에 다음 값을 설정합니다.
+
+- Repository 또는 Organization Secret `CHALLENGE_REGISTRY_URL`: HTTPS 등록 URL
+- Repository 또는 Organization Secret `CHALLENGE_REGISTRY_TOKEN`: 서비스 인증 token
+
+caller workflow의 reusable workflow 입력은 다음과 같이 설정합니다.
+
+```yaml
+with:
+  challenge_path: ${{ matrix.challenge_path }}
+  revision: ${{ github.run_number }}
+  publish_registry: true
+secrets: inherit
+```
+
+Backend API는 `registry-publish.json` 전체를 요청 body로 받고, Bearer token을
+검증하며, 문제, revision, 요청 body SHA-256으로 구성된 `Idempotency-Key`가 같은
+재시도를 중복 revision으로 만들지 않아야 합니다. 새 revision 저장과 active 전환은
+하나의 transaction으로 처리해야 합니다.
+API URL 또는 token이 없거나 API가 오류를 반환하면 Registry 등록 job이 실패합니다.
+
+Backend `main`에는 아직 Challenge Registry 등록 API와 revision 모델이 없습니다.
+endpoint, Bearer token과 transaction 구현이 들어오기 전에는
+`publish_registry: false`를 유지합니다. 이 상태에서도 GHCR push, digest 추출,
+SBOM과 publish bundle 생성은 정상 수행됩니다.
+
+## Secure Provisioner K3s 연결
+
+문제 저장소 caller에서 다음 값을 설정합니다.
+
+```yaml
+with:
+  enable_k3s_smoke_deploy: true
+  runtime_target_id: aws-k3s-001
+secrets: inherit
+```
+
+필요한 GitHub Secret은 `AWS_ROLE_TO_ASSUME`, `AWS_REGION`,
+`AWS_K3S_INSTANCE_ID`, `AWS_CD_ARTIFACT_BUCKET`입니다. Runtime Service token은
+GitHub에 저장하지 않고 node의 `/etc/secure-provisioner/service-token`을 사용합니다.
+세부 IAM과 실행 흐름은 `docs/aws-k3s-cd-smoke.md`를 따릅니다.
+
 ### Runtime image pull 실패
 
 - workload가 tag가 아닌 digest를 사용하는지 확인합니다.
@@ -77,22 +134,29 @@
 ## 대회 전 점검
 
 - 문제별 active revision과 digest 목록을 고정합니다.
-- 모든 digest가 OCI Registry와 mirror에 존재하는지 확인합니다.
+- 모든 digest가 GHCR에 존재하는지 확인합니다.
 - AMD64·ARM64 target과 image architecture가 일치하는지 확인합니다.
-- 100~150팀 규모에서 cold pull과 warm pull 시간을 측정합니다.
-- Registry 장애, mirror 지연, node 부족, image pull 실패를 리허설합니다.
+- 75팀 규모에서 GHCR cold pull과 cache 재사용 시간을 측정합니다.
+- GHCR 인증 실패, `ImagePullBackOff`, node 부족과 image pull 실패를 리허설합니다.
+- 실행 중인 container image ID가 CI artifact의 digest와 일치하는지 확인합니다.
 - Terraform/Ansible 변경은 검토와 승인을 거친 버전만 적용합니다.
 - Runtime·격리보안팀과 challenge Namespace의 Pod Security `restricted` 적용 상태를 확인합니다.
 
 ## 현재 연동 계약 상태
 
-2026-08-12 기준으로 GitHub의 각 팀 저장소에서 확인한 상태입니다. 아래의
+2026-08-13 확정 정책과 GitHub의 각 팀 저장소를 기준으로 확인한 상태입니다. 아래의
 미확정 항목은 DevSecOps workflow가 임의로 변환하거나 호출하지 않습니다.
+
+현재 증거 등급은 기획 결정인 E0이며 구현 완료로 계산하지 않습니다. GHCR
+cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Runtime과의
+통합 테스트 증거가 남아야 완료로 전환합니다.
 
 ### 문제 저장소
 
 - `2026_MSG_CTF` 최상위의 `.github/workflows/challenge-validation.yml`이
   `msgctf-devsecops` reusable workflow를 호출합니다.
+- 실제 문제 저장소가 caller이므로 DevSecOps 저장소에서 private 문제 저장소를
+  다시 clone하기 위한 별도 token이나 GitHub App은 현재 구조에 필요하지 않습니다.
 - `pwn-random6`은 validation, build, Gitleaks, Trivy, SBOM, GHCR 발행,
   publish bundle 생성까지 통과했습니다.
 - `web-notebook`의 `db` image는 Trivy Critical 취약점
@@ -112,16 +176,14 @@
 
 ### Scheduler와 Runtime
 
-- 현재 Scheduler의 `RuntimeWorkload` DTO는 단일 `image`, `container_port`,
-  `resource_limits`만 수용합니다.
-- DevSecOps artifact는 `info.yaml` 규약대로 멀티 컨테이너
-  `workload.containers[]`를 보존합니다. 따라서 멀티 컨테이너 문제를 운영에
-  연결하기 전에 Scheduler와 Runtime은 이 구조를 수용하는 DTO/API를 확정해야
-  합니다.
-- 단일 컨테이너 문제는 digest image, 공개 포트, resource profile을 현재
-  Scheduler DTO로 변환할 수 있습니다. 변환 책임은 Registry 또는
-  Scheduler/Runtime 경계에 두고, CI artifact를 단일 컨테이너로 손실 변환하지
-  않습니다.
+- Secure Provisioner `dev`는 멀티 컨테이너, digest image, port, `expose`,
+  resource limit와 `WEB | PWN` 격리 profile을 수용합니다.
+- Scheduler `feature/live-e2e-contract`도 멀티 컨테이너 Runtime DTO를 반영했지만
+  아직 `dev` 병합 전입니다.
+- DevSecOps smoke runner는 현재 Runtime API 계약으로 변환하되 CI가 Kubernetes
+  manifest나 운영 target 선택을 소유하지 않습니다.
+- `info.yaml`에는 `run_as_user`가 없으므로 smoke 기본 UID는 `10001`입니다. 운영
+  계약에서 이미지별 UID가 필요하면 Runtime·출제 양식 담당과 필드를 확정해야 합니다.
 
 ### Monitoring과 CD
 
@@ -129,5 +191,15 @@
   Challenge Pod의 readiness, image pull 실패, healthcheck 실패 지표와 알림
   규칙은 Runtime·Monitoring 팀이 별도로 확정해야 합니다.
 - GitHub Actions는 검증, GHCR 발행, publish bundle 생성까지 담당합니다.
+  Backend API가 준비되면 선택형 Registry publish job까지 담당합니다.
   참가자 요청에 따른 Namespace, Pod, Service, TTL cleanup은 Runtime과
   Scheduler의 운영 책임입니다.
+
+### 8월 MVP 인스턴스 계약
+
+- 팀별 활성 instance는 최대 2개, 참가자별 활성 instance는 최대 1개입니다.
+- `user_id`는 소유자, `team_id`는 팀 상한과 격리 경계를 나타냅니다.
+- 교체, 종료와 초기화 권한은 Backend와 Scheduler가 소유자 기준으로 검사합니다.
+- Runtime은 선택된 node에서 GHCR digest image를 pull하며, 같은 digest가 이미
+  있으면 cache를 재사용할 수 있습니다.
+- 전체 node 사전 pull은 MVP 필수 범위가 아닙니다.

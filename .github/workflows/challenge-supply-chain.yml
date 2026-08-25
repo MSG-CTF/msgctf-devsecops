@@ -11,11 +11,38 @@ on:
         description: Challenge Registry revision
         required: true
         type: string
-      enable_k3s_smoke_deploy:
-        description: AWS K3s 임시 배포 검증 실행 여부
+      devsecops_ref:
+        description: 공급망 도구를 가져올 msgctf-devsecops ref
+        required: false
+        default: main
+        type: string
+      publish_images:
+        description: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부
+        required: false
+        default: true
+        type: boolean
+      publish_registry:
+        description: 검증된 revision을 Challenge Registry API에 등록할지 여부
         required: false
         default: false
         type: boolean
+      enable_k3s_smoke_deploy:
+        description: Secure Provisioner API를 통한 AWS K3s 임시 배포 검증 실행 여부
+        required: false
+        default: false
+        type: boolean
+      runtime_target_id:
+        description: Secure Provisioner Registry에 등록된 K3s target_id
+        required: false
+        default: ""
+        type: string
+    outputs:
+      challenge_slug:
+        description: 검증 및 발행된 문제 slug
+        value: ${{ jobs.aggregate.outputs.challenge_slug }}
+      publish_bundle_name:
+        description: Runtime과 Challenge Registry가 내려받을 Actions artifact 이름
+        value: ${{ jobs.aggregate.outputs.publish_bundle_name }}
     secrets:
       AWS_ROLE_TO_ASSUME:
         required: false
@@ -25,24 +52,13 @@ on:
         required: false
       AWS_CD_ARTIFACT_BUCKET:
         required: false
+      # 이전 caller 호환용입니다. Runtime smoke에서는 사용하지 않습니다.
       GHCR_PULL_SECRET_ARN:
         required: false
-  workflow_dispatch:
-    inputs:
-      challenge_path:
-        description: info.yaml이 있는 문제 디렉터리
-        required: true
-        type: string
-      revision:
-        description: Challenge Registry revision
-        required: true
-        type: string
-      enable_k3s_smoke_deploy:
-        description: AWS K3s 임시 배포 검증 실행 여부
+      CHALLENGE_REGISTRY_TOKEN:
         required: false
-        default: false
-        type: boolean
-
+      CHALLENGE_REGISTRY_URL:
+        required: false
 permissions:
   contents: read
 
@@ -54,6 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       challenge_slug: ${{ steps.spec.outputs.challenge_slug }}
+      artifact_scope: ${{ steps.scope.outputs.artifact_scope }}
+      devsecops_sha: ${{ steps.tools.outputs.commit }}
       is_server: ${{ steps.spec.outputs.is_server }}
       matrix: ${{ steps.spec.outputs.matrix }}
     steps:
@@ -63,10 +81,11 @@ jobs:
           fetch-depth: 0
 
       - name: DevSecOps 도구 가져오기
+        id: tools
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: ${{ inputs.devsecops_ref }}
           path: .msgctf-ci
 
       - name: 검증 도구 설치
@@ -89,10 +108,16 @@ jobs:
             --matrix-output supply-chain/matrix.json \
             --github-output "$GITHUB_OUTPUT"
 
+      - name: 발행 artifact scope 생성
+        id: scope
+        run: |
+          nonce="$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
+          echo "artifact_scope=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${nonce}" >> "$GITHUB_OUTPUT"
+
       - name: 검증된 metadata 업로드
         uses: actions/upload-artifact@v4
         with:
-          name: challenge-metadata
+          name: challenge-metadata-${{ steps.scope.outputs.artifact_scope }}
           path: supply-chain/
 
   build-scan-push:
@@ -110,10 +135,17 @@ jobs:
       - name: 문제 저장소 가져오기
         uses: actions/checkout@v4
 
+      - name: DevSecOps 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
+          path: .msgctf-ci
+
       - name: 검증된 metadata 가져오기
         uses: actions/download-artifact@v4
         with:
-          name: challenge-metadata
+          name: challenge-metadata-${{ needs.validate.outputs.artifact_scope }}
           path: supply-chain
 
       - name: QEMU 설정
@@ -127,6 +159,7 @@ jobs:
         env:
           CHALLENGE_SLUG: ${{ needs.validate.outputs.challenge_slug }}
           CONTAINER_NAME: ${{ matrix.name }}
+          ARTIFACT_SCOPE: ${{ needs.validate.outputs.artifact_scope }}
         run: |
           owner="${GITHUB_REPOSITORY_OWNER,,}"
           architecture="$(jq -r .architecture supply-chain/metadata.json)"
@@ -137,6 +170,15 @@ jobs:
           esac
           echo "target=${REGISTRY}/${owner}/challenges/${CHALLENGE_SLUG}/${CONTAINER_NAME}" >> "$GITHUB_OUTPUT"
           echo "platform=$platform" >> "$GITHUB_OUTPUT"
+          echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}" >> "$GITHUB_OUTPUT"
+
+      - name: Build 또는 pull 시간 측정 시작
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py start \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase build
 
       - name: build 컨테이너 image 생성
         if: matrix.source_type == 'build'
@@ -145,7 +187,7 @@ jobs:
           context: ${{ inputs.challenge_path }}/${{ matrix.source }}
           platforms: ${{ steps.image.outputs.platform }}
           load: true
-          tags: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          tags: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
 
       - name: 외부 OCI image 가져오기
         if: matrix.source_type == 'image'
@@ -154,7 +196,7 @@ jobs:
           SOURCE_IMAGE: ${{ matrix.source }}
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
           PLATFORM: ${{ steps.image.outputs.platform }}
-          RUN_TAG: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_TAG: ${{ steps.image.outputs.run_tag }}
         run: |
           docker pull --platform "$PLATFORM" "$SOURCE_IMAGE"
           pinned="$(docker image inspect "$SOURCE_IMAGE" --format '{{index .RepoDigests 0}}')"
@@ -162,11 +204,27 @@ jobs:
           docker tag "$SOURCE_IMAGE" "${TARGET_IMAGE}:${RUN_TAG}"
           echo "source_digest=$source_digest" >> "$GITHUB_OUTPUT"
 
+      - name: Build 또는 pull 시간 측정 종료
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py stop \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase build
+
+      - name: 보안 검사 시간 측정 시작
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py start \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase scan
+
       - name: Trivy 취약점 차단 검사
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          image-ref: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
           format: table
           scanners: vuln
           severity: CRITICAL
@@ -177,7 +235,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          image-ref: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
           format: table
           scanners: secret
           severity: HIGH,CRITICAL
@@ -192,27 +250,44 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
-          image-ref: ${{ steps.image.outputs.target }}:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          image-ref: ${{ steps.image.outputs.target }}:${{ steps.image.outputs.run_tag }}
           format: cyclonedx
           output: results/${{ matrix.name }}/sbom/${{ matrix.name }}.cdx.json
           scanners: vuln
           exit-code: "0"
 
+      - name: 보안 검사 시간 측정 종료
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py stop \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase scan
+
       - name: OCI Registry 로그인
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: GHCR push 시간 측정 시작
+        if: inputs.publish_images && github.event_name != 'pull_request'
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py start \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase push
+
       - name: 검사한 동일 image 발행
         id: publish
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         env:
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
           SOURCE_DIGEST: ${{ steps.external.outputs.source_digest }}
-          RUN_TAG: ${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          RUN_TAG: ${{ steps.image.outputs.run_tag }}
         run: |
           local_ref="${TARGET_IMAGE}:${RUN_TAG}"
           if [ -z "$SOURCE_DIGEST" ]; then
@@ -223,32 +298,47 @@ jobs:
           echo "digest=$digest" >> "$GITHUB_OUTPUT"
           echo "source_digest=$SOURCE_DIGEST" >> "$GITHUB_OUTPUT"
 
+      - name: GHCR push 시간 측정 종료 및 보고서 생성
+        if: inputs.publish_images && github.event_name != 'pull_request'
+        env:
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          python3 .msgctf-ci/scripts/pipeline_timing.py stop \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --phase push
+          python3 .msgctf-ci/scripts/pipeline_timing.py report \
+            --state "results/${CONTAINER_NAME}/timing-state.json" \
+            --output "results/${CONTAINER_NAME}/timing.json"
+
       - name: 컨테이너 발행 결과 생성
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         env:
           CONTAINER_NAME: ${{ matrix.name }}
           TARGET_IMAGE: ${{ steps.image.outputs.target }}
           PUBLISHED_DIGEST: ${{ steps.publish.outputs.digest }}
           SOURCE_DIGEST: ${{ steps.publish.outputs.source_digest }}
         run: |
+          timing="$(cat "results/${CONTAINER_NAME}/timing.json")"
           jq -n \
             --arg name "$CONTAINER_NAME" \
             --arg image "${TARGET_IMAGE}@${PUBLISHED_DIGEST}" \
             --arg source_digest "$SOURCE_DIGEST" \
             --arg sbom "results/${CONTAINER_NAME}/sbom/${CONTAINER_NAME}.cdx.json" \
+            --argjson timing "$timing" \
             '{
               name: $name,
               image: $image,
               source_digest: $source_digest,
               sbom: $sbom,
-              scan_result: "PASS"
+              scan_result: "PASS",
+              timing: $timing
             }' > "results/${CONTAINER_NAME}/container-result.json"
 
       - name: 컨테이너 결과 업로드
-        if: github.event_name != 'pull_request'
+        if: inputs.publish_images && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
-          name: container-result-${{ matrix.name }}
+          name: container-result-${{ needs.validate.outputs.artifact_scope }}-${{ matrix.name }}
           path: results/
 
   aggregate:
@@ -257,6 +347,7 @@ jobs:
       - build-scan-push
     if: >-
       always() &&
+      inputs.publish_images &&
       github.event_name != 'pull_request' &&
       needs.validate.result == 'success' &&
       needs.build-scan-push.result == 'success' &&
@@ -264,6 +355,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       challenge_slug: ${{ needs.validate.outputs.challenge_slug }}
+      publish_bundle_name: ${{ steps.summary.outputs.bundle_name }}
     permissions:
       contents: read
     steps:
@@ -271,19 +363,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
           path: .msgctf-ci
 
       - name: 검증된 metadata 가져오기
         uses: actions/download-artifact@v4
         with:
-          name: challenge-metadata
+          name: challenge-metadata-${{ needs.validate.outputs.artifact_scope }}
           path: dist/input
 
       - name: 컨테이너 결과와 SBOM 가져오기
         uses: actions/download-artifact@v4
         with:
-          pattern: container-result-*
+          pattern: container-result-${{ needs.validate.outputs.artifact_scope }}-*
           path: dist/results
           merge-multiple: true
 
@@ -299,17 +391,95 @@ jobs:
             --artifact-output dist/artifact-v2.json \
             --registry-output dist/registry-publish.json
 
+      - name: GHCR digest 발행 결과 요약
+        id: summary
+        env:
+          BUNDLE_NAME: ${{ needs.validate.outputs.challenge_slug }}-${{ needs.validate.outputs.artifact_scope }}-publish-bundle
+        run: |
+          echo "bundle_name=$BUNDLE_NAME" >> "$GITHUB_OUTPUT"
+          python3 .msgctf-ci/scripts/render_publish_summary.py \
+            --artifact dist/artifact-v2.json \
+            --bundle-name "$BUNDLE_NAME" \
+            >> "$GITHUB_STEP_SUMMARY"
+
       - name: Atomic Publish bundle 업로드
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ needs.validate.outputs.challenge_slug }}-publish-bundle
+          name: ${{ steps.summary.outputs.bundle_name }}
           path: dist/
+          if-no-files-found: error
+          retention-days: 90
+
+  publish-registry:
+    needs:
+      - aggregate
+    if: >-
+      inputs.publish_images &&
+      inputs.publish_registry &&
+      needs.aggregate.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 발행 bundle 가져오기
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.aggregate.outputs.publish_bundle_name }}
+          path: dist
+
+      - name: Challenge Registry 연결 설정 검증
+        env:
+          REGISTRY_API_URL: ${{ secrets.CHALLENGE_REGISTRY_URL }}
+          REGISTRY_TOKEN: ${{ secrets.CHALLENGE_REGISTRY_TOKEN }}
+        run: |
+          case "$REGISTRY_API_URL" in
+            https://*) ;;
+            *) echo "registry_api_url은 HTTPS URL이어야 합니다" >&2; exit 1 ;;
+          esac
+          if [ -z "$REGISTRY_TOKEN" ]; then
+            echo "CHALLENGE_REGISTRY_TOKEN이 필요합니다" >&2
+            exit 1
+          fi
+          if [[ "$REGISTRY_TOKEN" == *$'\n'* || "$REGISTRY_TOKEN" == *$'\r'* ]]; then
+            echo "CHALLENGE_REGISTRY_TOKEN에 줄바꿈을 사용할 수 없습니다" >&2
+            exit 1
+          fi
+
+      - name: Challenge Registry revision 등록
+        env:
+          REGISTRY_API_URL: ${{ secrets.CHALLENGE_REGISTRY_URL }}
+          REGISTRY_TOKEN: ${{ secrets.CHALLENGE_REGISTRY_TOKEN }}
+        run: |
+          challenge_slug="$(jq -r '.challenge_slug' dist/registry-publish.json)"
+          revision="$(jq -r '.revision' dist/registry-publish.json)"
+          payload_sha256="$(sha256sum dist/registry-publish.json | cut -d ' ' -f 1)"
+          idempotency_key="${GITHUB_REPOSITORY_ID}:${challenge_slug}:${revision}:${payload_sha256}"
+          curl --fail-with-body \
+            --retry 3 \
+            --retry-all-errors \
+            --connect-timeout 5 \
+            --max-time 30 \
+            --request POST \
+            --header "Authorization: Bearer ${REGISTRY_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --header "Idempotency-Key: ${idempotency_key}" \
+            --data-binary @dist/registry-publish.json \
+            --output dist/registry-response.txt \
+            "$REGISTRY_API_URL"
+          {
+            echo "## Challenge Registry 등록 결과"
+            echo
+            echo "- 문제: \`${challenge_slug}\`"
+            echo "- revision: \`${revision}\`"
+            echo "- 상태: \`ACCEPTED\`"
+          } >> "$GITHUB_STEP_SUMMARY"
 
   k3s-smoke-deploy:
     needs:
       - validate
       - aggregate
     if: >-
+      inputs.publish_images &&
       inputs.enable_k3s_smoke_deploy &&
       needs.aggregate.result == 'success' &&
       needs.validate.outputs.is_server == 'true'
@@ -322,33 +492,47 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
           path: .msgctf-ci
 
       - name: 발행 bundle 가져오기
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.validate.outputs.challenge_slug }}-publish-bundle
+          name: ${{ needs.aggregate.outputs.publish_bundle_name }}
           path: dist
 
-      - name: K3s smoke manifest 생성
+      - name: Runtime smoke 연결 설정 검증
+        env:
+          ROLE_ARN: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          REGION: ${{ secrets.AWS_REGION }}
+          INSTANCE_ID: ${{ secrets.AWS_K3S_INSTANCE_ID }}
+          BUCKET: ${{ secrets.AWS_CD_ARTIFACT_BUCKET }}
+          RUNTIME_TARGET_ID: ${{ inputs.runtime_target_id }}
+        run: |
+          for value in ROLE_ARN REGION INSTANCE_ID BUCKET RUNTIME_TARGET_ID; do
+            if [ -z "${!value}" ]; then
+              echo "${value} 값이 필요합니다" >&2
+              exit 1
+            fi
+          done
+          [[ "$INSTANCE_ID" =~ ^i-[0-9a-f]+$ ]] || { echo "AWS_K3S_INSTANCE_ID 형식이 잘못됐습니다" >&2; exit 1; }
+          [[ "$BUCKET" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]] || { echo "AWS_CD_ARTIFACT_BUCKET 형식이 잘못됐습니다" >&2; exit 1; }
+          [[ "$RUNTIME_TARGET_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$ ]] || { echo "runtime_target_id 형식이 잘못됐습니다" >&2; exit 1; }
+
+      - name: Runtime smoke 설정 생성
         id: smoke
         env:
-          CHALLENGE_SLUG: ${{ needs.validate.outputs.challenge_slug }}
+          RUNTIME_TARGET_ID: ${{ inputs.runtime_target_id }}
+          SMOKE_KEY: ${{ github.repository_id }}:${{ github.run_id }}:${{ github.run_attempt }}:${{ needs.validate.outputs.challenge_slug }}
         run: |
-          namespace="ci-smoke-${CHALLENGE_SLUG}-${GITHUB_RUN_ID}"
-          namespace="${namespace:0:63}"
-          workload="smoke-${CHALLENGE_SLUG}"
-          workload="${workload:0:63}"
-          port="$(jq -r '.workload.containers[0].ports[] | select(.public == true) | .port' dist/artifact-v2.json)"
-          python3 .msgctf-ci/scripts/render_k3s_smoke_manifest.py \
-            --artifact dist/artifact-v2.json \
-            --namespace "$namespace" \
-            --image-pull-secret ghcr-pull \
-            --output dist/k3s-smoke-manifest.json
-          echo "namespace=$namespace" >> "$GITHUB_OUTPUT"
-          echo "workload=$workload" >> "$GITHUB_OUTPUT"
-          echo "port=$port" >> "$GITHUB_OUTPUT"
+          instance_id="$(python3 -c 'import os, uuid; print(uuid.uuid5(uuid.NAMESPACE_URL, os.environ["SMOKE_KEY"]))')"
+          team_id="$(python3 -c 'import uuid; print(uuid.uuid5(uuid.NAMESPACE_DNS, "msgctf-ci-runtime-smoke-team"))')"
+          jq -n \
+            --arg target_id "$RUNTIME_TARGET_ID" \
+            --arg instance_id "$instance_id" \
+            --arg team_id "$team_id" \
+            '{target_id: $target_id, instance_id: $instance_id, team_id: $team_id}' \
+            > dist/runtime-smoke-config.json
 
       - name: AWS OIDC 인증
         uses: aws-actions/configure-aws-credentials@v5
@@ -361,31 +545,45 @@ jobs:
         env:
           BUCKET: ${{ secrets.AWS_CD_ARTIFACT_BUCKET }}
         run: |
-          prefix="k3s-smoke/${GITHUB_REPOSITORY_ID}/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}"
-          aws s3 cp dist/k3s-smoke-manifest.json "s3://${BUCKET}/${prefix}/manifest.json"
-          aws s3 cp .msgctf-ci/scripts/k3s_smoke_runner.py "s3://${BUCKET}/${prefix}/k3s_smoke_runner.py"
+          prefix="runtime-smoke/${GITHUB_REPOSITORY_ID}/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}"
           echo "prefix=$prefix" >> "$GITHUB_OUTPUT"
+          aws s3 cp dist/artifact-v2.json "s3://${BUCKET}/${prefix}/artifact-v2.json"
+          aws s3 cp dist/runtime-smoke-config.json "s3://${BUCKET}/${prefix}/runtime-smoke-config.json"
+          aws s3 cp .msgctf-ci/scripts/runtime_api_smoke_runner.py "s3://${BUCKET}/${prefix}/runtime_api_smoke_runner.py"
 
-      - name: SSM으로 K3s smoke test 실행
+      - name: SSM으로 Secure Provisioner smoke test 실행
         env:
           INSTANCE_ID: ${{ secrets.AWS_K3S_INSTANCE_ID }}
           BUCKET: ${{ secrets.AWS_CD_ARTIFACT_BUCKET }}
           PREFIX: ${{ steps.staging.outputs.prefix }}
-          NAMESPACE: ${{ steps.smoke.outputs.namespace }}
-          WORKLOAD: ${{ steps.smoke.outputs.workload }}
-          PORT: ${{ steps.smoke.outputs.port }}
-          GHCR_SECRET_ARN: ${{ secrets.GHCR_PULL_SECRET_ARN }}
         run: |
+          remote_dir="/tmp/msgctf-runtime-smoke-${GITHUB_REPOSITORY_ID}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
           command_id="$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name AWS-RunShellScript \
-            --comment "MSGCTF temporary K3s smoke deployment" \
-            --parameters "commands=[\"set -euo pipefail\",\"mkdir -p /tmp/msgctf-k3s-smoke\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/manifest.json /tmp/msgctf-k3s-smoke/manifest.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/k3s_smoke_runner.py /tmp/msgctf-k3s-smoke/k3s_smoke_runner.py\",\"python3 /tmp/msgctf-k3s-smoke/k3s_smoke_runner.py --manifest /tmp/msgctf-k3s-smoke/manifest.json --namespace ${NAMESPACE} --workload ${WORKLOAD} --port ${PORT} --ghcr-secret-arn ${GHCR_SECRET_ARN}\"]" \
+            --comment "MSGCTF Secure Provisioner runtime smoke deployment" \
+            --parameters "commands=[\"set -euo pipefail\",\"install -d -m 0700 ${remote_dir}\",\"trap 'rm -rf ${remote_dir}' EXIT\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/artifact-v2.json ${remote_dir}/artifact-v2.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/runtime-smoke-config.json ${remote_dir}/runtime-smoke-config.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/runtime_api_smoke_runner.py ${remote_dir}/runtime_api_smoke_runner.py\",\"python3 ${remote_dir}/runtime_api_smoke_runner.py --artifact ${remote_dir}/artifact-v2.json --config ${remote_dir}/runtime-smoke-config.json --timeout 180 --cleanup-timeout 180\"]" \
             --query 'Command.CommandId' --output text)"
-          for _ in $(seq 1 60); do
+          for _ in $(seq 1 150); do
             status="$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query Status --output text 2>/dev/null || true)"
             case "$status" in
-              Success) exit 0 ;;
+              Success)
+                output="$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query StandardOutputContent --output text)"
+                echo "$output"
+                result="$(printf '%s\n' "$output" | sed -n 's/^MSGCTF_RUNTIME_SMOKE_RESULT=//p' | tail -n 1)"
+                if [ -z "$result" ] || ! printf '%s\n' "$result" | jq -e '.create_status == "SUCCEEDED" and .delete_status == "SUCCEEDED"' >/dev/null; then
+                  echo "Secure Provisioner 결과를 확인할 수 없습니다" >&2
+                  exit 1
+                fi
+                {
+                  echo "## Secure Provisioner K3s smoke 결과"
+                  echo
+                  echo '```json'
+                  printf '%s\n' "$result" | jq
+                  echo '```'
+                } >> "$GITHUB_STEP_SUMMARY"
+                exit 0
+                ;;
               Failed|Cancelled|TimedOut) aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID"; exit 1 ;;
             esac
             sleep 5
@@ -398,4 +596,9 @@ jobs:
         env:
           BUCKET: ${{ secrets.AWS_CD_ARTIFACT_BUCKET }}
           PREFIX: ${{ steps.staging.outputs.prefix }}
-        run: aws s3 rm "s3://${BUCKET}/${PREFIX}" --recursive
+        run: |
+          case "$PREFIX" in
+            runtime-smoke/*) aws s3 rm "s3://${BUCKET}/${PREFIX}" --recursive ;;
+            "") echo "정리할 staging 경로가 없습니다" ;;
+            *) echo "예상하지 못한 staging 경로입니다" >&2; exit 1 ;;
+          esac

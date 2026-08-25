@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - ".github/workflows/challenge-branch-validation.yml"
       - ".github/workflows/challenge-supply-chain.yml"
       - ".github/workflows/pipeline-self-test.yml"
       - "ci/**"
@@ -13,9 +14,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
-  packages: write
-  security-events: write
 
 jobs:
   unit-test:
@@ -42,6 +40,7 @@ jobs:
   sample-server-challenge:
     name: 샘플 서버 문제 build·scan·publish
     needs: unit-test
+    if: github.ref == 'refs/heads/main'
     permissions:
       contents: read
       id-token: write
@@ -51,5 +50,36 @@ jobs:
     with:
       challenge_path: tests/fixtures/info-valid
       revision: ${{ github.run_number }}
+      devsecops_ref: ${{ github.sha }}
+      publish_registry: false
+      enable_k3s_smoke_deploy: false
+    secrets: inherit
+
+  branch-validation:
+    name: 출제 branch 최소 권한 build·scan
+    needs: unit-test
+    permissions:
+      contents: read
+    uses: ./.github/workflows/challenge-branch-validation.yml
+    with:
+      challenge_path: tests/fixtures/info-valid
+      source_ref: ${{ github.sha }}
+      devsecops_ref: ${{ github.sha }}
+
+  koth-challenge:
+    name: KOTH 공식 양식 build·scan·publish
+    needs: unit-test
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+      security-events: write
+    uses: ./.github/workflows/challenge-supply-chain.yml
+    with:
+      challenge_path: tests/fixtures/koth-template
+      revision: ${{ github.run_number }}
+      devsecops_ref: ${{ github.sha }}
+      publish_registry: false
       enable_k3s_smoke_deploy: false
     secrets: inherit

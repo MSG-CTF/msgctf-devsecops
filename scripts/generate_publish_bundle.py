@@ -10,6 +10,12 @@ DIGEST_IMAGE = re.compile(
     r"^[a-z0-9][a-z0-9._:-]*(?:/[a-z0-9][a-z0-9._-]*)+"
     r"@sha256:[0-9a-f]{64}$"
 )
+TIMING_FIELDS = (
+    "build_seconds",
+    "scan_seconds",
+    "push_seconds",
+    "total_seconds",
+)
 
 
 def _clean_string(value, field):
@@ -38,6 +44,28 @@ def _validate_sbom(evidence_root, relative_path, container_name):
         or not sbom["specVersion"]
     ):
         raise ValueError(f"{container_name}.SBOM must be a CycloneDX document")
+
+
+def _validate_timing(raw, container_name):
+    if not isinstance(raw, dict):
+        raise ValueError(f"{container_name}.timing must be an object")
+    timing = {}
+    for field in TIMING_FIELDS:
+        value = raw.get(field)
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or value < 0:
+            raise ValueError(f"{container_name}.timing.{field} must be non-negative")
+        timing[field] = float(value)
+    expected_total = round(
+        timing["build_seconds"]
+        + timing["scan_seconds"]
+        + timing["push_seconds"],
+        3,
+    )
+    if abs(timing["total_seconds"] - expected_total) > 0.001:
+        raise ValueError(
+            f"{container_name}.timing.total_seconds must equal phase durations"
+        )
+    return timing
 
 
 def _validated_results(metadata, results, evidence_root):
@@ -78,11 +106,13 @@ def _validated_results(metadata, results, evidence_root):
         ):
             raise ValueError(f"{name}.SBOM must be a relative CycloneDX JSON path")
         _validate_sbom(evidence_root, sbom, name)
+        timing = _validate_timing(result.get("timing"), name)
         validated[name] = {
             "image": image,
             "source_digest": source_digest,
             "sbom": sbom,
             "scan_result": "PASS",
+            "timing": timing,
         }
     return validated
 
@@ -115,6 +145,7 @@ def generate_bundle(metadata, results, source_ref, revision, evidence_root):
                 "sbom": result["sbom"],
                 "vulnerability_scan": "PASS",
                 "secret_scan": "PASS",
+                "timing": result["timing"],
             }
         )
 

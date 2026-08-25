@@ -2,14 +2,23 @@ name: 출제 문제 검증
 
 on:
   push:
+    branches: ["**"]
+  pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      source_ref:
+        description: 수동으로 검사할 branch 또는 commit SHA
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: challenge-validation-${{ github.event_name }}-${{ github.event.pull_request.number || inputs.source_ref || github.ref_name }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
-  id-token: write
-  packages: write
-  security-events: write
 
 jobs:
   discover:
@@ -23,22 +32,40 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.source_ref || github.sha }}
 
       - name: DevSecOps 도구 가져오기
         uses: actions/checkout@v4
         with:
           repository: MSG-CTF/msgctf-devsecops
-          ref: main
+          ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
           path: .msgctf-ci
 
       - name: 변경 파일 목록 만들기
         env:
           BEFORE: ${{ github.event.before }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          SOURCE_REF: ${{ inputs.source_ref }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] ||
-             [ -z "$BEFORE" ] ||
-             [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            find . -mindepth 2 -maxdepth 2 -name info.yaml -print \
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ -n "$SOURCE_REF" ]; then
+              target_sha="$(git rev-parse HEAD)"
+              base="$(git merge-base origin/main "$target_sha")"
+              git diff --name-only "$base" "$target_sha" \
+                > changed-files.txt
+            else
+              find . -mindepth 2 -maxdepth 2 -name info.yaml -print \
+                > changed-files.txt
+            fi
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="$(git merge-base "$PR_BASE_SHA" "$PR_HEAD_SHA")"
+            git diff --name-only "$base" "$PR_HEAD_SHA" \
+              > changed-files.txt
+          elif [ -z "$BEFORE" ] ||
+               [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            base="$(git merge-base origin/main "$GITHUB_SHA")"
+            git diff --name-only "$base" "$GITHUB_SHA" \
               > changed-files.txt
           else
             git diff --name-only "$BEFORE" "$GITHUB_SHA" \
@@ -53,10 +80,30 @@ jobs:
             --paths-file changed-files.txt \
             --github-output "$GITHUB_OUTPUT"
 
-  validate:
-    name: ${{ matrix.challenge_path }} 검증
+  validate-branch:
+    name: ${{ matrix.challenge_path }} branch CI
     needs: discover
-    if: needs.discover.outputs.count != '0'
+    if: >-
+      needs.discover.outputs.count != '0' &&
+      !(github.event_name == 'push' && github.ref == 'refs/heads/main')
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
+    permissions:
+      contents: read
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-branch-validation.yml@64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
+    with:
+      challenge_path: ${{ matrix.challenge_path }}
+      source_ref: ${{ inputs.source_ref || github.sha }}
+      devsecops_ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
+
+  publish-main:
+    name: ${{ matrix.challenge_path }} main 발행
+    needs: discover
+    if: >-
+      needs.discover.outputs.count != '0' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.discover.outputs.matrix) }}
@@ -65,9 +112,19 @@ jobs:
       id-token: write
       packages: write
       security-events: write
-    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@main
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/challenge-supply-chain.yml@64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
     with:
       challenge_path: ${{ matrix.challenge_path }}
       revision: ${{ github.run_number }}
-      enable_k3s_smoke_deploy: false
-    secrets: inherit
+      devsecops_ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
+      publish_images: true
+      publish_registry: ${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}
+      enable_k3s_smoke_deploy: ${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}
+      runtime_target_id: ${{ vars.RUNTIME_TARGET_ID }}
+    secrets:
+      AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_K3S_INSTANCE_ID: ${{ secrets.AWS_K3S_INSTANCE_ID }}
+      AWS_CD_ARTIFACT_BUCKET: ${{ secrets.AWS_CD_ARTIFACT_BUCKET }}
+      CHALLENGE_REGISTRY_TOKEN: ${{ secrets.CHALLENGE_REGISTRY_TOKEN }}
+      CHALLENGE_REGISTRY_URL: ${{ secrets.CHALLENGE_REGISTRY_URL }}
