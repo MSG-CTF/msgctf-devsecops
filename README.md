@@ -240,6 +240,9 @@ Operation이 성공하면 같은 API로 즉시 삭제하고, 두 결과를 Actio
 
 ## 보안 기준
 
+- Gitleaks는 현재 branch의 `HEAD`에 도달 가능한 전체 Git 이력과 현재 파일을 모두 검사합니다.
+- Git 이력에서 secret이 발견되면 해당 credential을 폐기·회전하고 이력을 정리한 뒤 재검증합니다.
+- Gitleaks 예외는 운영 승인자, 사유와 만료일이 기록된 경우에만 허용합니다.
 - Critical 취약점 발견 시 발행을 차단합니다.
 - High 또는 Critical image secret 발견 시 발행을 차단합니다.
 - `latest` 기반 Runtime 배포를 금지합니다.

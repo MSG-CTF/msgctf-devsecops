@@ -93,10 +93,14 @@ jobs:
 
       - name: 저장소 Gitleaks 검사
         run: |
-          docker run --rm \
-            -v "$PWD:/repo" \
-            ghcr.io/gitleaks/gitleaks:v8.24.3 \
-            dir /repo --redact --verbose
+          gitleaks() {
+            docker run --rm \
+              -v "$PWD:/repo" \
+              ghcr.io/gitleaks/gitleaks:v8.24.3 "$@"
+          }
+          gitleaks git --redact --verbose \
+            --log-opts="--full-history HEAD --diff-filter=tuxdb" /repo
+          gitleaks dir --redact --verbose /repo
 
       - name: info.yaml 및 Docker build context 검증
         id: spec

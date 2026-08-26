@@ -12,6 +12,36 @@ def load_workflow(path):
 
 
 class WorkflowContractTests(unittest.TestCase):
+    def test_gitleaks_checks_current_files_and_reachable_git_history(self):
+        for relative_path in (
+            ".github/workflows/challenge-supply-chain.yml",
+            ".github/workflows/challenge-branch-validation.yml",
+        ):
+            with self.subTest(workflow=relative_path):
+                workflow = load_workflow(ROOT / relative_path)
+                validate = workflow["jobs"]["validate"]
+                checkout = next(
+                    step
+                    for step in validate["steps"]
+                    if step.get("name") == "문제 저장소 가져오기"
+                )
+                scan = next(
+                    step
+                    for step in validate["steps"]
+                    if step.get("name") == "저장소 Gitleaks 검사"
+                )
+                command = scan["run"]
+
+                self.assertEqual(checkout["with"]["fetch-depth"], "0")
+                self.assertIn("gitleaks git", command)
+                self.assertIn(
+                    '--log-opts="--full-history HEAD --diff-filter=tuxdb"',
+                    command,
+                )
+                self.assertIn("gitleaks dir", command)
+                self.assertGreaterEqual(command.count("--redact --verbose"), 2)
+                self.assertNotIn("--all", command)
+
     def test_challenge_supply_chain_has_required_contract(self):
         path = ROOT / ".github/workflows/challenge-supply-chain.yml"
         workflow = load_workflow(path)
