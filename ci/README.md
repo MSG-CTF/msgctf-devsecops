@@ -46,12 +46,19 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 
 ### 3. 보안 검사
 
-- Gitleaks: 문제 저장소 secret 검사
+- Gitleaks Git 검사: 현재 branch의 `HEAD`에 도달 가능한 전체 commit 이력의 추가 내용을 검사
+- Gitleaks directory 검사: checkout된 현재 파일 전체를 검사
 - Trivy vulnerability scanner: Critical 취약점 차단
 - Trivy secret scanner: High·Critical image secret 차단
 - Trivy CycloneDX: container별 SBOM 생성
 
-예외가 필요하면 운영 승인자, 사유, 만료일, 대상 digest를 별도 기록해야 합니다. workflow에서 검사 실패를 자동 무시하지 않습니다.
+다른 출제자의 독립 branch까지 검사해 무관한 문제를 차단하지 않도록 Git 검사는
+현재 `HEAD`의 이력으로 제한합니다. Git 검사와 directory 검사를 함께 실행해 과거
+commit과 현재 파일 중 한쪽에만 남은 secret도 차단합니다.
+
+Git 이력에서 secret이 발견되면 해당 credential을 폐기·회전하고 이력을 정리해야
+합니다. 예외가 필요하면 운영 승인자, 사유, 만료일, 대상 digest를 별도 기록해야
+하며 workflow에서 검사 실패를 자동 무시하지 않습니다.
 
 ### 4. OCI image 발행
 
