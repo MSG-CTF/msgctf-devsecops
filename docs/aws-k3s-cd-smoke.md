@@ -89,7 +89,14 @@ Smoke instance와 team UUID는 GitHub run 정보로 결정적으로 생성됩니
       "image": "ghcr.io/msg-ctf/challenges/example/web@sha256:..."
     }
   ],
-  "endpoints": [],
+  "endpoints": [
+    {
+      "container_name": "web",
+      "port": 8080,
+      "protocol": "HTTP",
+      "service_url": "http://203.0.113.10:31042"
+    }
+  ],
   "create_status": "SUCCEEDED",
   "create_elapsed_seconds": 12.345,
   "delete_status": "SUCCEEDED",
