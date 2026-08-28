@@ -248,6 +248,67 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.assertEqual(delete_body["runtime_workload_id"], "aws-k3s-001/ctf-test/challenge")
         self.assertEqual(delete_body["delete_reason"], "ADMIN_FORCED")
 
+    def test_reports_digest_images_and_runtime_endpoints(self):
+        self.start_server()
+        RuntimeHandler.create_result = {
+            "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
+            "service_url": "http://203.0.113.10:31042",
+            "endpoints": [
+                {
+                    "container_name": "service",
+                    "port": 8080,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31042",
+                }
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            result = run_smoke(
+                ARTIFACT,
+                api_url=f"http://127.0.0.1:{self.server.server_port}",
+                token_file=token_file,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+                poll_interval=0,
+                timeout=2,
+            )
+
+        self.assertEqual(
+            result["images"],
+            [
+                {
+                    "name": "service",
+                    "image": ARTIFACT["workload"]["containers"][0]["image"],
+                }
+            ],
+        )
+        self.assertEqual(result["endpoints"], RuntimeHandler.create_result["endpoints"])
+        self.assertNotIn("A" * 43, json.dumps(result))
+
+    def test_reports_create_and_delete_elapsed_seconds(self):
+        self.start_server()
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            result = run_smoke(
+                ARTIFACT,
+                api_url=f"http://127.0.0.1:{self.server.server_port}",
+                token_file=token_file,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+                poll_interval=0,
+                timeout=2,
+            )
+
+        self.assertIsInstance(result["create_elapsed_seconds"], float)
+        self.assertGreaterEqual(result["create_elapsed_seconds"], 0.0)
+        self.assertIsInstance(result["delete_elapsed_seconds"], float)
+        self.assertGreaterEqual(result["delete_elapsed_seconds"], 0.0)
+
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
         artifact = dict(ARTIFACT, category="pwn")
 

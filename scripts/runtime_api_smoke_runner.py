@@ -309,7 +309,8 @@ def run_smoke(
         instance_id=instance_id,
         team_id=team_id,
     )
-    deadline = time.monotonic() + timeout
+    create_started = time.monotonic()
+    deadline = create_started + timeout
     recovered_after_timeout = False
     try:
         accepted = _submit_with_retry(
@@ -357,6 +358,7 @@ def run_smoke(
     runtime_workload_id = create_result.get("runtime_workload_id")
     if not isinstance(runtime_workload_id, str) or not runtime_workload_id.strip():
         raise RuntimeError("Runtime create operation returned an invalid runtime_workload_id")
+    create_elapsed_seconds = round(time.monotonic() - create_started, 3)
 
     delete_request = {
         "request_id": f"ci-smoke-delete-{create_request['instance_id']}",
@@ -366,6 +368,7 @@ def run_smoke(
         "runtime_workload_id": runtime_workload_id,
         "delete_reason": "ADMIN_FORCED",
     }
+    delete_started = time.monotonic()
     cleanup_deadline = time.monotonic() + cleanup_timeout
     deleted = _submit_with_retry(
         client,
@@ -381,15 +384,23 @@ def run_smoke(
         poll_interval=poll_interval,
         deadline=cleanup_deadline,
     )
+    delete_elapsed_seconds = round(time.monotonic() - delete_started, 3)
     return {
         "challenge_slug": artifact.get("challenge_slug"),
         "revision": artifact.get("revision"),
         "target_id": target_id,
         "instance_id": create_request["instance_id"],
         "runtime_workload_id": runtime_workload_id,
+        "images": [
+            {"name": container["name"], "image": container["image"]}
+            for container in create_request["workload"]["containers"]
+        ],
         "service_url": create_result.get("service_url"),
+        "endpoints": create_result.get("endpoints", []),
         "create_status": created["status"],
+        "create_elapsed_seconds": create_elapsed_seconds,
         "delete_status": delete_snapshot["status"],
+        "delete_elapsed_seconds": delete_elapsed_seconds,
         "recovered_after_timeout": recovered_after_timeout,
     }
 
