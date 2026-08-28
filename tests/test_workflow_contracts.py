@@ -321,6 +321,7 @@ class WorkflowContractTests(unittest.TestCase):
         text = path.read_text(encoding="utf-8")
 
         self.assertIn("push", workflow["on"])
+        self.assertIn("pull_request", workflow["on"])
         self.assertIn("workflow_dispatch", workflow["on"])
         self.assertEqual(workflow["permissions"], {"contents": "read"})
         self.assertIn(
