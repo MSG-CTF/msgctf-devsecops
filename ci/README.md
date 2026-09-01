@@ -31,6 +31,9 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 - Dockerfile 존재 여부
 - port 범위
 - healthcheck container·port·path
+- 문제 category에서 결정한 `WEB | PWN` isolation profile
+- `internal_connections`의 source·destination·TCP 목적지 포트
+- raw Kubernetes NetworkPolicy 입력 금지
 - CPU, memory, ephemeral storage 값
 
 검증 결과에는 `flag`가 포함되지 않습니다.
@@ -65,13 +68,13 @@ Git 이력에서 secret이 발견되면 해당 credential을 폐기·회전하�
 검사 통과 image만 다음 경로로 push합니다.
 
 ```text
-ghcr.io/<owner>/challenges/<challenge_slug>/<container>:<commit_sha>-<run_id>-<run_attempt>
+ghcr.io/msg-ctf/challenges/<challenge_slug>/<container>:<commit_sha>-<run_id>-<run_attempt>
 ```
 
 Runtime에 전달하는 값은 다음과 같습니다.
 
 ```text
-ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
+ghcr.io/msg-ctf/challenges/<challenge_slug>/<container>@sha256:<digest>
 ```
 
 commit tag는 추적과 발행을 위한 입력이고 Runtime 계약은 digest입니다. `latest`는 만들지 않습니다.
@@ -89,6 +92,11 @@ KOTH 문제도 같은 규칙을 사용합니다. `info.yaml`의 `deployment.cont
 
 - `artifact-v2.json`: Runtime과 Scheduler가 읽을 immutable workload
 - `registry-publish.json`: Challenge Registry가 한 transaction으로 revision을 추가하고 active를 전환할 요청
+
+두 파일은 같은 `registry_revision`, `isolation_profile`과
+`workload.containers[]`를 보존합니다. `workload.internal_connections[]`가 있으면
+Runtime은 선언된 방향과 포트만 허용하는 NetworkPolicy를 생성합니다. CI는 raw
+NetworkPolicy를 생성하거나 전달하지 않습니다.
 
 Registry는 기존 active revision을 먼저 해제한 뒤 새 row를 쓰는 방식으로 처리하면 안 됩니다. 새 revision 저장과 active 전환이 하나의 transaction에서 성공해야 합니다. 실패하면 기존 active revision을 유지해야 합니다.
 
@@ -122,7 +130,10 @@ DevSecOps가 검증한 다음 필드를 그대로 사용합니다.
 
 ### Runtime 및 격리보안
 
-DevSecOps는 `workload.containers[]`, `ports[].public`, `healthcheck`, `resource_profile`을 전달합니다. Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy, SecurityContext와 cleanup을 구현합니다.
+DevSecOps는 `isolation_profile`, `workload.containers[]`, `ports[].public`,
+`workload.internal_connections[]`, `healthcheck`, `resource_profile`을 전달합니다.
+Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy,
+SecurityContext와 cleanup을 구현합니다.
 발행 후 smoke test는 SSM으로 Runtime node 안의 Secure Provisioner API를 호출해
 생성과 삭제 Operation이 모두 성공하는지만 확인합니다.
 

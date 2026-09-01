@@ -94,10 +94,11 @@ Backend API는 `registry-publish.json` 전체를 요청 body로 받고, Bearer t
 하나의 transaction으로 처리해야 합니다.
 API URL 또는 token이 없거나 API가 오류를 반환하면 Registry 등록 job이 실패합니다.
 
-Backend `main`에는 아직 Challenge Registry 등록 API와 revision 모델이 없습니다.
-endpoint, Bearer token과 transaction 구현이 들어오기 전에는
-`publish_registry: false`를 유지합니다. 이 상태에서도 GHCR push, digest 추출,
-SBOM과 publish bundle 생성은 정상 수행됩니다.
+Backend PR #26 기능 브랜치에는 Challenge Registry 등록·조회 API와 revision
+모델이 있으며 실제 Actions bundle의 로컬 등록을 확인했습니다. 다만 `main`
+병합과 운영 배포, service Bearer token, `Idempotency-Key`, 원자적 active 전환
+계약은 아직 완료되지 않았으므로 운영 caller는 `publish_registry: false`를
+유지합니다. 검증 증거는 `docs/challenge-registry-integration.md`에 기록합니다.
 
 ## Secure Provisioner K3s 연결
 

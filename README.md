@@ -86,6 +86,11 @@ deployment:
       image: postgres:16
       ports: [5432]
       expose: false
+  internal_connections:
+    - source_container: web
+      destination_container: db
+      protocol: TCP
+      port: 5432
   healthcheck:
     container: web
     port: 9090
@@ -103,6 +108,11 @@ deployment:
 - `build`는 문제 디렉터리 내부의 Docker build context만 가리킬 수 있습니다.
 - 외부 `image`는 `latest`나 암묵적 tag를 사용할 수 없으며 명시적 non-latest tag 또는 digest가 필요합니다.
 - `expose: true`인 컨테이너의 포트만 참가자에게 공개합니다.
+- 컨테이너 간 통신은 `internal_connections`에 TCP 방향과 목적지 포트를
+  명시합니다. 선언하지 않은 통신은 Runtime NetworkPolicy가 차단합니다.
+- 출제자는 raw Kubernetes `NetworkPolicy`를 입력하지 않습니다. CI는 문제
+  category를 `WEB` 또는 `PWN` `isolation_profile`로 정규화하고 Runtime이
+  승인된 정책을 생성합니다.
 - `resource_profile`은 문제의 모든 컨테이너를 합산한 값입니다.
 - `flag`는 존재 여부만 검증하며 로그, output, artifact에 기록하지 않습니다.
 - `deployment`가 없는 정적 문제는 Docker build와 image 발행을 수행하지 않습니다.
@@ -182,7 +192,7 @@ GitHub runner 대기 시간과 job 준비 시간은 포함하지 않습니다. �
 최종 image 경로:
 
 ```text
-ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
+ghcr.io/msg-ctf/challenges/<challenge_slug>/<container>@sha256:<digest>
 ```
 
 `latest`는 생성하지 않습니다.
@@ -196,7 +206,7 @@ ghcr.io/<owner>/challenges/<challenge_slug>/<container>@sha256:<digest>
 healthcheck 포트와 `resource_profile`을 검증한 뒤 다음 경로로 발행합니다.
 
 ```text
-ghcr.io/<owner>/challenges/<koth_slug>/service@sha256:<digest>
+ghcr.io/msg-ctf/challenges/<koth_slug>/service@sha256:<digest>
 ```
 
 `prob/for_organizer/docker-compose.yml`은 출제자 로컬 테스트용입니다. GHCR에는
@@ -206,6 +216,11 @@ ghcr.io/<owner>/challenges/<koth_slug>/service@sha256:<digest>
 ## Atomic Publish
 
 `artifact-v2.json`은 Runtime이 읽을 digest workload입니다. `registry-publish.json`은 Challenge Registry의 원자적 revision 등록 API가 소비할 자료입니다.
+
+두 파일에는 `revision`과 같은 값인 `registry_revision`, `isolation_profile`,
+`workload.containers[]`가 포함됩니다. 모든 최종 image는
+`ghcr.io/msg-ctf/challenges/<slug>/<container>@sha256:<digest>` 형식만 허용하며
+tag와 `latest`는 발행 자료 생성 단계에서 거절합니다.
 
 발행 조건:
 

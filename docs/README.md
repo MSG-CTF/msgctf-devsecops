@@ -18,3 +18,8 @@ Monitoring 팀과 맞춰야 할 계약도 포함합니다.
 
 현재 GitHub 기준의 문제 저장소, Broker, Scheduler, Runtime, Monitoring 연동
 상태와 미확정 항목도 기록합니다.
+
+### `challenge-registry-integration.md`
+
+실제 GitHub Actions publish bundle을 백엔드 Challenge Registry 기능 브랜치에
+등록한 통합 검증 증거와 운영 연결 전 남은 조건을 기록합니다.
