@@ -83,6 +83,7 @@ Smoke instance와 team UUID는 GitHub run 정보로 결정적으로 생성됩니
 
 ```json
 {
+  "registry_revision": 12,
   "images": [
     {
       "name": "web",
@@ -103,6 +104,11 @@ Smoke instance와 team UUID는 GitHub run 정보로 결정적으로 생성됩니
   "delete_elapsed_seconds": 1.234
 }
 ```
+
+Smoke runner는 `artifact-v2.json`의 `revision`과 `registry_revision`이 같은지,
+`isolation_profile`이 문제 category와 일치하는지, `scan_result`가 `PASS`인지 먼저
+확인합니다. `containers[]`의 digest 이미지와 선택형 `internal_connections[]`는
+같은 publish bundle에서 읽어 Runtime 요청에 전달합니다.
 
 `create_elapsed_seconds`는 생성 요청을 처음 제출한 시점부터 생성 Operation이
 `SUCCEEDED`가 될 때까지의 시간입니다. 이미지 pull뿐 아니라 Pod와 Service 준비

@@ -14,11 +14,15 @@ DIGEST = "sha256:" + "a" * 64
 INSTANCE_ID = "018f3f1e-21b8-7a91-a30b-63b3400fd001"
 TEAM_ID = "00000000-0000-4000-8000-000000000018"
 ARTIFACT = {
+    "schema_version": "2.0",
     "challenge_slug": "koth-template",
     "revision": 11,
+    "registry_revision": 11,
     "category": "koth",
     "runtime_type": "KUBERNETES",
     "architecture": "AMD64",
+    "isolation_profile": "WEB",
+    "scan_result": "PASS",
     "workload": {
         "containers": [
             {
@@ -305,7 +309,30 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             ],
         )
         self.assertEqual(result["endpoints"], RuntimeHandler.create_result["endpoints"])
+        self.assertEqual(result["registry_revision"], 11)
         self.assertNotIn("A" * 43, json.dumps(result))
+
+    def test_rejects_registry_revision_mismatch_before_runtime_request(self):
+        artifact = dict(ARTIFACT, registry_revision=12)
+
+        with self.assertRaisesRegex(ValueError, "registry_revision"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_rejects_isolation_profile_mismatch_before_runtime_request(self):
+        artifact = dict(ARTIFACT, isolation_profile="PWN")
+
+        with self.assertRaisesRegex(ValueError, "isolation_profile"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
 
     def test_reports_create_and_delete_elapsed_seconds(self):
         self.start_server()
@@ -376,7 +403,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.assertIn("[REDACTED]", str(raised.exception))
 
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
-        artifact = dict(ARTIFACT, category="pwn")
+        artifact = dict(ARTIFACT, category="pwn", isolation_profile="PWN")
 
         request = build_create_request(
             artifact,
