@@ -31,8 +31,9 @@ Challenge Repo
 → CycloneDX SBOM 생성
 → OCI Registry에 commit SHA tag로 push
 → OCI digest 추출
-→ Runtime artifact + Registry publish document 생성
-→ 선택적으로 Challenge Registry API에 revision 등록
+→ `artifact-v2.json`과 수동 검증용 `registry-publish.json` 생성
+→ `-publish-bundle` Actions artifact 보관
+→ Backend poller가 artifact를 수집해 release 등록
 ```
 
 Platform 실행 흐름은 다음과 같습니다.
@@ -151,7 +152,6 @@ Docker build context와 secret을 검사하고 image를 build한 뒤 Trivy와 Cy
 - `revision`: 새 Challenge Registry revision
 - `devsecops_ref`: 공급망 도구 version, 기본값 `main`
 - `publish_images`: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부, 기본값 `true`
-- `publish_registry`: Challenge Registry API 등록 여부, 기본값 `false`
 - `enable_k3s_smoke_deploy`: Secure Provisioner API 경유 임시 K3s 배포 검증 여부, 기본값 `false`
 - `runtime_target_id`: Secure Provisioner Registry의 K3s target ID
 
@@ -161,8 +161,10 @@ Docker build context와 secret을 검사하고 image를 build한 뒤 Trivy와 Cy
 
 출제자 branch와 PR 검증에서는 `publish_images: false`를 사용하고 Secret을 전달하지
 않습니다. 이 모드는 Docker build, Gitleaks, Trivy와 SBOM 생성까지만 수행합니다.
-GHCR push, Challenge Registry 등록과 Runtime smoke는 승인된 `main` 실행에서만
-활성화합니다.
+GHCR push, publish bundle 생성과 Runtime smoke는 승인된 `main` 실행에서만
+활성화합니다. release 등록은 Backend poller가 성공한 Actions artifact를 수집해
+처리하므로 caller와 reusable workflow에 Backend URL 또는 service token을 두지
+않습니다.
 
 출력 artifact:
 
@@ -213,9 +215,11 @@ ghcr.io/msg-ctf/challenges/<koth_slug>/service@sha256:<digest>
 `info.yaml`의 `deployment.containers`에 선언된 컨테이너만 발행하므로 Compose의
 보조 `checker`는 자동 발행하지 않습니다.
 
-## Atomic Publish
+## Publish Bundle과 Backend poller
 
-`artifact-v2.json`은 Runtime이 읽을 digest workload입니다. `registry-publish.json`은 Challenge Registry의 원자적 revision 등록 API가 소비할 자료입니다.
+`artifact-v2.json`은 Backend poller의 자동 수집과 Runtime이 공통으로 사용하는
+공식 입력이며, digest 고정 workload입니다. `registry-publish.json`은 같은
+artifact를 감싼 수동 API 검증용 wrapper로만 보관합니다.
 
 두 파일에는 `revision`과 같은 값인 `registry_revision`, `isolation_profile`,
 `workload.containers[]`가 포함됩니다. 모든 최종 image는
@@ -228,18 +232,18 @@ tag와 `latest`는 발행 자료 생성 단계에서 거절합니다.
 - 모든 image가 digest로 고정돼 있습니다.
 - Gitleaks와 Trivy 검사가 통과했습니다.
 - 모든 container의 CycloneDX SBOM이 생성됐습니다.
-- 위 조건을 모두 만족해야 active revision 전환을 요청합니다.
+- 위 조건을 모두 만족한 bundle만 Backend poller 수집 대상입니다.
 
-`publish_registry: true`이면 workflow가 검증된 `registry-publish.json`을
-`CHALLENGE_REGISTRY_URL` secret에 설정된 HTTPS API로 `POST`합니다. 인증에는
-`CHALLENGE_REGISTRY_TOKEN` secret을 사용하고, 문제, revision, 요청 body SHA-256을
-조합한 `Idempotency-Key`를 전달합니다. API 오류는 성공으로 처리하지 않으며
-Registry 등록 job이 실패합니다.
+DevSecOps는 `artifact-v2.json`과 GHCR digest image를 발행하고, Backend poller는
+`-publish-bundle` artifact 수집, challenge 매핑, release 등록, 동일
+`registry_revision`의 중복 처리를 소유합니다. Backend/admin은 active release
+전환과 롤백을 소유합니다. Runtime/Secure Provisioner는 active workload의 K3s
+배포와 정리를 소유합니다. 혼합 public/private port는 Runtime DTO가 확정될
+때까지 손실 변환하지 않습니다.
 
-이 기능은 Backend의 등록 API가 준비될 때까지 기본적으로 비활성화합니다. CI는
-Backend DB를 직접 수정하지 않고 API 계약만 사용합니다. 선택형 K3s smoke job만
-SSM을 통해 Secure Provisioner API를 호출하며 Scheduler와 Broker의 운영 흐름은
-직접 호출하지 않습니다.
+Backend 운영 환경의 `RELEASE_POLL_REPO`와 `RELEASE_POLL_GITHUB_TOKEN`은 Backend
+팀이 관리합니다. CI는 Backend DB, Scheduler 또는 Broker를 직접 조작하지 않으며,
+선택형 K3s smoke job만 SSM으로 Secure Provisioner API를 호출합니다.
 
 ## Runtime K3s Smoke
 
@@ -277,7 +281,7 @@ K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 
 사전 pull, mirror 또는 별도 Registry 도입은 MVP 이후 결정하며, 이 경우에도
 Runtime에는 digest 고정 reference만 전달합니다.
 
-신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. Challenge Registry API는 Backend endpoint가 준비된 뒤 활성화하고, Runtime 배포 smoke는 Secure Provisioner API를 경유합니다. OCI mirror와 Terraform/Ansible 인프라는 각 담당 팀의 계약에 맞춰 통합 테스트합니다.
+신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. Backend poller가 Actions artifact를 수집해 release를 등록하고, Runtime 배포 smoke는 Secure Provisioner API를 경유합니다. OCI mirror와 Terraform/Ansible 인프라는 각 담당 팀의 계약에 맞춰 통합 테스트합니다.
 
 Windows container는 Linux image와 같은 build job에서 처리하지 않습니다.
 Windows runner, node pool, Runtime 및 Registry 계약이 확정된 뒤 별도 workflow로

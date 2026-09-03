@@ -86,35 +86,34 @@ commit tag는 추적과 발행을 위한 입력이고 Runtime 계약은 digest�
 KOTH 문제도 같은 규칙을 사용합니다. `info.yaml`의 `deployment.containers`에
 선언된 `service`를 발행하며 로컬 Compose 전용 `checker`는 발행 대상이 아닙니다.
 
-### 5. Atomic Publish 자료
+### 5. Publish Bundle 자료
 
 `scripts/generate_publish_bundle.py`가 두 파일을 생성합니다.
 
-- `artifact-v2.json`: Runtime과 Scheduler가 읽을 immutable workload
-- `registry-publish.json`: Challenge Registry가 한 transaction으로 revision을 추가하고 active를 전환할 요청
+- `artifact-v2.json`: Backend poller 자동 수집과 Runtime이 읽을 immutable workload
+- `registry-publish.json`: 같은 artifact를 감싼 수동 API 검증용 wrapper
 
 두 파일은 같은 `registry_revision`, `isolation_profile`과
 `workload.containers[]`를 보존합니다. `workload.internal_connections[]`가 있으면
 Runtime은 선언된 방향과 포트만 허용하는 NetworkPolicy를 생성합니다. CI는 raw
 NetworkPolicy를 생성하거나 전달하지 않습니다.
 
-Registry는 기존 active revision을 먼저 해제한 뒤 새 row를 쓰는 방식으로 처리하면 안 됩니다. 새 revision 저장과 active 전환이 하나의 transaction에서 성공해야 합니다. 실패하면 기존 active revision을 유지해야 합니다.
-
 실행 중 instance가 참조하는 revision은 active가 아니더라도 보존합니다.
 
-Backend가 등록 API를 제공하면 reusable workflow의 `publish_registry`를 켜서
-`registry-publish.json`을 HTTPS로 전달합니다. API는 `Idempotency-Key`를 기준으로
-같은 문제와 revision의 중복 요청을 안전하게 처리해야 합니다. Registry 등록이
-실패하면 새 revision을 배포 가능 상태로 간주하지 않습니다.
+성공한 `-publish-bundle` Actions artifact의 `artifact-v2.json`이 자동 수집의
+공식 입력입니다. Backend poller가 challenge 매핑, release 등록과 같은
+`registry_revision`의 중복 처리를 소유하며, Backend/admin이 active release 전환과
+롤백을 소유합니다. DevSecOps workflow에는 Backend base URL 또는 service token이
+필요하지 않습니다.
 
 ## 팀 계약
 
 ### Challenge Registry
 
-- DevSecOps: 검증된 revision publish
+- DevSecOps: `artifact-v2.json`과 GHCR digest image 발행
+- Backend poller: Actions artifact 수집, challenge 매핑, release 등록, duplicate 처리
 - Scheduler: active revision read-only 조회
-- Backend/Registry: slug와 `challenge_id` 매핑 및 transaction 제공
-- DevSecOps와 Backend: `registry-publish.json` 요청 및 인증 계약 유지
+- Backend/admin: active release 전환과 롤백
 
 ### Resource Broker
 
@@ -134,6 +133,8 @@ DevSecOps는 `isolation_profile`, `workload.containers[]`, `ports[].public`,
 `workload.internal_connections[]`, `healthcheck`, `resource_profile`을 전달합니다.
 Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy,
 SecurityContext와 cleanup을 구현합니다.
+혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고
+`artifact-v2.json`에 보존합니다.
 발행 후 smoke test는 SSM으로 Runtime node 안의 Secure Provisioner API를 호출해
 생성과 삭제 Operation이 모두 성공하는지만 확인합니다.
 

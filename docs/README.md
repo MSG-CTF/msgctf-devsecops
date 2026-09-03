@@ -21,5 +21,5 @@ Monitoring 팀과 맞춰야 할 계약도 포함합니다.
 
 ### `challenge-registry-integration.md`
 
-실제 GitHub Actions publish bundle을 백엔드 Challenge Registry 기능 브랜치에
-등록한 통합 검증 증거와 운영 연결 전 남은 조건을 기록합니다.
+Backend poller의 Actions artifact 수집 기반 release 등록 운영 계약과, 과거 로컬
+Registry 등록의 호환성 증거를 기록합니다.

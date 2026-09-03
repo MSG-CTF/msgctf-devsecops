@@ -9,7 +9,7 @@
 5. 컨테이너별 CycloneDX SBOM 생성을 확인합니다.
 6. Actions Summary에서 GHCR 경로와 컨테이너별 digest를 확인합니다.
 7. 90일 보관되는 `<challenge_slug>-<artifact_scope>-publish-bundle`을 내려받아 `artifact-v2.json`과 `registry-publish.json`을 검토합니다.
-8. Challenge Registry API 연동이 활성화돼 있으면 workflow가 publish document를 한 transaction으로 등록하도록 요청합니다.
+8. Backend poller가 성공한 Actions artifact의 `artifact-v2.json`을 수집했는지 확인합니다.
 9. Runtime smoke가 활성화돼 있으면 SSM을 통해 Secure Provisioner API로 digest workload를 생성하고 즉시 삭제합니다.
 
 ## 발행 전 검수
@@ -51,14 +51,14 @@
 - 동일 commit image를 다시 build하지 않고 검사를 통과한 job을 재실행합니다.
 - 부분적으로 push된 tag는 Runtime에 전달하지 않습니다.
 
-### Registry publish 실패
+### Backend poller 수집 실패
 
 - 기존 active revision을 유지합니다.
-- OCI image가 존재하더라도 publish document 처리 전에는 배포 가능 상태로 표시하지 않습니다.
-- Registry API 복구 후 같은 revision과 digest로 idempotent하게 재시도합니다.
+- OCI image가 존재하더라도 poller 등록 전에는 배포 가능 상태로 표시하지 않습니다.
+- Backend가 같은 `registry_revision`과 digest를 재수집해 중복 처리를 확인합니다.
 - 실행 중 revision을 정리 대상으로 표시하지 않습니다.
 
-## Challenge Registry API 연결
+## Backend poller 연결
 
 출제자 branch와 PR 검증은 `challenge-branch-validation.yml`을 호출하고
 `secrets: inherit`를 사용하지 않습니다.
@@ -71,34 +71,19 @@ with:
   devsecops_ref: <commit-sha>
 ```
 
-GHCR 발행과 외부 연동은 승인된 `main` 실행으로 제한합니다.
+GHCR 발행과 Actions artifact 보관은 승인된 `main` 실행으로 제한합니다.
+`artifact-v2.json`이 Backend poller 자동 수집의 공식 입력이며,
+`registry-publish.json`은 같은 artifact를 감싼 수동 API 검증용 wrapper입니다.
 
-Backend가 revision 등록 API를 제공한 뒤 문제 저장소에 다음 값을 설정합니다.
+문제 저장소 caller와 reusable workflow에는 Backend base URL 또는 service token을
+설정하지 않습니다. Backend 팀은 운영 환경에서 `RELEASE_POLL_REPO`와
+`RELEASE_POLL_GITHUB_TOKEN`을 관리하고, poller가 artifact 수집, challenge 매핑,
+release 등록 및 동일 `registry_revision` 중복 처리를 수행합니다.
 
-- Repository 또는 Organization Secret `CHALLENGE_REGISTRY_URL`: HTTPS 등록 URL
-- Repository 또는 Organization Secret `CHALLENGE_REGISTRY_TOKEN`: 서비스 인증 token
-
-caller workflow의 reusable workflow 입력은 다음과 같이 설정합니다.
-
-```yaml
-with:
-  challenge_path: ${{ matrix.challenge_path }}
-  revision: ${{ github.run_number }}
-  publish_registry: true
-secrets: inherit
-```
-
-Backend API는 `registry-publish.json` 전체를 요청 body로 받고, Bearer token을
-검증하며, 문제, revision, 요청 body SHA-256으로 구성된 `Idempotency-Key`가 같은
-재시도를 중복 revision으로 만들지 않아야 합니다. 새 revision 저장과 active 전환은
-하나의 transaction으로 처리해야 합니다.
-API URL 또는 token이 없거나 API가 오류를 반환하면 Registry 등록 job이 실패합니다.
-
-Backend PR #26 기능 브랜치에는 Challenge Registry 등록·조회 API와 revision
-모델이 있으며 실제 Actions bundle의 로컬 등록을 확인했습니다. 다만 `main`
-병합과 운영 배포, service Bearer token, `Idempotency-Key`, 원자적 active 전환
-계약은 아직 완료되지 않았으므로 운영 caller는 `publish_registry: false`를
-유지합니다. 검증 증거는 `docs/challenge-registry-integration.md`에 기록합니다.
+Backend/admin만 active release 전환과 롤백을 수행합니다. 실제 poller 통합은
+Actions artifact 수집, 최초 등록, 중복 재수집, active release 미변경을 함께
+확인해야 합니다. 과거 로컬 Registry 등록은 호환성 증거이며 운영 E2E 완료 증거가
+아닙니다. 상세 증거는 `docs/challenge-registry-integration.md`에 기록합니다.
 
 ## Secure Provisioner K3s 연결
 
@@ -127,10 +112,10 @@ GitHub에 저장하지 않고 node의 `/etc/secure-provisioner/service-token`을
 
 1. 기존 revision을 수정하지 않고 새 revision을 만듭니다.
 2. 전체 validation, build, scan, SBOM, publish 과정을 다시 실행합니다.
-3. Challenge Registry에서 새 revision을 active로 전환합니다.
+3. Backend poller가 새 revision을 등록한 뒤 Backend/admin이 active release로 전환합니다.
 4. 기존 instance가 참조하는 revision과 digest는 유지합니다.
 5. 신규 instance부터 새 active revision을 사용합니다.
-6. rollback이 필요하면 이전 revision을 다시 active로 전환합니다.
+6. 롤백이 필요하면 Backend/admin이 이전 revision을 다시 active release로 전환합니다.
 
 ## 대회 전 점검
 
@@ -192,7 +177,8 @@ cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Run
   Challenge Pod의 readiness, image pull 실패, healthcheck 실패 지표와 알림
   규칙은 Runtime·Monitoring 팀이 별도로 확정해야 합니다.
 - GitHub Actions는 검증, GHCR 발행, publish bundle 생성까지 담당합니다.
-  Backend API가 준비되면 선택형 Registry publish job까지 담당합니다.
+  Backend poller는 Actions artifact 수집, challenge 매핑, release 등록과 중복
+  처리를 담당하고, Backend/admin은 active release 전환과 롤백을 담당합니다.
   참가자 요청에 따른 Namespace, Pod, Service, TTL cleanup은 Runtime과
   Scheduler의 운영 책임입니다.
 
