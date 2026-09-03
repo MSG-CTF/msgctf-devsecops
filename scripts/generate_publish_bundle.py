@@ -186,28 +186,7 @@ def generate_bundle(metadata, results, source_ref, revision, evidence_root):
         "scan_result": "PASS",
         "evidence": {"containers": evidence_containers},
     }
-    registry_publish = {
-        "schema_version": "1.0",
-        "operation": "publish_revision",
-        "challenge_slug": metadata["challenge_slug"],
-        "revision": revision,
-        "registry_revision": revision,
-        "activate": True,
-        "name": metadata["name"],
-        "category": metadata["category"],
-        "runtime_type": metadata["runtime_type"],
-        "architecture": metadata["architecture"],
-        "isolation_profile": isolation_profile,
-        "workload": workload,
-        "resource_profile": metadata["resource_profile"],
-        "source_ref": source_ref,
-        "preconditions": {
-            "all_images_digest_pinned": True,
-            "all_scans_passed": True,
-            "all_sboms_present": True,
-        },
-        "retention": {"protect_running_revisions": True},
-    }
+    registry_publish = {"artifact": artifact}
     return {"artifact": artifact, "registry_publish": registry_publish}
 
 

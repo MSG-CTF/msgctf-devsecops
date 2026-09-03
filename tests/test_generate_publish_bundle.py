@@ -90,12 +90,9 @@ class GeneratePublishBundleTests(unittest.TestCase):
                 for container in artifact["workload"]["containers"]
             )
         )
-        self.assertEqual(publish["operation"], "publish_revision")
-        self.assertTrue(publish["activate"])
-        self.assertEqual(publish["revision"], 3)
-        self.assertEqual(publish["registry_revision"], 3)
-        self.assertEqual(publish["isolation_profile"], "WEB")
-        self.assertEqual(publish["workload"], artifact["workload"])
+        self.assertEqual(publish, {"artifact": artifact})
+        for forbidden in ("activate", "operation", "preconditions", "retention"):
+            self.assertNotIn(forbidden, publish)
 
     def test_preserves_declared_internal_connections(self):
         metadata = dict(
@@ -117,7 +114,7 @@ class GeneratePublishBundleTests(unittest.TestCase):
             metadata["internal_connections"],
         )
         self.assertEqual(
-            bundle["registry_publish"]["workload"]["internal_connections"],
+            bundle["registry_publish"]["artifact"]["workload"]["internal_connections"],
             metadata["internal_connections"],
         )
 
@@ -127,7 +124,7 @@ class GeneratePublishBundleTests(unittest.TestCase):
         bundle = generate_bundle(metadata, RESULTS, "abc123", 1, EVIDENCE_ROOT)
 
         self.assertEqual(bundle["artifact"]["isolation_profile"], "PWN")
-        self.assertEqual(bundle["registry_publish"]["isolation_profile"], "PWN")
+        self.assertEqual(bundle["registry_publish"]["artifact"]["isolation_profile"], "PWN")
 
     def test_preserves_healthcheck_and_sbom_evidence(self):
         bundle = generate_bundle(METADATA, RESULTS, "abc123", 1, EVIDENCE_ROOT)
