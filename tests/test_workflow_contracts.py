@@ -314,9 +314,11 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("tests/fixtures/info-valid", text)
         self.assertIn("tests/fixtures/koth-template", text)
         self.assertEqual(text.count("devsecops_ref: ${{ github.sha }}"), 3)
-        self.assertIn("publish_registry: false", text)
+        self.assertNotIn("publish_registry", text)
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
+        for job_name in ("sample-server-challenge", "koth-challenge"):
+            self.assertNotIn("publish_registry", workflow["jobs"][job_name]["with"])
         branch_validation = workflow["jobs"]["branch-validation"]
         self.assertEqual(branch_validation["permissions"], {"contents": "read"})
         self.assertNotIn("secrets", branch_validation)
@@ -387,10 +389,7 @@ class WorkflowContractTests(unittest.TestCase):
         inputs = publish["with"]
 
         self.assertEqual(inputs["publish_images"], "true")
-        self.assertEqual(
-            inputs["publish_registry"],
-            "${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}",
-        )
+        self.assertNotIn("publish_registry", inputs)
         self.assertEqual(
             inputs["enable_k3s_smoke_deploy"],
             "${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}",
@@ -408,8 +407,6 @@ class WorkflowContractTests(unittest.TestCase):
                 "AWS_REGION",
                 "AWS_K3S_INSTANCE_ID",
                 "AWS_CD_ARTIFACT_BUCKET",
-                "CHALLENGE_REGISTRY_TOKEN",
-                "CHALLENGE_REGISTRY_URL",
             },
         )
 
