@@ -6,8 +6,10 @@ from pathlib import Path
 
 
 DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
-DIGEST_IMAGE = re.compile(
-    r"^[a-z0-9][a-z0-9._:-]*(?:/[a-z0-9][a-z0-9._-]*)+"
+MSGCTF_GHCR_DIGEST_IMAGE = re.compile(
+    r"^ghcr\.io/msg-ctf/challenges/"
+    r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/"
+    r"[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?"
     r"@sha256:[0-9a-f]{64}$"
 )
 TIMING_FIELDS = (
@@ -87,8 +89,17 @@ def _validated_results(metadata, results, evidence_root):
     for name in expected:
         result = by_name[name]
         image = _clean_string(result.get("image"), f"{name}.image")
-        if not DIGEST_IMAGE.fullmatch(image):
-            raise ValueError(f"{name}.image must be digest-pinned")
+        if not MSGCTF_GHCR_DIGEST_IMAGE.fullmatch(image):
+            raise ValueError(
+                f"{name}.image must be a digest-pinned MSG-CTF GHCR digest image"
+            )
+        expected_repository = (
+            f"ghcr.io/msg-ctf/challenges/{metadata['challenge_slug']}/{name}"
+        )
+        if not image.startswith(f"{expected_repository}@sha256:"):
+            raise ValueError(
+                f"{name}.image must use expected GHCR repository {expected_repository}"
+            )
         source_digest = _clean_string(
             result.get("source_digest"),
             f"{name}.source_digest",
@@ -122,6 +133,10 @@ def generate_bundle(metadata, results, source_ref, revision, evidence_root):
         raise ValueError("revision must be a positive integer")
     source_ref = _clean_string(source_ref, "source_ref")
     validated_results = _validated_results(metadata, results, evidence_root)
+    expected_profile = "PWN" if metadata.get("category") == "pwn" else "WEB"
+    isolation_profile = metadata.get("isolation_profile", expected_profile)
+    if isolation_profile != expected_profile:
+        raise ValueError("isolation_profile must match the challenge category")
 
     workload_containers = []
     evidence_containers = []
@@ -150,6 +165,8 @@ def generate_bundle(metadata, results, source_ref, revision, evidence_root):
         )
 
     workload = {"containers": workload_containers}
+    if metadata.get("internal_connections"):
+        workload["internal_connections"] = metadata["internal_connections"]
     if "healthcheck" in metadata:
         workload["healthcheck"] = metadata["healthcheck"]
 
@@ -157,36 +174,19 @@ def generate_bundle(metadata, results, source_ref, revision, evidence_root):
         "schema_version": "2.0",
         "challenge_slug": metadata["challenge_slug"],
         "revision": revision,
+        "registry_revision": revision,
         "name": metadata["name"],
         "category": metadata["category"],
         "runtime_type": metadata["runtime_type"],
         "architecture": metadata["architecture"],
+        "isolation_profile": isolation_profile,
         "workload": workload,
         "resource_profile": metadata["resource_profile"],
         "source_ref": source_ref,
         "scan_result": "PASS",
         "evidence": {"containers": evidence_containers},
     }
-    registry_publish = {
-        "schema_version": "1.0",
-        "operation": "publish_revision",
-        "challenge_slug": metadata["challenge_slug"],
-        "revision": revision,
-        "activate": True,
-        "name": metadata["name"],
-        "category": metadata["category"],
-        "runtime_type": metadata["runtime_type"],
-        "architecture": metadata["architecture"],
-        "workload": workload,
-        "resource_profile": metadata["resource_profile"],
-        "source_ref": source_ref,
-        "preconditions": {
-            "all_images_digest_pinned": True,
-            "all_scans_passed": True,
-            "all_sboms_present": True,
-        },
-        "retention": {"protect_running_revisions": True},
-    }
+    registry_publish = {"artifact": artifact}
     return {"artifact": artifact, "registry_publish": registry_publish}
 
 
@@ -234,6 +234,8 @@ def main():
             {
                 "challenge_slug": bundle["artifact"]["challenge_slug"],
                 "revision": bundle["artifact"]["revision"],
+                "registry_revision": bundle["artifact"]["registry_revision"],
+                "isolation_profile": bundle["artifact"]["isolation_profile"],
                 "container_count": len(
                     bundle["artifact"]["workload"]["containers"]
                 ),

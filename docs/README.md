@@ -18,3 +18,8 @@ Monitoring 팀과 맞춰야 할 계약도 포함합니다.
 
 현재 GitHub 기준의 문제 저장소, Broker, Scheduler, Runtime, Monitoring 연동
 상태와 미확정 항목도 기록합니다.
+
+### `challenge-registry-integration.md`
+
+Backend poller의 Actions artifact 수집 기반 release 등록 운영 계약과, 과거 로컬
+Registry 등록의 호환성 증거를 기록합니다.

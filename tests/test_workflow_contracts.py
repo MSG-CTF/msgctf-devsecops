@@ -57,7 +57,6 @@ class WorkflowContractTests(unittest.TestCase):
                 "revision",
                 "devsecops_ref",
                 "publish_images",
-                "publish_registry",
                 "enable_k3s_smoke_deploy",
                 "runtime_target_id",
             },
@@ -67,8 +66,6 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(inputs["devsecops_ref"]["default"], "main")
         self.assertEqual(inputs["publish_images"]["type"], "boolean")
         self.assertEqual(inputs["publish_images"]["default"], "true")
-        self.assertEqual(inputs["publish_registry"]["type"], "boolean")
-        self.assertEqual(inputs["publish_registry"]["default"], "false")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
         self.assertEqual(inputs["runtime_target_id"]["type"], "string")
         outputs = workflow["on"]["workflow_call"]["outputs"]
@@ -117,7 +114,6 @@ class WorkflowContractTests(unittest.TestCase):
                 "validate",
                 "build-scan-push",
                 "aggregate",
-                "publish-registry",
                 "k3s-smoke-deploy",
             },
         )
@@ -171,6 +167,18 @@ class WorkflowContractTests(unittest.TestCase):
             "${{ needs.validate.outputs.artifact_scope }}-publish-bundle",
             text,
         )
+        self.assertNotIn("publish_registry", workflow["on"]["workflow_call"]["inputs"])
+        self.assertNotIn("publish-registry", workflow["jobs"])
+        self.assertNotIn(
+            "CHALLENGE_REGISTRY_TOKEN",
+            workflow["on"]["workflow_call"].get("secrets", {}),
+        )
+        self.assertNotIn(
+            "CHALLENGE_REGISTRY_URL",
+            workflow["on"]["workflow_call"].get("secrets", {}),
+        )
+        for forbidden in ("Authorization: Bearer", "Idempotency-Key:", "curl --fail-with-body"):
+            self.assertNotIn(forbidden, text)
         k3s_download = next(
             step
             for step in workflow["jobs"]["k3s-smoke-deploy"]["steps"]
@@ -187,34 +195,6 @@ class WorkflowContractTests(unittest.TestCase):
             "--argjson timing",
         ):
             self.assertIn(required, text)
-
-        publish = workflow["jobs"]["publish-registry"]
-        self.assertEqual(publish["needs"], ["aggregate"])
-        self.assertIn("inputs.publish_registry", publish["if"])
-        self.assertEqual(publish["permissions"], {"contents": "read"})
-        self.assertIn("CHALLENGE_REGISTRY_TOKEN", workflow["on"]["workflow_call"]["secrets"])
-        self.assertIn("CHALLENGE_REGISTRY_URL", workflow["on"]["workflow_call"]["secrets"])
-
-        publish_run = next(
-            step["run"]
-            for step in publish["steps"]
-            if step.get("name") == "Challenge Registry revision 등록"
-        )
-        validation_run = next(
-            step["run"]
-            for step in publish["steps"]
-            if step.get("name") == "Challenge Registry 연결 설정 검증"
-        )
-        self.assertIn("https://", validation_run)
-        for required in (
-            "registry-publish.json",
-            "Authorization: Bearer",
-            "Idempotency-Key:",
-            "sha256sum dist/registry-publish.json",
-            "--fail-with-body",
-            "--retry 3",
-        ):
-            self.assertIn(required, publish_run)
 
     def test_branch_validation_can_disable_all_publish_and_deploy_steps(self):
         path = ROOT / ".github/workflows/challenge-supply-chain.yml"
@@ -236,7 +216,7 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertIn("inputs.publish_images", step.get("if", ""))
         self.assertEqual(found_steps, protected_steps)
 
-        for job_name in ("aggregate", "publish-registry", "k3s-smoke-deploy"):
+        for job_name in ("aggregate", "k3s-smoke-deploy"):
             self.assertIn(
                 "inputs.publish_images",
                 workflow["jobs"][job_name].get("if", ""),
@@ -334,9 +314,11 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("tests/fixtures/info-valid", text)
         self.assertIn("tests/fixtures/koth-template", text)
         self.assertEqual(text.count("devsecops_ref: ${{ github.sha }}"), 3)
-        self.assertIn("publish_registry: false", text)
+        self.assertNotIn("publish_registry", text)
         self.assertIn("enable_k3s_smoke_deploy: false", text)
         self.assertIn("id-token: write", text)
+        for job_name in ("sample-server-challenge", "koth-challenge"):
+            self.assertNotIn("publish_registry", workflow["jobs"][job_name]["with"])
         branch_validation = workflow["jobs"]["branch-validation"]
         self.assertEqual(branch_validation["permissions"], {"contents": "read"})
         self.assertNotIn("secrets", branch_validation)
@@ -407,10 +389,7 @@ class WorkflowContractTests(unittest.TestCase):
         inputs = publish["with"]
 
         self.assertEqual(inputs["publish_images"], "true")
-        self.assertEqual(
-            inputs["publish_registry"],
-            "${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}",
-        )
+        self.assertNotIn("publish_registry", inputs)
         self.assertEqual(
             inputs["enable_k3s_smoke_deploy"],
             "${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}",
@@ -428,8 +407,6 @@ class WorkflowContractTests(unittest.TestCase):
                 "AWS_REGION",
                 "AWS_K3S_INSTANCE_ID",
                 "AWS_CD_ARTIFACT_BUCKET",
-                "CHALLENGE_REGISTRY_TOKEN",
-                "CHALLENGE_REGISTRY_URL",
             },
         )
 

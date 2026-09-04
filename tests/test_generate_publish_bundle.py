@@ -75,6 +75,8 @@ class GeneratePublishBundleTests(unittest.TestCase):
         publish = bundle["registry_publish"]
         self.assertEqual(artifact["schema_version"], "2.0")
         self.assertEqual(artifact["revision"], 3)
+        self.assertEqual(artifact["registry_revision"], 3)
+        self.assertEqual(artifact["isolation_profile"], "WEB")
         self.assertEqual(
             artifact["workload"]["containers"][0]["ports"],
             [
@@ -88,10 +90,41 @@ class GeneratePublishBundleTests(unittest.TestCase):
                 for container in artifact["workload"]["containers"]
             )
         )
-        self.assertEqual(publish["operation"], "publish_revision")
-        self.assertTrue(publish["activate"])
-        self.assertEqual(publish["revision"], 3)
-        self.assertEqual(publish["workload"], artifact["workload"])
+        self.assertEqual(publish, {"artifact": artifact})
+        for forbidden in ("activate", "operation", "preconditions", "retention"):
+            self.assertNotIn(forbidden, publish)
+
+    def test_preserves_declared_internal_connections(self):
+        metadata = dict(
+            METADATA,
+            internal_connections=[
+                {
+                    "source_container": "web",
+                    "destination_container": "db",
+                    "protocol": "TCP",
+                    "port": 5432,
+                }
+            ],
+        )
+
+        bundle = generate_bundle(metadata, RESULTS, "abc123", 1, EVIDENCE_ROOT)
+
+        self.assertEqual(
+            bundle["artifact"]["workload"]["internal_connections"],
+            metadata["internal_connections"],
+        )
+        self.assertEqual(
+            bundle["registry_publish"]["artifact"]["workload"]["internal_connections"],
+            metadata["internal_connections"],
+        )
+
+    def test_maps_pwn_category_to_pwn_isolation_profile(self):
+        metadata = dict(METADATA, category="pwn")
+
+        bundle = generate_bundle(metadata, RESULTS, "abc123", 1, EVIDENCE_ROOT)
+
+        self.assertEqual(bundle["artifact"]["isolation_profile"], "PWN")
+        self.assertEqual(bundle["registry_publish"]["artifact"]["isolation_profile"], "PWN")
 
     def test_preserves_healthcheck_and_sbom_evidence(self):
         bundle = generate_bundle(METADATA, RESULTS, "abc123", 1, EVIDENCE_ROOT)
@@ -135,7 +168,7 @@ class GeneratePublishBundleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "digest-pinned"):
             generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
 
-    def test_accepts_digest_image_from_registry_with_port(self):
+    def test_rejects_digest_image_outside_msg_ctf_ghcr(self):
         results = [
             dict(
                 RESULTS[0],
@@ -144,18 +177,32 @@ class GeneratePublishBundleTests(unittest.TestCase):
             RESULTS[1],
         ]
 
-        bundle = generate_bundle(
-            METADATA,
-            results,
-            "abc123",
-            1,
-            EVIDENCE_ROOT,
-        )
+        with self.assertRaisesRegex(ValueError, "MSG-CTF GHCR digest"):
+            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
 
-        self.assertEqual(
-            bundle["artifact"]["workload"]["containers"][0]["image"],
-            results[0]["image"],
-        )
+    def test_rejects_image_from_another_challenge_repository(self):
+        results = [
+            dict(
+                RESULTS[0],
+                image=f"ghcr.io/msg-ctf/challenges/other-challenge/web@{DIGEST_A}",
+            ),
+            RESULTS[1],
+        ]
+
+        with self.assertRaisesRegex(ValueError, "expected GHCR repository"):
+            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+
+    def test_rejects_image_from_another_container_repository(self):
+        results = [
+            dict(
+                RESULTS[0],
+                image=f"ghcr.io/msg-ctf/challenges/web-notebook/admin@{DIGEST_A}",
+            ),
+            RESULTS[1],
+        ]
+
+        with self.assertRaisesRegex(ValueError, "expected GHCR repository"):
+            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
 
     def test_rejects_missing_container_result(self):
         with self.assertRaisesRegex(ValueError, "result set"):

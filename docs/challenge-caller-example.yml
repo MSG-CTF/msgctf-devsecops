@@ -118,7 +118,6 @@ jobs:
       revision: ${{ github.run_number }}
       devsecops_ref: 64a8d9267b2e7ea6a3eea5c92070d09ab1d76d8d
       publish_images: true
-      publish_registry: ${{ vars.ENABLE_CHALLENGE_REGISTRY == 'true' }}
       enable_k3s_smoke_deploy: ${{ vars.ENABLE_RUNTIME_SMOKE == 'true' }}
       runtime_target_id: ${{ vars.RUNTIME_TARGET_ID }}
     secrets:
@@ -126,5 +125,3 @@ jobs:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       AWS_K3S_INSTANCE_ID: ${{ secrets.AWS_K3S_INSTANCE_ID }}
       AWS_CD_ARTIFACT_BUCKET: ${{ secrets.AWS_CD_ARTIFACT_BUCKET }}
-      CHALLENGE_REGISTRY_TOKEN: ${{ secrets.CHALLENGE_REGISTRY_TOKEN }}
-      CHALLENGE_REGISTRY_URL: ${{ secrets.CHALLENGE_REGISTRY_URL }}
