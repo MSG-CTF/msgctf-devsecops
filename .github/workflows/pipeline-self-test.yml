@@ -10,6 +10,15 @@ on:
       - "ci/**"
       - "scripts/**"
       - "tests/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/challenge-branch-validation.yml"
+      - ".github/workflows/challenge-supply-chain.yml"
+      - ".github/workflows/pipeline-self-test.yml"
+      - "ci/**"
+      - "scripts/**"
+      - "tests/**"
   workflow_dispatch:
 
 permissions:

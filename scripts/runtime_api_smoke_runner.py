@@ -10,7 +10,7 @@ import re
 import time
 import uuid
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -48,6 +48,22 @@ def _isolation_profile(category: Any) -> str:
     return "PWN" if category.lower() == "pwn" else "WEB"
 
 
+def _validate_bundle_contract(artifact: dict[str, Any]) -> tuple[int, int, str]:
+    revision = _positive_int(artifact.get("revision"), "artifact revision")
+    registry_revision = _positive_int(
+        artifact.get("registry_revision"),
+        "artifact registry_revision",
+    )
+    if registry_revision != revision:
+        raise ValueError("artifact registry_revision must equal revision")
+    expected_profile = _isolation_profile(artifact.get("category"))
+    if artifact.get("isolation_profile") != expected_profile:
+        raise ValueError("artifact isolation_profile must match the challenge category")
+    if artifact.get("scan_result") != "PASS":
+        raise ValueError("artifact scan_result must be PASS")
+    return revision, registry_revision, expected_profile
+
+
 def build_create_request(
     artifact: dict[str, Any],
     *,
@@ -56,6 +72,9 @@ def build_create_request(
     team_id: str,
 ) -> dict[str, Any]:
     """Translate a publish artifact into the Runtime team's create contract."""
+    _revision, _registry_revision, isolation_profile = _validate_bundle_contract(
+        artifact
+    )
     if artifact.get("runtime_type") != "KUBERNETES":
         raise ValueError("Runtime smoke deployment requires runtime_type KUBERNETES")
     if artifact.get("architecture") != "AMD64":
@@ -175,7 +194,7 @@ def build_create_request(
         "request_id": f"ci-smoke-create-{normalized_instance_id}",
         "instance_id": normalized_instance_id,
         "team_id": normalized_team_id,
-        "isolation_profile": _isolation_profile(artifact.get("category")),
+        "isolation_profile": isolation_profile,
         "target": {"runtime_type": "KUBERNETES", "target_id": target_id.strip()},
         "workload": {**runtime_workload, "resource_limits": resource_limits},
     }
@@ -206,7 +225,11 @@ class RuntimeClient:
             with urlopen(request, timeout=self.timeout) as response:
                 payload = response.read().decode("utf-8")
         except HTTPError as error:
-            detail = error.read().decode("utf-8", errors="replace")[:500]
+            try:
+                detail = error.read().decode("utf-8", errors="replace")
+            finally:
+                error.close()
+            detail = detail.replace(self.token, "[REDACTED]")[:500]
             if error.code >= 500:
                 raise RetryableRuntimeError(
                     f"Runtime API {method} {path} returned HTTP {error.code}: {detail}"
@@ -300,7 +323,11 @@ def run_smoke(
     poll_interval: float = 2,
     timeout: float = 300,
     cleanup_timeout: float = 300,
+    evidence_clock: Callable[[], float] | None = None,
 ) -> dict[str, Any]:
+    if evidence_clock is None:
+        evidence_clock = time.monotonic
+    _revision, registry_revision, _profile = _validate_bundle_contract(artifact)
     token = token_file.read_text(encoding="utf-8").strip()
     client = RuntimeClient(api_url, token, timeout=min(max(timeout, cleanup_timeout, 1), 30))
     create_request = build_create_request(
@@ -309,6 +336,7 @@ def run_smoke(
         instance_id=instance_id,
         team_id=team_id,
     )
+    create_started = evidence_clock()
     deadline = time.monotonic() + timeout
     recovered_after_timeout = False
     try:
@@ -357,6 +385,9 @@ def run_smoke(
     runtime_workload_id = create_result.get("runtime_workload_id")
     if not isinstance(runtime_workload_id, str) or not runtime_workload_id.strip():
         raise RuntimeError("Runtime create operation returned an invalid runtime_workload_id")
+    endpoints = create_result.get("endpoints")
+    endpoints_valid = isinstance(endpoints, list) and bool(endpoints)
+    create_elapsed_seconds = round(evidence_clock() - create_started, 3)
 
     delete_request = {
         "request_id": f"ci-smoke-delete-{create_request['instance_id']}",
@@ -366,6 +397,7 @@ def run_smoke(
         "runtime_workload_id": runtime_workload_id,
         "delete_reason": "ADMIN_FORCED",
     }
+    delete_started = evidence_clock()
     cleanup_deadline = time.monotonic() + cleanup_timeout
     deleted = _submit_with_retry(
         client,
@@ -381,15 +413,26 @@ def run_smoke(
         poll_interval=poll_interval,
         deadline=cleanup_deadline,
     )
+    delete_elapsed_seconds = round(evidence_clock() - delete_started, 3)
+    if not endpoints_valid:
+        raise RuntimeError("Runtime create operation did not return public endpoints")
     return {
         "challenge_slug": artifact.get("challenge_slug"),
         "revision": artifact.get("revision"),
+        "registry_revision": registry_revision,
         "target_id": target_id,
         "instance_id": create_request["instance_id"],
         "runtime_workload_id": runtime_workload_id,
+        "images": [
+            {"name": container["name"], "image": container["image"]}
+            for container in create_request["workload"]["containers"]
+        ],
         "service_url": create_result.get("service_url"),
+        "endpoints": endpoints,
         "create_status": created["status"],
+        "create_elapsed_seconds": create_elapsed_seconds,
         "delete_status": delete_snapshot["status"],
+        "delete_elapsed_seconds": delete_elapsed_seconds,
         "recovered_after_timeout": recovered_after_timeout,
     }
 

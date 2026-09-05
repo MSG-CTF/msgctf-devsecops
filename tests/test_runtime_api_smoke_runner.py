@@ -14,11 +14,15 @@ DIGEST = "sha256:" + "a" * 64
 INSTANCE_ID = "018f3f1e-21b8-7a91-a30b-63b3400fd001"
 TEAM_ID = "00000000-0000-4000-8000-000000000018"
 ARTIFACT = {
+    "schema_version": "2.0",
     "challenge_slug": "koth-template",
     "revision": 11,
+    "registry_revision": 11,
     "category": "koth",
     "runtime_type": "KUBERNETES",
     "architecture": "AMD64",
+    "isolation_profile": "WEB",
+    "scan_result": "PASS",
     "workload": {
         "containers": [
             {
@@ -47,13 +51,21 @@ class RuntimeHandler(BaseHTTPRequestHandler):
     create_result = {
         "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
         "service_url": "http://203.0.113.10:31042",
-        "endpoints": [],
+        "endpoints": [
+            {
+                "container_name": "service",
+                "port": 8080,
+                "protocol": "HTTP",
+                "service_url": "http://203.0.113.10:31042",
+            }
+        ],
     }
     drop_create_response_once = False
     drop_delete_response_once = False
     omit_create_operation_id_once = False
     omit_delete_operation_id_once = False
     omit_create_result_once = False
+    echo_auth_error = False
 
     def log_message(self, _format, *_args):
         return
@@ -74,6 +86,9 @@ class RuntimeHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         type(self).requests.append(("POST", self.path, self.headers, self._json_body()))
+        if type(self).echo_auth_error:
+            self._respond(400, {"error": self.headers.get("Authorization")})
+            return
         if type(self).drop_create_response_once:
             type(self).drop_create_response_once = False
             self.connection.shutdown(socket.SHUT_RDWR)
@@ -137,13 +152,21 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         RuntimeHandler.create_result = {
             "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
             "service_url": "http://203.0.113.10:31042",
-            "endpoints": [],
+            "endpoints": [
+                {
+                    "container_name": "service",
+                    "port": 8080,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31042",
+                }
+            ],
         }
         RuntimeHandler.drop_create_response_once = False
         RuntimeHandler.drop_delete_response_once = False
         RuntimeHandler.omit_create_operation_id_once = False
         RuntimeHandler.omit_delete_operation_id_once = False
         RuntimeHandler.omit_create_result_once = False
+        RuntimeHandler.echo_auth_error = False
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), RuntimeHandler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -248,8 +271,139 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.assertEqual(delete_body["runtime_workload_id"], "aws-k3s-001/ctf-test/challenge")
         self.assertEqual(delete_body["delete_reason"], "ADMIN_FORCED")
 
+    def test_reports_digest_images_and_runtime_endpoints(self):
+        self.start_server()
+        RuntimeHandler.create_result = {
+            "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
+            "service_url": "http://203.0.113.10:31042",
+            "endpoints": [
+                {
+                    "container_name": "service",
+                    "port": 8080,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31042",
+                }
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            result = run_smoke(
+                ARTIFACT,
+                api_url=f"http://127.0.0.1:{self.server.server_port}",
+                token_file=token_file,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+                poll_interval=0,
+                timeout=2,
+            )
+
+        self.assertEqual(
+            result["images"],
+            [
+                {
+                    "name": "service",
+                    "image": ARTIFACT["workload"]["containers"][0]["image"],
+                }
+            ],
+        )
+        self.assertEqual(result["endpoints"], RuntimeHandler.create_result["endpoints"])
+        self.assertEqual(result["registry_revision"], 11)
+        self.assertNotIn("A" * 43, json.dumps(result))
+
+    def test_rejects_registry_revision_mismatch_before_runtime_request(self):
+        artifact = dict(ARTIFACT, registry_revision=12)
+
+        with self.assertRaisesRegex(ValueError, "registry_revision"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_rejects_isolation_profile_mismatch_before_runtime_request(self):
+        artifact = dict(ARTIFACT, isolation_profile="PWN")
+
+        with self.assertRaisesRegex(ValueError, "isolation_profile"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_reports_create_and_delete_elapsed_seconds(self):
+        self.start_server()
+        evidence_times = iter([10.0, 12.5, 20.0, 21.25])
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            result = run_smoke(
+                ARTIFACT,
+                api_url=f"http://127.0.0.1:{self.server.server_port}",
+                token_file=token_file,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+                poll_interval=0,
+                timeout=2,
+                evidence_clock=lambda: next(evidence_times),
+            )
+
+        self.assertEqual(result["create_elapsed_seconds"], 2.5)
+        self.assertEqual(result["delete_elapsed_seconds"], 1.25)
+
+    def test_rejects_success_without_endpoints_after_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result = {
+            "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
+            "service_url": None,
+            "endpoints": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-001",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        methods = [(method, path) for method, path, _headers, _body in RuntimeHandler.requests]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+
+    def test_redacts_service_token_from_runtime_error_details(self):
+        self.start_server()
+        RuntimeHandler.echo_auth_error = True
+        service_token = "A" * 43
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text(service_token, encoding="utf-8")
+            with self.assertRaises(RuntimeError) as raised:
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-001",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        self.assertNotIn(service_token, str(raised.exception))
+        self.assertIn("[REDACTED]", str(raised.exception))
+
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
-        artifact = dict(ARTIFACT, category="pwn")
+        artifact = dict(ARTIFACT, category="pwn", isolation_profile="PWN")
 
         request = build_create_request(
             artifact,
