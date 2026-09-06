@@ -31,32 +31,32 @@
 - Consumes: `build_create_request(artifact, target_id, instance_id, team_id)`와 bundle의 `workload.containers[].ports[]`.
 - Produces: Runtime 컨테이너 `{name, image, ports, exposed_ports, run_as_user}`.
 
-- [ ] **Step 1: 혼합 포트와 private 컨테이너의 실패 테스트 작성**
+- [x] **Step 1: 혼합 포트와 private 컨테이너의 실패 테스트 작성**
 
   기존 request 예상값에서 `expose`를 제거하고 `exposed_ports`를 요구한다. 별도 테스트는
   같은 컨테이너의 `8080 public`, `9000 private`가
   `ports: [8080, 9000]`, `exposed_ports: [8080]`로 변환되는지 확인한다. private DB는
   `exposed_ports: []`를 확인한다.
 
-- [ ] **Step 2: 테스트 실패 확인**
+- [x] **Step 2: 테스트 실패 확인**
 
   Run: `python3 -m unittest tests.test_runtime_api_smoke_runner.RuntimeApiSmokeRunnerTests.test_builds_runtime_team_multi_container_contract tests.test_runtime_api_smoke_runner.RuntimeApiSmokeRunnerTests.test_builds_mixed_public_private_ports_with_exposed_ports -v`
 
   Expected: 기존 구현이 `expose`를 반환하고 혼합 포트를 거절해 FAIL.
 
-- [ ] **Step 3: 최소 변환 구현**
+- [x] **Step 3: 최소 변환 구현**
 
   `public_values`와 혼합 포트 거절을 제거한다. 각 port object를 검증하면서 전체 `ports`와
   `public: true`인 `exposed_ports`를 따로 누적하고 Runtime container에 두 배열을 넣는다.
   workload 전체 공개 여부는 `bool(exposed_ports)`로 계산한다.
 
-- [ ] **Step 4: 대상 테스트 통과 확인**
+- [x] **Step 4: 대상 테스트 통과 확인**
 
   Run: `python3 -m unittest tests.test_runtime_api_smoke_runner.RuntimeApiSmokeRunnerTests.test_builds_runtime_team_multi_container_contract tests.test_runtime_api_smoke_runner.RuntimeApiSmokeRunnerTests.test_builds_mixed_public_private_ports_with_exposed_ports -v`
 
   Expected: PASS.
 
-- [ ] **Step 5: 포트 변환 변경 커밋**
+- [x] **Step 5: 포트 변환 변경 커밋**
 
   ```bash
   git add scripts/runtime_api_smoke_runner.py tests/test_runtime_api_smoke_runner.py
@@ -79,14 +79,25 @@
   web `exposed_ports == [8080]`, db `exposed_ports == []`, 연결 배열이 원형 보존되는지
   확인한다.
 
-- [ ] **Step 2: 기존 endpoint 누락·추가·중복 검증 테스트 실행**
+- [ ] **Step 2: endpoint 누락·추가·중복 실패 테스트 작성**
+
+  현재 runner가 endpoint 배열이 비어 있지 않은지만 검사하는 반례를 먼저 재현한다.
+  artifact의 공개 `(container_name, port)` 집합과 Runtime 응답의 집합이 다르거나,
+  endpoint 항목이 중복되면 cleanup 후 실패하는 테스트를 추가한다.
+
+- [ ] **Step 3: endpoint 정확 일치 검증 구현**
+
+  request의 `exposed_ports`에서 예상 집합을 만들고 Runtime 응답 각 항목의 필수 필드와
+  중복을 검증한다. 실제 집합이 예상 집합과 다르면 cleanup 후 오류를 반환한다.
+
+- [ ] **Step 4: Runtime smoke runner 테스트 실행**
 
   Run: `python3 -m unittest tests.test_runtime_api_smoke_runner -v`
 
   Expected: 모든 Runtime smoke runner 테스트 PASS. endpoint 불일치 테스트는 내부적으로
   오류와 cleanup을 기대하므로 테스트 자체는 PASS.
 
-- [ ] **Step 3: 회귀 테스트 커밋**
+- [ ] **Step 5: 회귀 테스트 커밋**
 
   ```bash
   git add tests/test_runtime_api_smoke_runner.py

@@ -199,12 +199,64 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                         "name": "service",
                         "image": ARTIFACT["workload"]["containers"][0]["image"],
                         "ports": [8080, 9090],
-                        "expose": True,
+                        "exposed_ports": [8080, 9090],
                         "run_as_user": 10001,
                     }
                 ],
                 "resource_limits": ARTIFACT["resource_profile"],
             },
+        )
+
+    def test_builds_mixed_public_private_ports_with_exposed_ports(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["workload"]["containers"] = [
+            {
+                "name": "web",
+                "image": f"ghcr.io/msg-ctf/challenges/web-notebook/web@{DIGEST}",
+                "ports": [
+                    {"port": 8080, "public": True},
+                    {"port": 9000, "public": False},
+                ],
+            },
+            {
+                "name": "db",
+                "image": f"ghcr.io/msg-ctf/challenges/web-notebook/db@{DIGEST}",
+                "ports": [{"port": 5432, "public": False}],
+            },
+        ]
+
+        request = build_create_request(
+            artifact,
+            target_id="aws-k3s-lab",
+            instance_id=INSTANCE_ID,
+            team_id=TEAM_ID,
+        )
+
+        self.assertEqual(request["target"]["target_id"], "aws-k3s-lab")
+        self.assertEqual(
+            request["workload"]["containers"],
+            [
+                {
+                    "name": "web",
+                    "image": artifact["workload"]["containers"][0]["image"],
+                    "ports": [8080, 9000],
+                    "exposed_ports": [8080],
+                    "run_as_user": 10001,
+                },
+                {
+                    "name": "db",
+                    "image": artifact["workload"]["containers"][1]["image"],
+                    "ports": [5432],
+                    "exposed_ports": [],
+                    "run_as_user": 10001,
+                },
+            ],
+        )
+        self.assertTrue(
+            all(
+                "expose" not in container
+                for container in request["workload"]["containers"]
+            )
         )
 
     def test_preserves_internal_connections_in_runtime_request(self):
