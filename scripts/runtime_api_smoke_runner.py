@@ -308,6 +308,48 @@ def _poll_operation(
     raise TimeoutError(f"Runtime operation {operation_id} timed out")
 
 
+def _runtime_endpoint_error(
+    create_request: dict[str, Any],
+    endpoints: Any,
+) -> str | None:
+    expected = {
+        (container["name"], port)
+        for container in create_request["workload"]["containers"]
+        for port in container["exposed_ports"]
+    }
+    if not isinstance(endpoints, list) or not endpoints:
+        return "Runtime create operation did not return public endpoints"
+
+    actual = set()
+    for endpoint in endpoints:
+        if not isinstance(endpoint, dict):
+            return "Runtime endpoints contain an invalid item"
+        container_name = endpoint.get("container_name")
+        port = endpoint.get("port")
+        protocol = endpoint.get("protocol")
+        service_url = endpoint.get("service_url")
+        if (
+            not isinstance(container_name, str)
+            or not container_name
+            or isinstance(port, bool)
+            or not isinstance(port, int)
+            or not 1 <= port <= 65535
+            or not isinstance(protocol, str)
+            or not protocol
+            or not isinstance(service_url, str)
+            or not service_url
+        ):
+            return "Runtime endpoints contain missing or invalid required fields"
+        key = (container_name, port)
+        if key in actual:
+            return "Runtime endpoints contain a duplicate container and port"
+        actual.add(key)
+
+    if actual != expected:
+        return "Runtime endpoints do not exactly match requested public ports"
+    return None
+
+
 def run_smoke(
     artifact: dict[str, Any],
     *,
@@ -382,7 +424,7 @@ def run_smoke(
     if not isinstance(runtime_workload_id, str) or not runtime_workload_id.strip():
         raise RuntimeError("Runtime create operation returned an invalid runtime_workload_id")
     endpoints = create_result.get("endpoints")
-    endpoints_valid = isinstance(endpoints, list) and bool(endpoints)
+    endpoint_error = _runtime_endpoint_error(create_request, endpoints)
     create_elapsed_seconds = round(evidence_clock() - create_started, 3)
 
     delete_request = {
@@ -410,8 +452,8 @@ def run_smoke(
         deadline=cleanup_deadline,
     )
     delete_elapsed_seconds = round(evidence_clock() - delete_started, 3)
-    if not endpoints_valid:
-        raise RuntimeError("Runtime create operation did not return public endpoints")
+    if endpoint_error is not None:
+        raise RuntimeError(endpoint_error)
     return {
         "challenge_slug": artifact.get("challenge_slug"),
         "revision": artifact.get("revision"),

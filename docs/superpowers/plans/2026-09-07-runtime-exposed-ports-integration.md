@@ -72,32 +72,32 @@
 - Consumes: Task 1의 Runtime request와 기존 `run_smoke` endpoint 검증.
 - Produces: `web -> db:5432/TCP`가 유지되고 공개 endpoint만 기대하는 회귀 테스트.
 
-- [ ] **Step 1: web과 db의 실제 계약 테스트 작성**
+- [x] **Step 1: web과 db의 실제 계약 테스트 작성**
 
   web은 `8080 public`, `9000 private`, db는 `5432 private`로 구성하고
   `web -> db:5432/TCP`를 넣는다. 생성 요청에서 `expose`가 어느 컨테이너에도 없고,
   web `exposed_ports == [8080]`, db `exposed_ports == []`, 연결 배열이 원형 보존되는지
   확인한다.
 
-- [ ] **Step 2: endpoint 누락·추가·중복 실패 테스트 작성**
+- [x] **Step 2: endpoint 누락·추가·중복 실패 테스트 작성**
 
   현재 runner가 endpoint 배열이 비어 있지 않은지만 검사하는 반례를 먼저 재현한다.
   artifact의 공개 `(container_name, port)` 집합과 Runtime 응답의 집합이 다르거나,
   endpoint 항목이 중복되면 cleanup 후 실패하는 테스트를 추가한다.
 
-- [ ] **Step 3: endpoint 정확 일치 검증 구현**
+- [x] **Step 3: endpoint 정확 일치 검증 구현**
 
   request의 `exposed_ports`에서 예상 집합을 만들고 Runtime 응답 각 항목의 필수 필드와
   중복을 검증한다. 실제 집합이 예상 집합과 다르면 cleanup 후 오류를 반환한다.
 
-- [ ] **Step 4: Runtime smoke runner 테스트 실행**
+- [x] **Step 4: Runtime smoke runner 테스트 실행**
 
   Run: `python3 -m unittest tests.test_runtime_api_smoke_runner -v`
 
   Expected: 모든 Runtime smoke runner 테스트 PASS. endpoint 불일치 테스트는 내부적으로
   오류와 cleanup을 기대하므로 테스트 자체는 PASS.
 
-- [ ] **Step 5: 회귀 테스트 커밋**
+- [x] **Step 5: 회귀 테스트 커밋**
 
   ```bash
   git add tests/test_runtime_api_smoke_runner.py
