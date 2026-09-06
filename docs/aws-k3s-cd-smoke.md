@@ -41,7 +41,7 @@ caller는 다음 입력을 전달합니다.
 ```yaml
 with:
   enable_k3s_smoke_deploy: true
-  runtime_target_id: aws-k3s-001
+  runtime_target_id: aws-k3s-lab
 secrets: inherit
 ```
 
@@ -110,6 +110,18 @@ Smoke runner는 `artifact-v2.json`의 `revision`과 `registry_revision`이 같�
 확인합니다. `containers[]`의 digest 이미지와 선택형 `internal_connections[]`는
 같은 publish bundle에서 읽어 Runtime 요청에 전달합니다.
 
+bundle의 컨테이너 포트는 다음처럼 Runtime PR #39 계약으로 변환합니다.
+
+- bundle의 전체 `ports[].port`는 Runtime 요청의 `ports`가 됩니다.
+- `ports[].public: true`인 포트만 Runtime 요청의 `exposed_ports`가 됩니다.
+- 모두 private인 컨테이너는 `exposed_ports: []`를 보냅니다.
+- Runtime 요청에는 기존 `expose`를 함께 보내지 않습니다.
+
+따라서 한 컨테이너에 `8080 public`, `9000 private`가 함께 있어도 8080만 외부
+endpoint로 요청할 수 있습니다. Runtime 응답의 `endpoints[]`는 요청한 모든
+`(container_name, port)`와 누락, 추가, 중복 없이 정확히 일치해야 합니다. endpoint
+각 항목의 `container_name`, `port`, `protocol`, `service_url`도 모두 검증합니다.
+
 `create_elapsed_seconds`는 생성 요청을 처음 제출한 시점부터 생성 Operation이
 `SUCCEEDED`가 될 때까지의 시간입니다. 이미지 pull뿐 아니라 Pod와 Service 준비
 시간도 포함하므로 순수 네트워크 처리량으로 해석하지 않습니다.
@@ -141,8 +153,9 @@ S3 staging 파일 또는 API body에 기록하지 않습니다.
 
 - Runtime팀 API의 현재 격리 profile에 맞춰 `pwn`은 `PWN`, 나머지는 `WEB`을 사용합니다.
 - `info.yaml`에 `run_as_user`가 없으면 smoke 요청은 non-root UID `10001`을 사용합니다.
-- 한 컨테이너 안에서 public 포트와 private 포트를 섞는 artifact는 Runtime의 현재
-  container 단위 `expose` 계약으로 손실 없이 변환할 수 없어 거부합니다.
+- 운영 smoke 대상은 Runtime팀에서 전달한 `aws-k3s-lab`을 사용합니다.
+- Runtime API service token이 아직 준비되지 않아 실제 K3s 생성·endpoint 확인·삭제는
+  실행하지 않았습니다. 현재 완료 범위는 요청 변환과 cleanup 동작의 단위 테스트입니다.
 - 운영 참가자 instance 생성은 Backend, Scheduler, Broker, Runtime 경로가 담당합니다.
   이 job은 문제 revision 발행 직후의 임시 통합 검증입니다.
 

@@ -114,19 +114,19 @@
 - Consumes: Runtime PR #39의 `exposed_ports` 계약과 운영 target `aws-k3s-lab`.
 - Produces: 토큰 준비 전후를 구분한 실행 안내.
 
-- [ ] **Step 1: 문서 수정**
+- [x] **Step 1: 문서 수정**
 
   caller 예시의 `runtime_target_id`를 `aws-k3s-lab`으로 바꾼다. 혼합 포트 거절 제약을
   제거하고 `ports[].public`이 Runtime `exposed_ports`로 변환되며 `expose`를 보내지
   않는다고 설명한다. service token 미수령으로 실제 K3s smoke가 미실행임을 명시한다.
 
-- [ ] **Step 2: 문서 계약 검사**
+- [x] **Step 2: 문서 계약 검사**
 
   Run: `rg -n "aws-k3s-lab|exposed_ports|실제 K3s" docs/aws-k3s-cd-smoke.md`
 
   Expected: 세 계약이 문서에 존재하며 기존 “혼합 포트 거절” 설명은 없음.
 
-- [ ] **Step 3: 문서 커밋**
+- [x] **Step 3: 문서 커밋**
 
   ```bash
   git add docs/aws-k3s-cd-smoke.md
