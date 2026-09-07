@@ -14,11 +14,15 @@ DIGEST = "sha256:" + "a" * 64
 INSTANCE_ID = "018f3f1e-21b8-7a91-a30b-63b3400fd001"
 TEAM_ID = "00000000-0000-4000-8000-000000000018"
 ARTIFACT = {
+    "schema_version": "2.0",
     "challenge_slug": "koth-template",
     "revision": 11,
+    "registry_revision": 11,
     "category": "koth",
     "runtime_type": "KUBERNETES",
     "architecture": "AMD64",
+    "isolation_profile": "WEB",
+    "scan_result": "PASS",
     "workload": {
         "containers": [
             {
@@ -47,13 +51,33 @@ class RuntimeHandler(BaseHTTPRequestHandler):
     create_result = {
         "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
         "service_url": "http://203.0.113.10:31042",
-        "endpoints": [],
+        "endpoints": [
+            {
+                "container_name": "service",
+                "port": 8080,
+                "protocol": "HTTP",
+                "service_url": "http://203.0.113.10:31042",
+            },
+            {
+                "container_name": "service",
+                "port": 9090,
+                "protocol": "HTTP",
+                "service_url": "http://203.0.113.10:31043",
+            },
+        ],
     }
     drop_create_response_once = False
     drop_delete_response_once = False
     omit_create_operation_id_once = False
     omit_delete_operation_id_once = False
     omit_create_result_once = False
+    echo_auth_error = False
+    fail_runtime_status_once = False
+    runtime_status_result = {
+        "instance_id": INSTANCE_ID,
+        "target_id": "aws-k3s-lab",
+        "runtime_workload_id": "aws-k3s-lab/ctf-test/challenge",
+    }
 
     def log_message(self, _format, *_args):
         return
@@ -74,6 +98,9 @@ class RuntimeHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         type(self).requests.append(("POST", self.path, self.headers, self._json_body()))
+        if type(self).echo_auth_error:
+            self._respond(400, {"error": self.headers.get("Authorization")})
+            return
         if type(self).drop_create_response_once:
             type(self).drop_create_response_once = False
             self.connection.shutdown(socket.SHUT_RDWR)
@@ -100,6 +127,13 @@ class RuntimeHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         type(self).requests.append(("GET", self.path, self.headers, None))
+        if self.path.endswith("/runtime-status"):
+            if type(self).fail_runtime_status_once:
+                type(self).fail_runtime_status_once = False
+                self._respond(503, {"error": "temporary unavailable"})
+                return
+            self._respond(200, type(self).runtime_status_result)
+            return
         if self.path.endswith("op-create"):
             type(self).create_polls += 1
             result = type(self).create_result
@@ -137,13 +171,33 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         RuntimeHandler.create_result = {
             "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
             "service_url": "http://203.0.113.10:31042",
-            "endpoints": [],
+            "endpoints": [
+                {
+                    "container_name": "service",
+                    "port": 8080,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31042",
+                },
+                {
+                    "container_name": "service",
+                    "port": 9090,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31043",
+                },
+            ],
         }
         RuntimeHandler.drop_create_response_once = False
         RuntimeHandler.drop_delete_response_once = False
         RuntimeHandler.omit_create_operation_id_once = False
         RuntimeHandler.omit_delete_operation_id_once = False
         RuntimeHandler.omit_create_result_once = False
+        RuntimeHandler.echo_auth_error = False
+        RuntimeHandler.fail_runtime_status_once = False
+        RuntimeHandler.runtime_status_result = {
+            "instance_id": INSTANCE_ID,
+            "target_id": "aws-k3s-lab",
+            "runtime_workload_id": "aws-k3s-lab/ctf-test/challenge",
+        }
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), RuntimeHandler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -154,6 +208,40 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=5)
+
+    def assert_endpoint_response_rejected(self, endpoint):
+        self.start_server()
+        RuntimeHandler.create_result["endpoints"][0] = endpoint
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    @staticmethod
+    def valid_service_endpoint():
+        return {
+            "container_name": "service",
+            "port": 8080,
+            "protocol": "HTTP",
+            "service_url": "http://203.0.113.10:31042",
+        }
 
     def test_builds_runtime_team_multi_container_contract(self):
         request = build_create_request(
@@ -176,12 +264,76 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                         "name": "service",
                         "image": ARTIFACT["workload"]["containers"][0]["image"],
                         "ports": [8080, 9090],
-                        "expose": True,
+                        "exposed_ports": [8080, 9090],
                         "run_as_user": 10001,
                     }
                 ],
                 "resource_limits": ARTIFACT["resource_profile"],
             },
+        )
+
+    def test_builds_mixed_public_private_ports_with_exposed_ports(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["workload"]["containers"] = [
+            {
+                "name": "web",
+                "image": f"ghcr.io/msg-ctf/challenges/web-notebook/web@{DIGEST}",
+                "ports": [
+                    {"port": 8080, "public": True},
+                    {"port": 9000, "public": False},
+                ],
+            },
+            {
+                "name": "db",
+                "image": f"ghcr.io/msg-ctf/challenges/web-notebook/db@{DIGEST}",
+                "ports": [{"port": 5432, "public": False}],
+            },
+        ]
+        artifact["workload"]["internal_connections"] = [
+            {
+                "source_container": "web",
+                "destination_container": "db",
+                "protocol": "TCP",
+                "port": 5432,
+            }
+        ]
+
+        request = build_create_request(
+            artifact,
+            target_id="aws-k3s-lab",
+            instance_id=INSTANCE_ID,
+            team_id=TEAM_ID,
+        )
+
+        self.assertEqual(request["target"]["target_id"], "aws-k3s-lab")
+        self.assertEqual(
+            request["workload"]["containers"],
+            [
+                {
+                    "name": "web",
+                    "image": artifact["workload"]["containers"][0]["image"],
+                    "ports": [8080, 9000],
+                    "exposed_ports": [8080],
+                    "run_as_user": 10001,
+                },
+                {
+                    "name": "db",
+                    "image": artifact["workload"]["containers"][1]["image"],
+                    "ports": [5432],
+                    "exposed_ports": [],
+                    "run_as_user": 10001,
+                },
+            ],
+        )
+        self.assertTrue(
+            all(
+                "expose" not in container
+                for container in request["workload"]["containers"]
+            )
+        )
+        self.assertEqual(
+            request["workload"]["internal_connections"],
+            artifact["workload"]["internal_connections"],
         )
 
     def test_preserves_internal_connections_in_runtime_request(self):
@@ -248,8 +400,293 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.assertEqual(delete_body["runtime_workload_id"], "aws-k3s-001/ctf-test/challenge")
         self.assertEqual(delete_body["delete_reason"], "ADMIN_FORCED")
 
+    def test_reports_digest_images_and_runtime_endpoints(self):
+        self.start_server()
+        RuntimeHandler.create_result = {
+            "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
+            "service_url": "http://203.0.113.10:31042",
+            "endpoints": [
+                {
+                    "container_name": "service",
+                    "port": 8080,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31042",
+                },
+                {
+                    "container_name": "service",
+                    "port": 9090,
+                    "protocol": "HTTP",
+                    "service_url": "http://203.0.113.10:31043",
+                },
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            result = run_smoke(
+                ARTIFACT,
+                api_url=f"http://127.0.0.1:{self.server.server_port}",
+                token_file=token_file,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+                poll_interval=0,
+                timeout=2,
+            )
+
+        self.assertEqual(
+            result["images"],
+            [
+                {
+                    "name": "service",
+                    "image": ARTIFACT["workload"]["containers"][0]["image"],
+                }
+            ],
+        )
+        self.assertEqual(result["endpoints"], RuntimeHandler.create_result["endpoints"])
+        self.assertEqual(result["registry_revision"], 11)
+        self.assertNotIn("A" * 43, json.dumps(result))
+
+    def test_rejects_registry_revision_mismatch_before_runtime_request(self):
+        artifact = dict(ARTIFACT, registry_revision=12)
+
+        with self.assertRaisesRegex(ValueError, "registry_revision"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_rejects_isolation_profile_mismatch_before_runtime_request(self):
+        artifact = dict(ARTIFACT, isolation_profile="PWN")
+
+        with self.assertRaisesRegex(ValueError, "isolation_profile"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_reports_create_and_delete_elapsed_seconds(self):
+        self.start_server()
+        evidence_times = iter([10.0, 12.5, 20.0, 21.25])
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            result = run_smoke(
+                ARTIFACT,
+                api_url=f"http://127.0.0.1:{self.server.server_port}",
+                token_file=token_file,
+                target_id="aws-k3s-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+                poll_interval=0,
+                timeout=2,
+                evidence_clock=lambda: next(evidence_times),
+            )
+
+        self.assertEqual(result["create_elapsed_seconds"], 2.5)
+        self.assertEqual(result["delete_elapsed_seconds"], 1.25)
+
+    def test_rejects_success_without_endpoints_after_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result = {
+            "runtime_workload_id": "aws-k3s-001/ctf-test/challenge",
+            "service_url": None,
+            "endpoints": [],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        methods = [(method, path) for method, path, _headers, _body in RuntimeHandler.requests]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+
+    def test_rejects_incomplete_endpoint_set_after_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result["endpoints"] = [
+            RuntimeHandler.create_result["endpoints"][0]
+        ]
+
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_rejects_unexpected_endpoint_after_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result["endpoints"].append(
+            {
+                "container_name": "service",
+                "port": 9000,
+                "protocol": "HTTP",
+                "service_url": "http://203.0.113.10:31044",
+            }
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_rejects_duplicate_endpoint_after_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result["endpoints"].append(
+            copy.deepcopy(RuntimeHandler.create_result["endpoints"][0])
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_rejects_endpoint_missing_required_field_after_cleanup(self):
+        self.start_server()
+        del RuntimeHandler.create_result["endpoints"][0]["service_url"]
+
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_rejects_endpoint_with_unsupported_protocol_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["protocol"] = "SMTP"
+
+        self.assert_endpoint_response_rejected(endpoint)
+
+    def test_rejects_non_string_endpoint_protocol_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["protocol"] = ["HTTP"]
+
+        self.assert_endpoint_response_rejected(endpoint)
+
+    def test_rejects_endpoint_with_invalid_service_url_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["service_url"] = "http://bad host/path"
+
+        self.assert_endpoint_response_rejected(endpoint)
+
+    def test_rejects_endpoint_with_unknown_field_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["unexpected"] = True
+
+        self.assert_endpoint_response_rejected(endpoint)
+
+    def test_redacts_service_token_from_runtime_error_details(self):
+        self.start_server()
+        RuntimeHandler.echo_auth_error = True
+        service_token = "A" * 43
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text(service_token, encoding="utf-8")
+            with self.assertRaises(RuntimeError) as raised:
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-001",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+
+        self.assertNotIn(service_token, str(raised.exception))
+        self.assertIn("[REDACTED]", str(raised.exception))
+
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
-        artifact = dict(ARTIFACT, category="pwn")
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["isolation_profile"] = "PWN"
+        artifact["workload"]["containers"][0]["ports"] = [
+            {"port": 31337, "public": True}
+        ]
 
         request = build_create_request(
             artifact,
@@ -260,28 +697,109 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
 
         self.assertEqual(request["isolation_profile"], "PWN")
 
-    def test_rejects_malformed_create_result_without_invalid_delete_request(self):
+    def test_rejects_public_pwn_container_with_multiple_ports(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["isolation_profile"] = "PWN"
+        artifact["workload"]["containers"][0]["ports"] = [
+            {"port": 31337, "public": True},
+            {"port": 9000, "public": False},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "PWN.*one port"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-lab",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_rejects_multiple_public_pwn_containers(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["isolation_profile"] = "PWN"
+        artifact["workload"]["containers"] = [
+            {
+                "name": "pwn-a",
+                "image": "ghcr.io/msg-ctf/pwn-a@sha256:" + "a" * 64,
+                "ports": [{"port": 31337, "public": True}],
+                "run_as_user": 10001,
+            },
+            {
+                "name": "pwn-b",
+                "image": "ghcr.io/msg-ctf/pwn-b@sha256:" + "b" * 64,
+                "ports": [{"port": 31338, "public": True}],
+                "run_as_user": 10002,
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "PWN.*one exposed container"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-lab",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_recovers_workload_id_and_cleans_up_incomplete_create_result(self):
         self.start_server()
         RuntimeHandler.create_result = None
         with tempfile.TemporaryDirectory() as directory:
             token_file = Path(directory) / "service-token"
             token_file.write_text("A" * 43, encoding="utf-8")
 
-            with self.assertRaisesRegex(RuntimeError, "did not return a result"):
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
                 run_smoke(
                     ARTIFACT,
                     api_url=f"http://127.0.0.1:{self.server.server_port}",
                     token_file=token_file,
-                    target_id="aws-k3s-001",
+                    target_id="aws-k3s-lab",
                     instance_id=INSTANCE_ID,
                     team_id=TEAM_ID,
                     poll_interval=0,
                     timeout=0.01,
-                    cleanup_timeout=0.01,
+                    cleanup_timeout=1,
                 )
 
         methods = [(method, path) for method, path, _headers, _body in RuntimeHandler.requests]
-        self.assertNotIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(
+            ("GET", f"/internal/v1/instances/{INSTANCE_ID}/runtime-status"),
+            methods,
+        )
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_retries_runtime_status_recovery_before_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result = None
+        RuntimeHandler.fail_runtime_status_once = True
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=0.01,
+                    cleanup_timeout=0.1,
+                )
+
+        status_path = f"/internal/v1/instances/{INSTANCE_ID}/runtime-status"
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertEqual(methods.count(("GET", status_path)), 2)
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
 
     def test_recovers_timed_out_create_operation_and_deletes_workload(self):
         self.start_server()

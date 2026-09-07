@@ -92,7 +92,7 @@ Actions artifact 수집, 최초 등록, 중복 재수집, active release 미변�
 ```yaml
 with:
   enable_k3s_smoke_deploy: true
-  runtime_target_id: aws-k3s-001
+  runtime_target_id: aws-k3s-lab
 secrets: inherit
 ```
 
@@ -162,8 +162,11 @@ cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Run
 
 ### Scheduler와 Runtime
 
-- Secure Provisioner `dev`는 멀티 컨테이너, digest image, port, `expose`,
-  resource limit와 `WEB | PWN` 격리 profile을 수용합니다.
+- Secure Provisioner PR #39는 멀티 컨테이너, digest image, `ports`,
+  `exposed_ports`, resource limit와 `WEB | PWN` 격리 profile을 수용합니다.
+- DevSecOps smoke 요청은 `ports[].public`을 `exposed_ports`로 변환하고 `expose`를
+  함께 보내지 않습니다. PWN은 공개 컨테이너가 정확히 1개여야 하며, 해당
+  컨테이너의 전체 포트도 정확히 1개여야 합니다.
 - Scheduler `feature/live-e2e-contract`도 멀티 컨테이너 Runtime DTO를 반영했지만
   아직 `dev` 병합 전입니다.
 - DevSecOps smoke runner는 현재 Runtime API 계약으로 변환하되 CI가 Kubernetes
