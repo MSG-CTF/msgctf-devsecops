@@ -236,11 +236,11 @@ def validate_spec(challenge_path):
     if len(names) != len(set(names)):
         raise ValueError("container name values must be unique")
     if category == "pwn":
-        for container in containers:
-            if container["expose"] and len(container["ports"]) != 1:
-                raise ValueError(
-                    "PWN exposed container must declare exactly one port"
-                )
+        exposed_containers = [container for container in containers if container["expose"]]
+        if len(exposed_containers) != 1:
+            raise ValueError("PWN workload must declare exactly one exposed container")
+        if len(exposed_containers[0]["ports"]) != 1:
+            raise ValueError("PWN exposed container must declare exactly one port")
 
     raw_profile = deployment.get("resource_profile")
     if not isinstance(raw_profile, dict):

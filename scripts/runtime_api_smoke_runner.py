@@ -94,6 +94,7 @@ def build_create_request(
 
     runtime_containers = []
     exposed = False
+    exposed_container_count = 0
     for container in artifact_containers:
         if not isinstance(container, dict):
             raise ValueError("artifact container must be an object")
@@ -122,7 +123,9 @@ def build_create_request(
             if public:
                 exposed_ports.append(port)
 
-        exposed = exposed or bool(exposed_ports)
+        if exposed_ports:
+            exposed = True
+            exposed_container_count += 1
         if isolation_profile == "PWN" and exposed_ports and len(ports) != 1:
             raise ValueError("PWN exposed container must declare exactly one port")
         runtime_containers.append(
@@ -137,6 +140,8 @@ def build_create_request(
 
     if not exposed:
         raise ValueError("Runtime smoke deployment requires at least one exposed container")
+    if isolation_profile == "PWN" and exposed_container_count != 1:
+        raise ValueError("PWN workload must declare exactly one exposed container")
 
     runtime_workload = {"containers": runtime_containers}
     internal_connections = workload.get("internal_connections")
@@ -341,6 +346,7 @@ def _runtime_endpoint_error(
             or isinstance(port, bool)
             or not isinstance(port, int)
             or not 1 <= port <= 65535
+            or not isinstance(protocol, str)
             or protocol not in ENDPOINT_PROTOCOLS
             or not isinstance(service_url, str)
             or not service_url

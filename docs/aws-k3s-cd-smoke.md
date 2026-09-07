@@ -115,6 +115,8 @@ bundle의 컨테이너 포트는 다음처럼 Runtime PR #39 계약으로 변환
 - bundle의 전체 `ports[].port`는 Runtime 요청의 `ports`가 됩니다.
 - `ports[].public: true`인 포트만 Runtime 요청의 `exposed_ports`가 됩니다.
 - 모두 private인 컨테이너는 `exposed_ports: []`를 보냅니다.
+- PWN은 공개 컨테이너가 정확히 1개여야 하며, 해당 컨테이너의 전체 포트도
+  정확히 1개여야 합니다.
 - Runtime 요청에는 기존 `expose`를 함께 보내지 않습니다.
 
 따라서 한 컨테이너에 `8080 public`, `9000 private`가 함께 있어도 8080만 외부

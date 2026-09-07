@@ -78,6 +78,16 @@ class ValidateInfoSpecTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "PWN.*one port"):
             self._validate_raw(raw)
 
+    def test_rejects_multiple_public_pwn_containers(self):
+        raw = self._raw_fixture()
+        raw["category"] = "pwn"
+        raw["deployment"]["containers"][0]["ports"] = [8080]
+        raw["deployment"]["healthcheck"]["port"] = 8080
+        raw["deployment"]["containers"][1]["expose"] = True
+
+        with self.assertRaisesRegex(ValueError, "PWN.*one exposed container"):
+            self._validate_raw(raw)
+
     def test_accepts_declared_internal_connection(self):
         raw = self._raw_fixture()
         raw["deployment"]["internal_connections"] = [

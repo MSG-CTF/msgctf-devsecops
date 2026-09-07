@@ -640,6 +640,12 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
 
         self.assert_endpoint_response_rejected(endpoint)
 
+    def test_rejects_non_string_endpoint_protocol_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["protocol"] = ["HTTP"]
+
+        self.assert_endpoint_response_rejected(endpoint)
+
     def test_rejects_endpoint_with_invalid_service_url_after_cleanup(self):
         endpoint = self.valid_service_endpoint()
         endpoint["service_url"] = "http://bad host/path"
@@ -708,6 +714,33 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                 team_id=TEAM_ID,
             )
 
+    def test_rejects_multiple_public_pwn_containers(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["isolation_profile"] = "PWN"
+        artifact["workload"]["containers"] = [
+            {
+                "name": "pwn-a",
+                "image": "ghcr.io/msg-ctf/pwn-a@sha256:" + "a" * 64,
+                "ports": [{"port": 31337, "public": True}],
+                "run_as_user": 10001,
+            },
+            {
+                "name": "pwn-b",
+                "image": "ghcr.io/msg-ctf/pwn-b@sha256:" + "b" * 64,
+                "ports": [{"port": 31338, "public": True}],
+                "run_as_user": 10002,
+            },
+        ]
+
+        with self.assertRaisesRegex(ValueError, "PWN.*one exposed container"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-lab",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
     def test_recovers_workload_id_and_cleans_up_incomplete_create_result(self):
         self.start_server()
         RuntimeHandler.create_result = None
@@ -725,7 +758,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                     team_id=TEAM_ID,
                     poll_interval=0,
                     timeout=0.01,
-                    cleanup_timeout=0.05,
+                    cleanup_timeout=1,
                 )
 
         methods = [(method, path) for method, path, _headers, _body in RuntimeHandler.requests]
