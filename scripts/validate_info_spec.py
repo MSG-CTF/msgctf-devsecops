@@ -165,7 +165,23 @@ def validate_spec(challenge_path):
     unsupported_fields = sorted(set(deployment) - allowed_deployment_fields)
     if "network_policy" in deployment:
         raise ValueError(
-            "raw Kubernetes NetworkPolicy is Runtime-owned and must not be declared"
+            "deployment.network_policy is not supported until its limited platform "
+            "DSL contract is finalized; raw Kubernetes NetworkPolicy must not be declared"
+        )
+    kubernetes_fields = {
+        "manifest",
+        "manifests",
+        "namespace",
+        "service",
+        "gateway",
+        "ingress",
+        "kubernetes",
+    }
+    declared_kubernetes_fields = sorted(set(deployment) & kubernetes_fields)
+    if declared_kubernetes_fields:
+        raise ValueError(
+            "Kubernetes implementation fields are Runtime-owned and must not be "
+            "declared: " + ", ".join(declared_kubernetes_fields)
         )
     if unsupported_fields:
         raise ValueError(

@@ -99,16 +99,24 @@ deployment:
 
 주요 규칙:
 
-- `info.yaml`이 문제 사양의 단일 소스입니다.
+- `info.yaml`이 문제 사양의 단일 소스이며, 출제자용 `docker-compose.yml`을
+  실행하는 대신 플랫폼이 읽는 제한된 배포 DSL 역할을 합니다.
+- 출제자는 컨테이너, 포트 공개 여부, healthcheck와 합산 resource만 선언합니다.
+  Namespace, Service, Gateway/Ingress, NetworkPolicy 같은 Kubernetes 구현 리소스는
+  Runtime이 생성합니다.
 - `build`와 `image`는 컨테이너마다 하나만 사용합니다.
 - `build`는 문제 디렉터리 내부의 Docker build context만 가리킬 수 있습니다.
 - 외부 `image`는 `latest`나 암묵적 tag를 사용할 수 없으며 명시적 non-latest tag 또는 digest가 필요합니다.
 - `expose: true`인 컨테이너의 포트만 참가자에게 공개합니다.
-- 한 문제의 컨테이너 연결과 문제 간 격리는 Runtime의 K3s 네트워크와
-  NetworkPolicy가 관리합니다. 출제자는 연결 규칙을 따로 선언하지 않습니다.
-- 출제자는 raw Kubernetes `NetworkPolicy`를 입력하지 않습니다. CI는 문제
-  category를 `WEB` 또는 `PWN` `isolation_profile`로 정규화하고 Runtime이
+- 동일 challenge instance 내부 컨테이너 통신 허용, challenge 간 격리와 팀 간
+  격리는 Runtime의 K3s 네트워크 및 NetworkPolicy가 일관되게 관리합니다.
+- 외부 공개 의도는 컨테이너의 `ports`와 `expose`로만 선언하며 CI가
+  `ports[].public`로 정규화합니다.
+- 출제자는 raw Kubernetes manifest나 `NetworkPolicy`를 입력하지 않습니다. CI는
+  문제 category를 `WEB` 또는 `PWN` `isolation_profile`로 정규화하고 Runtime이
   승인된 정책을 생성합니다.
+- 외부 egress는 현재 Runtime 기본 정책을 따릅니다. 제한된 egress DSL은 Runtime
+  API 계약이 확정된 뒤 추가하며, 그 전에는 `network_policy` 입력을 거절합니다.
 - `resource_profile`은 문제의 모든 컨테이너를 합산한 값입니다.
 - `flag`는 존재 여부만 검증하며 로그, output, artifact에 기록하지 않습니다.
 - `deployment`가 없는 정적 문제는 Docker build와 image 발행을 수행하지 않습니다.

@@ -87,8 +87,28 @@ class ValidateInfoSpecTests(unittest.TestCase):
         raw = self._raw_fixture()
         raw["deployment"]["network_policy"] = {"egress": [{"to": "0.0.0.0/0"}]}
 
-        with self.assertRaisesRegex(ValueError, "NetworkPolicy"):
+        with self.assertRaisesRegex(ValueError, "platform DSL contract is finalized"):
             self._validate_raw(raw)
+
+    def test_rejects_kubernetes_implementation_fields(self):
+        for field in (
+            "manifest",
+            "manifests",
+            "namespace",
+            "service",
+            "gateway",
+            "ingress",
+            "kubernetes",
+        ):
+            with self.subTest(field=field):
+                raw = self._raw_fixture()
+                raw["deployment"][field] = {}
+
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Kubernetes implementation fields are Runtime-owned",
+                ):
+                    self._validate_raw(raw)
 
     def test_rejects_unknown_deployment_field(self):
         raw = self._raw_fixture()
