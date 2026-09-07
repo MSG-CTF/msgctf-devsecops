@@ -64,10 +64,19 @@ class ValidateInfoSpecTests(unittest.TestCase):
     def test_pwn_server_uses_pwn_isolation_profile(self):
         raw = self._raw_fixture()
         raw["category"] = "pwn"
+        raw["deployment"]["containers"][0]["ports"] = [8080]
+        raw["deployment"]["healthcheck"]["port"] = 8080
 
         metadata = self._validate_raw(raw)
 
         self.assertEqual(metadata["isolation_profile"], "PWN")
+
+    def test_rejects_public_pwn_container_with_multiple_ports(self):
+        raw = self._raw_fixture()
+        raw["category"] = "pwn"
+
+        with self.assertRaisesRegex(ValueError, "PWN.*one port"):
+            self._validate_raw(raw)
 
     def test_accepts_declared_internal_connection(self):
         raw = self._raw_fixture()

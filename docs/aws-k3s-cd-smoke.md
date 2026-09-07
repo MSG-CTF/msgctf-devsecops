@@ -154,8 +154,9 @@ S3 staging 파일 또는 API body에 기록하지 않습니다.
 - Runtime팀 API의 현재 격리 profile에 맞춰 `pwn`은 `PWN`, 나머지는 `WEB`을 사용합니다.
 - `info.yaml`에 `run_as_user`가 없으면 smoke 요청은 non-root UID `10001`을 사용합니다.
 - 운영 smoke 대상은 Runtime팀에서 전달한 `aws-k3s-lab`을 사용합니다.
-- Runtime API service token이 아직 준비되지 않아 실제 K3s 생성·endpoint 확인·삭제는
-  실행하지 않았습니다. 현재 완료 범위는 요청 변환과 cleanup 동작의 단위 테스트입니다.
+- `aws-k3s-lab` node에서 읽을 Runtime API service token이 아직 준비되지 않아 실제
+  K3s 생성·endpoint 확인·삭제는 실행하지 않았습니다. 현재 완료 범위는 요청 변환과
+  cleanup 동작의 단위 테스트입니다.
 - 운영 참가자 instance 생성은 Backend, Scheduler, Broker, Runtime 경로가 담당합니다.
   이 job은 문제 revision 발행 직후의 임시 통합 검증입니다.
 
@@ -166,5 +167,8 @@ S3 staging 파일 또는 API body에 기록하지 않습니다.
 - `PROVISIONER_CLUSTER_REGISTRY`의 target과 K3s kubeconfig가 유효해야 합니다.
 - K3s/containerd가 private GHCR digest를 pull할 수 있어야 합니다.
 - 실패 후 Runtime Operation과 Namespace가 남지 않았는지 확인해야 합니다.
+- create operation 결과가 불완전하면 runner가 `runtime-status`에서 workload ID를
+  cleanup 제한 시간까지 재시도해 복구하고 삭제합니다. status 조회에서도 ID를 얻지
+  못하면 Runtime팀이 해당 instance의 잔존 리소스를 확인해야 합니다.
 - cold pull 검증은 다른 workload가 없는 전용 target에서 Runtime팀이 image cache
   상태를 확인한 뒤 실행해야 합니다.

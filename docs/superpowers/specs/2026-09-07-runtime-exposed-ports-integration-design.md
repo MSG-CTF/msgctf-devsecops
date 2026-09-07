@@ -44,10 +44,11 @@ private 포트를 외부에 노출하지 않고, Runtime 응답의 공개 endpoi
 
 - 실제 smoke의 `target.target_id`는 workflow 입력을 통해 `aws-k3s-lab`으로 전달한다.
 - `target_id`는 release 자체의 속성이 아니므로 `artifact-v2.json`에 저장하지 않는다.
-- Runtime API service token은 GitHub Actions secret으로만 전달하며 파일, 로그, bundle에
-  남기지 않는다.
-- 현재 token이 준비되지 않았으므로 코드·단위 테스트까지만 수행하고 실제 K3s 결과는
-  미검증으로 기록한다.
+- Runtime API service token은 GitHub Actions에 전달하지 않고 Runtime node의
+  `/etc/secure-provisioner/service-token`에서만 읽는다. token은 로그, S3 staging,
+  bundle에 남기지 않는다.
+- 현재 node에 사용할 service token이 준비되지 않았으므로 코드·단위 테스트까지만
+  수행하고 실제 K3s 결과는 미검증으로 기록한다.
 
 ## 응답 검증과 정리
 
@@ -55,8 +56,12 @@ private 포트를 외부에 노출하지 않고, Runtime 응답의 공개 endpoi
 - Runtime의 `endpoints[]`는 각 항목의 `container_name`, `port`, `protocol`,
   `service_url`을 검증한다.
 - 예상 endpoint와 실제 endpoint가 누락, 추가, 중복 없이 정확히 일치해야 성공한다.
-- 불일치하거나 생성 결과가 불완전하면 기존 동작대로 workload 삭제를 먼저 요청하고
-  삭제 완료를 확인한 뒤 실패한다.
+- endpoint가 불일치하면 workload 삭제를 먼저 요청하고 삭제 완료를 확인한 뒤 실패한다.
+- create operation 결과에 `runtime_workload_id`가 누락되면
+  `GET /internal/v1/instances/{instance_id}/runtime-status`를 cleanup 제한 시간까지
+  재시도해 ID를 복구한 뒤 삭제한다.
+  status 조회에서도 ID를 복구할 수 없으면 유효한 삭제 요청을 만들 수 없으므로 오류와
+  수동 확인 필요 상태를 남긴다.
 
 ## Backend 연동
 

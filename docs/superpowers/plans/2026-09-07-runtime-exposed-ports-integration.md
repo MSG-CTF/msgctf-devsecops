@@ -144,13 +144,13 @@
 - Consumes: Tasks 1-3의 코드·테스트·문서.
 - Produces: 검증된 PR #6 커밋과 정확한 미완료 항목.
 
-- [ ] **Step 1: 전체 단위 테스트 실행**
+- [x] **Step 1: 전체 단위 테스트 실행**
 
   Run: `python3 -W error::ResourceWarning -m unittest discover -s tests -v`
 
   Expected: PASS.
 
-- [ ] **Step 2: 정적 검증 실행**
+- [x] **Step 2: 정적 검증 실행**
 
   Run: `python3 -m py_compile scripts/*.py`
 
@@ -177,3 +177,39 @@
 
   Expected: 실행된 check PASS. 실제 K3s smoke는 token과 배포 환경이 없으면 실행하지
   않았다고 구분해 기록한다.
+
+### Task 5: 독립 코드리뷰 보완
+
+**Files:**
+- Modify: `scripts/runtime_api_smoke_runner.py`
+- Modify: `scripts/validate_info_spec.py`
+- Modify: `tests/test_runtime_api_smoke_runner.py`
+- Modify: `tests/test_validate_info_spec.py`
+- Modify: `docs/aws-k3s-cd-smoke.md`
+- Modify: `docs/devsecops-runbook.md`
+- Modify: `docs/superpowers/specs/2026-09-07-runtime-exposed-ports-integration-design.md`
+
+**Interfaces:**
+- Consumes: Runtime PR #39 OpenAPI의 endpoint schema, PWN 포트 제한, runtime-status 조회.
+- Produces: 잘못된 Runtime 응답 차단, PWN 조기 차단, 불완전 create 결과 cleanup 복구.
+
+- [x] **Step 1: 실패 테스트 작성과 RED 확인**
+
+  잘못된 endpoint protocol·URI·추가 필드, 공개 PWN 컨테이너 다중 포트,
+  runtime-status를 통한 `runtime_workload_id` 복구 후 cleanup 완료를 테스트한다.
+
+- [x] **Step 2: 최소 구현과 GREEN 확인**
+
+  endpoint의 정확한 키·`HTTP|TCP`·URI를 검사한다. PWN 공개 컨테이너는 전체 포트가
+  정확히 하나인지 info 검증과 Runtime 변환 경계에서 확인한다. create operation 결과가
+  불완전하면 runtime-status에서 workload ID를 복구해 삭제한다.
+
+- [x] **Step 3: cleanup 완료와 token 문서 계약 보완**
+
+  endpoint 오류 테스트에서 delete operation 조회 완료까지 확인한다. service token은
+  GitHub Secret이 아니라 Runtime node의 `/etc/secure-provisioner/service-token`에서만
+  읽는 것으로 설계·운영 문서를 통일하고 기존 `expose` 설명을 갱신한다.
+
+- [x] **Step 4: 전체 검증과 커밋**
+
+  76개 이상의 전체 테스트, Python 문법, diff, Gitleaks 검사를 통과한 뒤 커밋한다.

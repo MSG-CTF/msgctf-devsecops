@@ -72,6 +72,12 @@ class RuntimeHandler(BaseHTTPRequestHandler):
     omit_delete_operation_id_once = False
     omit_create_result_once = False
     echo_auth_error = False
+    fail_runtime_status_once = False
+    runtime_status_result = {
+        "instance_id": INSTANCE_ID,
+        "target_id": "aws-k3s-lab",
+        "runtime_workload_id": "aws-k3s-lab/ctf-test/challenge",
+    }
 
     def log_message(self, _format, *_args):
         return
@@ -121,6 +127,13 @@ class RuntimeHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         type(self).requests.append(("GET", self.path, self.headers, None))
+        if self.path.endswith("/runtime-status"):
+            if type(self).fail_runtime_status_once:
+                type(self).fail_runtime_status_once = False
+                self._respond(503, {"error": "temporary unavailable"})
+                return
+            self._respond(200, type(self).runtime_status_result)
+            return
         if self.path.endswith("op-create"):
             type(self).create_polls += 1
             result = type(self).create_result
@@ -179,6 +192,12 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         RuntimeHandler.omit_delete_operation_id_once = False
         RuntimeHandler.omit_create_result_once = False
         RuntimeHandler.echo_auth_error = False
+        RuntimeHandler.fail_runtime_status_once = False
+        RuntimeHandler.runtime_status_result = {
+            "instance_id": INSTANCE_ID,
+            "target_id": "aws-k3s-lab",
+            "runtime_workload_id": "aws-k3s-lab/ctf-test/challenge",
+        }
         self.server = ThreadingHTTPServer(("127.0.0.1", 0), RuntimeHandler)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -189,6 +208,40 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=5)
+
+    def assert_endpoint_response_rejected(self, endpoint):
+        self.start_server()
+        RuntimeHandler.create_result["endpoints"][0] = endpoint
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=2,
+                )
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    @staticmethod
+    def valid_service_endpoint():
+        return {
+            "container_name": "service",
+            "port": 8080,
+            "protocol": "HTTP",
+            "service_url": "http://203.0.113.10:31042",
+        }
 
     def test_builds_runtime_team_multi_container_contract(self):
         request = build_create_request(
@@ -452,7 +505,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                     ARTIFACT,
                     api_url=f"http://127.0.0.1:{self.server.server_port}",
                     token_file=token_file,
-                    target_id="aws-k3s-001",
+                    target_id="aws-k3s-lab",
                     instance_id=INSTANCE_ID,
                     team_id=TEAM_ID,
                     poll_interval=0,
@@ -483,8 +536,13 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                     timeout=2,
                 )
 
-        methods = [method for method, _path, _headers, _body in RuntimeHandler.requests]
-        self.assertIn("DELETE", methods)
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
 
     def test_rejects_unexpected_endpoint_after_cleanup(self):
         self.start_server()
@@ -512,8 +570,13 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                     timeout=2,
                 )
 
-        methods = [method for method, _path, _headers, _body in RuntimeHandler.requests]
-        self.assertIn("DELETE", methods)
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
 
     def test_rejects_duplicate_endpoint_after_cleanup(self):
         self.start_server()
@@ -536,8 +599,13 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                     timeout=2,
                 )
 
-        methods = [method for method, _path, _headers, _body in RuntimeHandler.requests]
-        self.assertIn("DELETE", methods)
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
 
     def test_rejects_endpoint_missing_required_field_after_cleanup(self):
         self.start_server()
@@ -558,8 +626,31 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                     timeout=2,
                 )
 
-        methods = [method for method, _path, _headers, _body in RuntimeHandler.requests]
-        self.assertIn("DELETE", methods)
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_rejects_endpoint_with_unsupported_protocol_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["protocol"] = "SMTP"
+
+        self.assert_endpoint_response_rejected(endpoint)
+
+    def test_rejects_endpoint_with_invalid_service_url_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["service_url"] = "http://bad host/path"
+
+        self.assert_endpoint_response_rejected(endpoint)
+
+    def test_rejects_endpoint_with_unknown_field_after_cleanup(self):
+        endpoint = self.valid_service_endpoint()
+        endpoint["unexpected"] = True
+
+        self.assert_endpoint_response_rejected(endpoint)
 
     def test_redacts_service_token_from_runtime_error_details(self):
         self.start_server()
@@ -584,7 +675,12 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.assertIn("[REDACTED]", str(raised.exception))
 
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
-        artifact = dict(ARTIFACT, category="pwn", isolation_profile="PWN")
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["isolation_profile"] = "PWN"
+        artifact["workload"]["containers"][0]["ports"] = [
+            {"port": 31337, "public": True}
+        ]
 
         request = build_create_request(
             artifact,
@@ -595,28 +691,82 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
 
         self.assertEqual(request["isolation_profile"], "PWN")
 
-    def test_rejects_malformed_create_result_without_invalid_delete_request(self):
+    def test_rejects_public_pwn_container_with_multiple_ports(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["isolation_profile"] = "PWN"
+        artifact["workload"]["containers"][0]["ports"] = [
+            {"port": 31337, "public": True},
+            {"port": 9000, "public": False},
+        ]
+
+        with self.assertRaisesRegex(ValueError, "PWN.*one port"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-lab",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_recovers_workload_id_and_cleans_up_incomplete_create_result(self):
         self.start_server()
         RuntimeHandler.create_result = None
         with tempfile.TemporaryDirectory() as directory:
             token_file = Path(directory) / "service-token"
             token_file.write_text("A" * 43, encoding="utf-8")
 
-            with self.assertRaisesRegex(RuntimeError, "did not return a result"):
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
                 run_smoke(
                     ARTIFACT,
                     api_url=f"http://127.0.0.1:{self.server.server_port}",
                     token_file=token_file,
-                    target_id="aws-k3s-001",
+                    target_id="aws-k3s-lab",
                     instance_id=INSTANCE_ID,
                     team_id=TEAM_ID,
                     poll_interval=0,
                     timeout=0.01,
-                    cleanup_timeout=0.01,
+                    cleanup_timeout=0.05,
                 )
 
         methods = [(method, path) for method, path, _headers, _body in RuntimeHandler.requests]
-        self.assertNotIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(
+            ("GET", f"/internal/v1/instances/{INSTANCE_ID}/runtime-status"),
+            methods,
+        )
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
+
+    def test_retries_runtime_status_recovery_before_cleanup(self):
+        self.start_server()
+        RuntimeHandler.create_result = None
+        RuntimeHandler.fail_runtime_status_once = True
+        with tempfile.TemporaryDirectory() as directory:
+            token_file = Path(directory) / "service-token"
+            token_file.write_text("A" * 43, encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "endpoints"):
+                run_smoke(
+                    ARTIFACT,
+                    api_url=f"http://127.0.0.1:{self.server.server_port}",
+                    token_file=token_file,
+                    target_id="aws-k3s-lab",
+                    instance_id=INSTANCE_ID,
+                    team_id=TEAM_ID,
+                    poll_interval=0,
+                    timeout=0.01,
+                    cleanup_timeout=0.1,
+                )
+
+        status_path = f"/internal/v1/instances/{INSTANCE_ID}/runtime-status"
+        methods = [
+            (method, path)
+            for method, path, _headers, _body in RuntimeHandler.requests
+        ]
+        self.assertEqual(methods.count(("GET", status_path)), 2)
+        self.assertIn(("DELETE", f"/internal/v1/instances/{INSTANCE_ID}"), methods)
+        self.assertIn(("GET", "/internal/v1/operations/op-delete"), methods)
+        self.assertGreater(RuntimeHandler.delete_polls, 0)
 
     def test_recovers_timed_out_create_operation_and_deletes_workload(self):
         self.start_server()

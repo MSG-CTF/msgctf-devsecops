@@ -12,12 +12,15 @@ import uuid
 from pathlib import Path
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 
 DIGEST_IMAGE = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
 SERVICE_TOKEN = re.compile(r"^[A-Za-z0-9_-]{43,128}$")
 FINAL_OPERATION_STATES = {"SUCCEEDED", "FAILED"}
+ENDPOINT_FIELDS = {"container_name", "port", "protocol", "service_url"}
+ENDPOINT_PROTOCOLS = {"HTTP", "TCP"}
 
 
 class RetryableRuntimeError(RuntimeError):
@@ -120,6 +123,8 @@ def build_create_request(
                 exposed_ports.append(port)
 
         exposed = exposed or bool(exposed_ports)
+        if isolation_profile == "PWN" and exposed_ports and len(ports) != 1:
+            raise ValueError("PWN exposed container must declare exactly one port")
         runtime_containers.append(
             {
                 "name": name,
@@ -324,6 +329,8 @@ def _runtime_endpoint_error(
     for endpoint in endpoints:
         if not isinstance(endpoint, dict):
             return "Runtime endpoints contain an invalid item"
+        if set(endpoint) != ENDPOINT_FIELDS:
+            return "Runtime endpoints contain missing or unknown fields"
         container_name = endpoint.get("container_name")
         port = endpoint.get("port")
         protocol = endpoint.get("protocol")
@@ -334,12 +341,25 @@ def _runtime_endpoint_error(
             or isinstance(port, bool)
             or not isinstance(port, int)
             or not 1 <= port <= 65535
-            or not isinstance(protocol, str)
-            or not protocol
+            or protocol not in ENDPOINT_PROTOCOLS
             or not isinstance(service_url, str)
             or not service_url
         ):
             return "Runtime endpoints contain missing or invalid required fields"
+        if any(character.isspace() for character in service_url):
+            return "Runtime endpoints contain an invalid service_url"
+        try:
+            parsed_service_url = urlsplit(service_url)
+            hostname = parsed_service_url.hostname
+            parsed_service_url.port
+        except ValueError:
+            return "Runtime endpoints contain an invalid service_url"
+        if (
+            not parsed_service_url.scheme
+            or not parsed_service_url.netloc
+            or not hostname
+        ):
+            return "Runtime endpoints contain an invalid service_url"
         key = (container_name, port)
         if key in actual:
             return "Runtime endpoints contain a duplicate container and port"
@@ -348,6 +368,39 @@ def _runtime_endpoint_error(
     if actual != expected:
         return "Runtime endpoints do not exactly match requested public ports"
     return None
+
+
+def _recover_runtime_workload_id(
+    client: RuntimeClient,
+    create_request: dict[str, Any],
+    *,
+    poll_interval: float,
+    deadline: float,
+) -> str:
+    instance_id = create_request["instance_id"]
+    path = f"/internal/v1/instances/{instance_id}/runtime-status"
+    while True:
+        try:
+            status = client.request("GET", path)
+            break
+        except RetryableRuntimeError as error:
+            if time.monotonic() >= deadline:
+                raise TimeoutError(
+                    "Runtime status recovery timed out before cleanup"
+                ) from error
+            time.sleep(poll_interval)
+    if status.get("instance_id") != instance_id:
+        raise IncompleteOperationResult(
+            "Runtime status returned a different instance_id"
+        )
+    if status.get("target_id") != create_request["target"]["target_id"]:
+        raise IncompleteOperationResult("Runtime status returned a different target_id")
+    runtime_workload_id = status.get("runtime_workload_id")
+    if not isinstance(runtime_workload_id, str) or not runtime_workload_id.strip():
+        raise IncompleteOperationResult(
+            "Runtime status did not return a runtime_workload_id"
+        )
+    return runtime_workload_id
 
 
 def run_smoke(
@@ -398,6 +451,7 @@ def run_smoke(
             poll_interval=poll_interval,
             deadline=create_poll_deadline,
         )
+    created = None
     try:
         created = _poll_operation(
             client,
@@ -406,23 +460,45 @@ def run_smoke(
             deadline=create_poll_deadline,
             require_create_result=True,
         )
-    except (TimeoutError, IncompleteOperationResult):
+    except (TimeoutError, IncompleteOperationResult) as error:
         if recovered_after_timeout:
-            raise
-        recovered_after_timeout = True
-        created = _poll_operation(
-            client,
-            accepted.get("operation_id"),
-            poll_interval=poll_interval,
-            deadline=time.monotonic() + cleanup_timeout,
-            require_create_result=True,
-        )
-    create_result = created.get("result")
-    if not isinstance(create_result, dict):
-        raise RuntimeError("Runtime create operation did not return a result")
-    runtime_workload_id = create_result.get("runtime_workload_id")
-    if not isinstance(runtime_workload_id, str) or not runtime_workload_id.strip():
-        raise RuntimeError("Runtime create operation returned an invalid runtime_workload_id")
+            if isinstance(error, IncompleteOperationResult):
+                runtime_workload_id = _recover_runtime_workload_id(
+                    client,
+                    create_request,
+                    poll_interval=poll_interval,
+                    deadline=time.monotonic() + cleanup_timeout,
+                )
+            else:
+                raise
+        else:
+            recovered_after_timeout = True
+            try:
+                created = _poll_operation(
+                    client,
+                    accepted.get("operation_id"),
+                    poll_interval=poll_interval,
+                    deadline=time.monotonic() + cleanup_timeout,
+                    require_create_result=True,
+                )
+            except IncompleteOperationResult:
+                runtime_workload_id = _recover_runtime_workload_id(
+                    client,
+                    create_request,
+                    poll_interval=poll_interval,
+                    deadline=time.monotonic() + cleanup_timeout,
+                )
+
+    if created is None:
+        create_result = {"runtime_workload_id": runtime_workload_id, "endpoints": []}
+        created = {"status": "SUCCEEDED", "result": create_result}
+    else:
+        create_result = created.get("result")
+        if not isinstance(create_result, dict):
+            raise RuntimeError("Runtime create operation did not return a result")
+        runtime_workload_id = create_result.get("runtime_workload_id")
+        if not isinstance(runtime_workload_id, str) or not runtime_workload_id.strip():
+            raise RuntimeError("Runtime create operation returned an invalid runtime_workload_id")
     endpoints = create_result.get("endpoints")
     endpoint_error = _runtime_endpoint_error(create_request, endpoints)
     create_elapsed_seconds = round(evidence_clock() - create_started, 3)
