@@ -160,18 +160,18 @@
 
   Expected: 모두 exit code 0.
 
-- [ ] **Step 3: 브랜치 push**
+- [x] **Step 3: 브랜치 push**
 
   Run: `git push msg-ctf runtime-smoke-evidence`
 
   Expected: PR #6 head가 새 커밋으로 갱신됨.
 
-- [ ] **Step 4: PR 설명과 댓글 갱신**
+- [x] **Step 4: PR 설명과 댓글 갱신**
 
   PR #6에 Runtime PR #39 계약 반영, `target_id=aws-k3s-lab`, Backend PR #62 호환,
   service token 미수령 때문에 실제 K3s smoke는 남아 있다는 사실을 기록한다.
 
-- [ ] **Step 5: GitHub Actions 결과 확인**
+- [x] **Step 5: GitHub Actions 결과 확인**
 
   Run: `gh pr checks 6 --repo MSG-CTF/msgctf-devsecops --watch`
 
