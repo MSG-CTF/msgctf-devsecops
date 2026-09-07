@@ -29,22 +29,22 @@ caller는 자동 실행에서 `source_ref: ${{ github.sha }}`를 전달합니다
 - Trivy 취약점·image secret 검사
 - CycloneDX SBOM 생성
 - GHCR push와 image digest 추출
-- Runtime artifact와 Challenge Registry publish document 생성
+- `artifact-v2.json`과 수동 검증용 `registry-publish.json` 생성
 - Actions Summary에 컨테이너별 GHCR digest 표시
 - Build/Pull, Trivy Scan, GHCR Push와 합계 시간 측정
 - publish bundle을 90일 보관하고 artifact 이름을 caller output으로 제공
-- 설정된 경우 publish document를 Challenge Registry HTTPS API에 등록
 - 설정된 경우 SSM을 통해 Secure Provisioner API로 K3s 생성·삭제 smoke test
 
 승인된 `main` 실행만 이 workflow를 호출해 image와 publish bundle을 발행합니다.
 출제자 branch와 PR은 `challenge-branch-validation.yml`을 호출합니다.
 
-Challenge Registry 등록은 `publish_registry: true`,
-`CHALLENGE_REGISTRY_URL`, `CHALLENGE_REGISTRY_TOKEN`이 모두 설정된 경우에만
-실행합니다. URL과 token은 임의 실행 입력이 아닌 GitHub Secret으로 관리합니다.
-기본값은 비활성화이며 Backend DB, Scheduler와 Broker를 workflow가 직접
-조작하지 않습니다. K3s smoke test도 Runtime API를 거치며 Kubernetes resource를
-직접 생성하지 않습니다.
+성공한 실행은 `-publish-bundle` suffix의 Actions artifact를 남깁니다.
+`artifact-v2.json`은 Backend poller가 자동 수집하는 공식 입력이고,
+`registry-publish.json`은 같은 artifact를 감싼 수동 API 검증용 wrapper입니다.
+workflow와 caller는 Backend base URL 또는 service token을 사용하지 않으며,
+Backend poller가 수집, challenge 매핑, release 등록, 중복 처리를 수행합니다.
+Backend/admin이 active release 전환과 롤백을 수행합니다. K3s smoke test는
+Runtime API를 거치며 Kubernetes resource를 직접 생성하지 않습니다.
 
 ### `pipeline-self-test.yml`
 

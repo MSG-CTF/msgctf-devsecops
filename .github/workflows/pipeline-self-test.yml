@@ -51,7 +51,6 @@ jobs:
       challenge_path: tests/fixtures/info-valid
       revision: ${{ github.run_number }}
       devsecops_ref: ${{ github.sha }}
-      publish_registry: false
       enable_k3s_smoke_deploy: false
     secrets: inherit
 
@@ -80,6 +79,5 @@ jobs:
       challenge_path: tests/fixtures/koth-template
       revision: ${{ github.run_number }}
       devsecops_ref: ${{ github.sha }}
-      publish_registry: false
       enable_k3s_smoke_deploy: false
     secrets: inherit

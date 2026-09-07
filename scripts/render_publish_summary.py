@@ -5,8 +5,10 @@ import re
 from pathlib import Path
 
 
-DIGEST_IMAGE = re.compile(
-    r"^[a-z0-9][a-z0-9._:-]*(?:/[a-z0-9][a-z0-9._-]*)+"
+MSGCTF_GHCR_DIGEST_IMAGE = re.compile(
+    r"^ghcr\.io/msg-ctf/challenges/"
+    r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/"
+    r"[a-z0-9](?:[a-z0-9._-]*[a-z0-9])?"
     r"@sha256:[0-9a-f]{64}$"
 )
 
@@ -50,6 +52,20 @@ def render_summary(artifact, bundle_name):
     revision = artifact.get("revision")
     if isinstance(revision, bool) or not isinstance(revision, int) or revision <= 0:
         raise ValueError("revision must be a positive integer")
+    registry_revision = artifact.get("registry_revision")
+    if (
+        isinstance(registry_revision, bool)
+        or not isinstance(registry_revision, int)
+        or registry_revision <= 0
+    ):
+        raise ValueError("registry_revision must be a positive integer")
+    if registry_revision != revision:
+        raise ValueError("registry_revision must equal revision")
+    category = _required_string(artifact.get("category"), "category").lower()
+    expected_profile = "PWN" if category == "pwn" else "WEB"
+    isolation_profile = artifact.get("isolation_profile")
+    if isolation_profile != expected_profile:
+        raise ValueError("isolation_profile must match the challenge category")
     if artifact.get("scan_result") != "PASS":
         raise ValueError("scan_result must be PASS")
 
@@ -65,8 +81,15 @@ def render_summary(artifact, bundle_name):
             raise ValueError("each container must be an object")
         name = _required_string(container.get("name"), "container.name")
         image = _required_string(container.get("image"), f"{name}.image")
-        if not DIGEST_IMAGE.fullmatch(image):
-            raise ValueError(f"{name}.image must be digest-pinned")
+        if not MSGCTF_GHCR_DIGEST_IMAGE.fullmatch(image):
+            raise ValueError(
+                f"{name}.image must be a digest-pinned MSG-CTF GHCR image"
+            )
+        expected_repository = f"ghcr.io/msg-ctf/challenges/{challenge_slug}/{name}"
+        if not image.startswith(f"{expected_repository}@sha256:"):
+            raise ValueError(
+                f"{name}.image must use expected GHCR repository {expected_repository}"
+            )
         repository, digest = image.rsplit("@", 1)
         container_names.append(name)
         rows.append(f"| {name} | `{repository}` | `{digest}` |")
@@ -82,6 +105,8 @@ def render_summary(artifact, bundle_name):
             "",
             f"- 문제: `{challenge_slug}`",
             f"- revision: `{revision}`",
+            f"- registry revision: `{registry_revision}`",
+            f"- 격리 프로파일: `{isolation_profile}`",
             "- 보안 검사: `PASS`",
             f"- Actions artifact: `{bundle_name}` (90일 보관)",
             "",

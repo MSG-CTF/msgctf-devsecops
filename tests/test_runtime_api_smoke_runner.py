@@ -1,4 +1,5 @@
 import json
+import copy
 import socket
 import tempfile
 import threading
@@ -181,6 +182,36 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                 ],
                 "resource_limits": ARTIFACT["resource_profile"],
             },
+        )
+
+    def test_preserves_internal_connections_in_runtime_request(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["workload"]["containers"].append(
+            {
+                "name": "db",
+                "image": f"ghcr.io/msg-ctf/challenges/koth-template/db@{DIGEST}",
+                "ports": [{"port": 5432, "public": False}],
+            }
+        )
+        artifact["workload"]["internal_connections"] = [
+            {
+                "source_container": "service",
+                "destination_container": "db",
+                "protocol": "TCP",
+                "port": 5432,
+            }
+        ]
+
+        request = build_create_request(
+            artifact,
+            target_id="aws-k3s-001",
+            instance_id=INSTANCE_ID,
+            team_id=TEAM_ID,
+        )
+
+        self.assertEqual(
+            request["workload"]["internal_connections"],
+            artifact["workload"]["internal_connections"],
         )
 
     def test_creates_polls_and_always_deletes_runtime_workload(self):

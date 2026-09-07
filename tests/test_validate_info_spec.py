@@ -59,6 +59,111 @@ class ValidateInfoSpecTests(unittest.TestCase):
         metadata = validate_spec(FIXTURE)
 
         self.assertTrue(metadata["is_server"])
+        self.assertEqual(metadata["isolation_profile"], "WEB")
+
+    def test_pwn_server_uses_pwn_isolation_profile(self):
+        raw = self._raw_fixture()
+        raw["category"] = "pwn"
+
+        metadata = self._validate_raw(raw)
+
+        self.assertEqual(metadata["isolation_profile"], "PWN")
+
+    def test_accepts_declared_internal_connection(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["internal_connections"] = [
+            {
+                "source_container": "web",
+                "destination_container": "helper",
+                "protocol": "TCP",
+                "port": 9091,
+            }
+        ]
+
+        metadata = self._validate_raw(raw)
+
+        self.assertEqual(
+            metadata["internal_connections"],
+            raw["deployment"]["internal_connections"],
+        )
+
+    def test_rejects_internal_connection_to_undeclared_port(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["internal_connections"] = [
+            {
+                "source_container": "web",
+                "destination_container": "helper",
+                "protocol": "TCP",
+                "port": 9999,
+            }
+        ]
+
+        with self.assertRaisesRegex(ValueError, "destination container port"):
+            self._validate_raw(raw)
+
+    def test_rejects_invalid_internal_connection_contracts(self):
+        invalid_connections = [
+            (
+                {
+                    "source_container": "unknown",
+                    "destination_container": "helper",
+                    "protocol": "TCP",
+                    "port": 9091,
+                },
+                "declared containers",
+            ),
+            (
+                {
+                    "source_container": "web",
+                    "destination_container": "web",
+                    "protocol": "TCP",
+                    "port": 8080,
+                },
+                "must be different",
+            ),
+            (
+                {
+                    "source_container": "web",
+                    "destination_container": "helper",
+                    "protocol": "UDP",
+                    "port": 9091,
+                },
+                "must be TCP",
+            ),
+        ]
+        for connection, message in invalid_connections:
+            with self.subTest(connection=connection):
+                raw = self._raw_fixture()
+                raw["deployment"]["internal_connections"] = [connection]
+                with self.assertRaisesRegex(ValueError, message):
+                    self._validate_raw(raw)
+
+    def test_rejects_duplicate_internal_connections(self):
+        raw = self._raw_fixture()
+        connection = {
+            "source_container": "web",
+            "destination_container": "helper",
+            "protocol": "TCP",
+            "port": 9091,
+        }
+        raw["deployment"]["internal_connections"] = [connection, connection]
+
+        with self.assertRaisesRegex(ValueError, "duplicates"):
+            self._validate_raw(raw)
+
+    def test_rejects_raw_network_policy(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["network_policy"] = {"egress": [{"to": "0.0.0.0/0"}]}
+
+        with self.assertRaisesRegex(ValueError, "NetworkPolicy"):
+            self._validate_raw(raw)
+
+    def test_rejects_unknown_deployment_field(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["networkPolicy"] = {"egress": []}
+
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
+            self._validate_raw(raw)
 
     def test_accepts_backend_team_koth_template_contract(self):
         metadata = validate_spec(KOTH_FIXTURE)
