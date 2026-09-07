@@ -51,6 +51,7 @@ Backend poller가 읽는 공식 파일은 `artifact-v2.json`이다. 파일에는
 - 선택형 `workload.internal_connections[]`
 - `resource_profile`
 - `source_ref`
+- `source_sha`
 - `scan_result: "PASS"`
 - 컨테이너별 scan, SBOM과 timing evidence
 

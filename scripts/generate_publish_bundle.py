@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
+COMMIT_SHA = re.compile(r"^[0-9a-f]{40}$")
 MSGCTF_GHCR_DIGEST_IMAGE = re.compile(
     r"^ghcr\.io/msg-ctf/challenges/"
     r"[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/"
@@ -128,10 +129,20 @@ def _validated_results(metadata, results, evidence_root):
     return validated
 
 
-def generate_bundle(metadata, results, source_ref, revision, evidence_root):
+def generate_bundle(
+    metadata,
+    results,
+    source_ref,
+    source_sha,
+    revision,
+    evidence_root,
+):
     if isinstance(revision, bool) or not isinstance(revision, int) or revision <= 0:
         raise ValueError("revision must be a positive integer")
     source_ref = _clean_string(source_ref, "source_ref")
+    source_sha = _clean_string(source_sha, "source_sha")
+    if not COMMIT_SHA.fullmatch(source_sha):
+        raise ValueError("source_sha must be a 40-character lowercase commit SHA")
     validated_results = _validated_results(metadata, results, evidence_root)
     expected_profile = "PWN" if metadata.get("category") == "pwn" else "WEB"
     isolation_profile = metadata.get("isolation_profile", expected_profile)
@@ -183,6 +194,7 @@ def generate_bundle(metadata, results, source_ref, revision, evidence_root):
         "workload": workload,
         "resource_profile": metadata["resource_profile"],
         "source_ref": source_ref,
+        "source_sha": source_sha,
         "scan_result": "PASS",
         "evidence": {"containers": evidence_containers},
     }
@@ -214,6 +226,7 @@ def main():
     parser.add_argument("--metadata", required=True, type=Path)
     parser.add_argument("--results-dir", required=True, type=Path)
     parser.add_argument("--source-ref", required=True)
+    parser.add_argument("--source-sha", required=True)
     parser.add_argument("--revision", required=True, type=int)
     parser.add_argument("--artifact-output", required=True, type=Path)
     parser.add_argument("--registry-output", required=True, type=Path)
@@ -224,6 +237,7 @@ def main():
         metadata,
         _load_results(args.results_dir),
         args.source_ref,
+        args.source_sha,
         args.revision,
         args.artifact_output.parent,
     )

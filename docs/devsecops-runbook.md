@@ -20,7 +20,7 @@
 - `ports[].public`이 `expose`와 일치하는지 확인합니다.
 - healthcheck container와 port가 workload에 존재하는지 확인합니다.
 - SBOM 파일이 container마다 하나씩 존재하는지 확인합니다.
-- `source_ref`와 revision이 운영 승인 대상과 일치하는지 확인합니다.
+- `source_ref`, `source_sha`와 revision이 운영 승인 대상과 일치하는지 확인합니다.
 
 ## 실패 대응
 

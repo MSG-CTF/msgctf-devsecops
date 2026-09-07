@@ -31,8 +31,9 @@ matrix와 정규화된 metadata를 생성합니다.
 - `registry-publish.json`: 같은 artifact를 감싼 수동 API 검증용 wrapper
 
 두 자료에는 같은 `registry_revision`, digest 고정 `workload.containers[]`와
-`isolation_profile`이 포함됩니다. tag, `latest`, MSG-CTF GHCR 밖의 최종 image는
-거절합니다. 선언된 `internal_connections`는 workload에 그대로 보존합니다.
+`isolation_profile`, 발행 branch인 `source_ref`, 정확한 commit인 `source_sha`가
+포함됩니다. tag, `latest`, MSG-CTF GHCR 밖의 최종 image는 거절합니다. 선언된
+`internal_connections`는 workload에 그대로 보존합니다.
 
 컨테이너별 공급망 소요 시간을 검증해
 `artifact-v2.json`의 `evidence.containers[].timing`에 보존합니다.

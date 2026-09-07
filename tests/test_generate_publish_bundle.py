@@ -8,6 +8,8 @@ from scripts.generate_publish_bundle import generate_bundle
 
 DIGEST_A = "sha256:" + "a" * 64
 DIGEST_B = "sha256:" + "b" * 64
+SOURCE_REF = "refs/heads/main"
+SOURCE_SHA = "1" * 40
 METADATA = {
     "schema_version": "2.0",
     "challenge_slug": "web-notebook",
@@ -69,13 +71,17 @@ EVIDENCE_ROOT = Path(__file__).parent / "fixtures" / "publish-evidence"
 
 class GeneratePublishBundleTests(unittest.TestCase):
     def test_generates_runtime_artifact_and_registry_publish_document(self):
-        bundle = generate_bundle(METADATA, RESULTS, "abc123", 3, EVIDENCE_ROOT)
+        bundle = generate_bundle(
+            METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 3, EVIDENCE_ROOT
+        )
 
         artifact = bundle["artifact"]
         publish = bundle["registry_publish"]
         self.assertEqual(artifact["schema_version"], "2.0")
         self.assertEqual(artifact["revision"], 3)
         self.assertEqual(artifact["registry_revision"], 3)
+        self.assertEqual(artifact["source_ref"], SOURCE_REF)
+        self.assertEqual(artifact["source_sha"], SOURCE_SHA)
         self.assertEqual(artifact["isolation_profile"], "WEB")
         self.assertEqual(
             artifact["workload"]["containers"][0]["ports"],
@@ -107,7 +113,9 @@ class GeneratePublishBundleTests(unittest.TestCase):
             ],
         )
 
-        bundle = generate_bundle(metadata, RESULTS, "abc123", 1, EVIDENCE_ROOT)
+        bundle = generate_bundle(
+            metadata, RESULTS, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+        )
 
         self.assertEqual(
             bundle["artifact"]["workload"]["internal_connections"],
@@ -121,13 +129,17 @@ class GeneratePublishBundleTests(unittest.TestCase):
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
         metadata = dict(METADATA, category="pwn")
 
-        bundle = generate_bundle(metadata, RESULTS, "abc123", 1, EVIDENCE_ROOT)
+        bundle = generate_bundle(
+            metadata, RESULTS, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+        )
 
         self.assertEqual(bundle["artifact"]["isolation_profile"], "PWN")
         self.assertEqual(bundle["registry_publish"]["artifact"]["isolation_profile"], "PWN")
 
     def test_preserves_healthcheck_and_sbom_evidence(self):
-        bundle = generate_bundle(METADATA, RESULTS, "abc123", 1, EVIDENCE_ROOT)
+        bundle = generate_bundle(
+            METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+        )
 
         self.assertEqual(
             bundle["artifact"]["workload"]["healthcheck"],
@@ -152,12 +164,16 @@ class GeneratePublishBundleTests(unittest.TestCase):
         ]
 
         with self.assertRaisesRegex(ValueError, "timing.total_seconds"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_never_includes_flag(self):
         metadata = dict(METADATA, flag="msgctf2026{secret}")
 
-        bundle = generate_bundle(metadata, RESULTS, "abc123", 1, EVIDENCE_ROOT)
+        bundle = generate_bundle(
+            metadata, RESULTS, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+        )
 
         self.assertNotIn("msgctf2026", json.dumps(bundle))
         self.assertNotIn('"flag"', json.dumps(bundle))
@@ -166,7 +182,9 @@ class GeneratePublishBundleTests(unittest.TestCase):
         results = [dict(RESULTS[0], image="ghcr.io/msg-ctf/web:tag"), RESULTS[1]]
 
         with self.assertRaisesRegex(ValueError, "digest-pinned"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_digest_image_outside_msg_ctf_ghcr(self):
         results = [
@@ -178,7 +196,9 @@ class GeneratePublishBundleTests(unittest.TestCase):
         ]
 
         with self.assertRaisesRegex(ValueError, "MSG-CTF GHCR digest"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_image_from_another_challenge_repository(self):
         results = [
@@ -190,7 +210,9 @@ class GeneratePublishBundleTests(unittest.TestCase):
         ]
 
         with self.assertRaisesRegex(ValueError, "expected GHCR repository"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_image_from_another_container_repository(self):
         results = [
@@ -202,28 +224,38 @@ class GeneratePublishBundleTests(unittest.TestCase):
         ]
 
         with self.assertRaisesRegex(ValueError, "expected GHCR repository"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_missing_container_result(self):
         with self.assertRaisesRegex(ValueError, "result set"):
-            generate_bundle(METADATA, RESULTS[:1], "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, RESULTS[:1], SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_non_pass_scan_result(self):
         results = [dict(RESULTS[0], scan_result="FAIL"), RESULTS[1]]
 
         with self.assertRaisesRegex(ValueError, "scan_result"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_missing_sbom_reference(self):
         results = [dict(RESULTS[0], sbom=""), RESULTS[1]]
 
         with self.assertRaisesRegex(ValueError, "SBOM"):
-            generate_bundle(METADATA, results, "abc123", 1, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, results, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
+            )
 
     def test_rejects_sbom_reference_when_file_is_missing(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             with self.assertRaisesRegex(ValueError, "SBOM file"):
-                generate_bundle(METADATA, RESULTS, "abc123", 1, Path(temp_dir))
+                generate_bundle(
+                    METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 1, Path(temp_dir)
+                )
 
     def test_rejects_non_cyclonedx_sbom(self):
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -234,11 +266,21 @@ class GeneratePublishBundleTests(unittest.TestCase):
                 path.write_text('{"bomFormat":"SPDX"}', encoding="utf-8")
 
             with self.assertRaisesRegex(ValueError, "CycloneDX"):
-                generate_bundle(METADATA, RESULTS, "abc123", 1, evidence_root)
+                generate_bundle(
+                    METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 1, evidence_root
+                )
 
     def test_rejects_non_positive_revision(self):
         with self.assertRaisesRegex(ValueError, "revision"):
-            generate_bundle(METADATA, RESULTS, "abc123", 0, EVIDENCE_ROOT)
+            generate_bundle(
+                METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 0, EVIDENCE_ROOT
+            )
+
+    def test_rejects_invalid_source_sha(self):
+        with self.assertRaisesRegex(ValueError, "source_sha"):
+            generate_bundle(
+                METADATA, RESULTS, SOURCE_REF, "not-a-commit", 1, EVIDENCE_ROOT
+            )
 
 
 if __name__ == "__main__":
