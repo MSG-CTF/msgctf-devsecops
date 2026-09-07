@@ -100,7 +100,7 @@ class GeneratePublishBundleTests(unittest.TestCase):
         for forbidden in ("activate", "operation", "preconditions", "retention"):
             self.assertNotIn(forbidden, publish)
 
-    def test_preserves_declared_internal_connections(self):
+    def test_does_not_publish_legacy_internal_connections(self):
         metadata = dict(
             METADATA,
             internal_connections=[
@@ -117,13 +117,10 @@ class GeneratePublishBundleTests(unittest.TestCase):
             metadata, RESULTS, SOURCE_REF, SOURCE_SHA, 1, EVIDENCE_ROOT
         )
 
-        self.assertEqual(
-            bundle["artifact"]["workload"]["internal_connections"],
-            metadata["internal_connections"],
-        )
-        self.assertEqual(
-            bundle["registry_publish"]["artifact"]["workload"]["internal_connections"],
-            metadata["internal_connections"],
+        self.assertNotIn("internal_connections", bundle["artifact"]["workload"])
+        self.assertNotIn(
+            "internal_connections",
+            bundle["registry_publish"]["artifact"]["workload"],
         )
 
     def test_maps_pwn_category_to_pwn_isolation_profile(self):

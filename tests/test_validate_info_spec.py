@@ -69,7 +69,7 @@ class ValidateInfoSpecTests(unittest.TestCase):
 
         self.assertEqual(metadata["isolation_profile"], "PWN")
 
-    def test_accepts_declared_internal_connection(self):
+    def test_rejects_internal_connections_as_runtime_owned(self):
         raw = self._raw_fixture()
         raw["deployment"]["internal_connections"] = [
             {
@@ -80,75 +80,7 @@ class ValidateInfoSpecTests(unittest.TestCase):
             }
         ]
 
-        metadata = self._validate_raw(raw)
-
-        self.assertEqual(
-            metadata["internal_connections"],
-            raw["deployment"]["internal_connections"],
-        )
-
-    def test_rejects_internal_connection_to_undeclared_port(self):
-        raw = self._raw_fixture()
-        raw["deployment"]["internal_connections"] = [
-            {
-                "source_container": "web",
-                "destination_container": "helper",
-                "protocol": "TCP",
-                "port": 9999,
-            }
-        ]
-
-        with self.assertRaisesRegex(ValueError, "destination container port"):
-            self._validate_raw(raw)
-
-    def test_rejects_invalid_internal_connection_contracts(self):
-        invalid_connections = [
-            (
-                {
-                    "source_container": "unknown",
-                    "destination_container": "helper",
-                    "protocol": "TCP",
-                    "port": 9091,
-                },
-                "declared containers",
-            ),
-            (
-                {
-                    "source_container": "web",
-                    "destination_container": "web",
-                    "protocol": "TCP",
-                    "port": 8080,
-                },
-                "must be different",
-            ),
-            (
-                {
-                    "source_container": "web",
-                    "destination_container": "helper",
-                    "protocol": "UDP",
-                    "port": 9091,
-                },
-                "must be TCP",
-            ),
-        ]
-        for connection, message in invalid_connections:
-            with self.subTest(connection=connection):
-                raw = self._raw_fixture()
-                raw["deployment"]["internal_connections"] = [connection]
-                with self.assertRaisesRegex(ValueError, message):
-                    self._validate_raw(raw)
-
-    def test_rejects_duplicate_internal_connections(self):
-        raw = self._raw_fixture()
-        connection = {
-            "source_container": "web",
-            "destination_container": "helper",
-            "protocol": "TCP",
-            "port": 9091,
-        }
-        raw["deployment"]["internal_connections"] = [connection, connection]
-
-        with self.assertRaisesRegex(ValueError, "duplicates"):
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
             self._validate_raw(raw)
 
     def test_rejects_raw_network_policy(self):

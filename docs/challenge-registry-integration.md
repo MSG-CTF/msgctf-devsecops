@@ -79,11 +79,10 @@ publish bundle은 raw Kubernetes NetworkPolicy를 포함하지 않습니다. 다
 - `isolation_profile`: `WEB | PWN`
 - `workload.containers[]`
 - `ports[].public`
-- 선택형 `workload.internal_connections[]`
 
-Runtime/Secure Provisioner는 이 값으로 default-deny, DNS, public ingress와 선언된
-컨테이너 간 TCP 통신 정책을 생성합니다. 출제자와 CI는 임의 egress 또는 Kubernetes
-NetworkPolicy를 주입할 수 없습니다.
+Runtime/Secure Provisioner는 이 값으로 문제 컨테이너를 연결하고 default-deny,
+DNS와 public ingress 정책을 생성합니다. 출제자와 CI는 연결 그래프, 임의 egress
+또는 Kubernetes NetworkPolicy를 주입할 수 없습니다.
 혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고 보존합니다.
 
 ## poller 운영 연결

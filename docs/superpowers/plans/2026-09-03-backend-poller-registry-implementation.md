@@ -59,7 +59,7 @@ for forbidden in ("activate", "operation", "preconditions", "retention"):
     self.assertNotIn(forbidden, publish)
 ```
 
-`internal_connections`와 `isolation_profile` 테스트도 `registry_publish["artifact"]`를 통해 같은 artifact를 검사하게 변경한다.
+`isolation_profile` 테스트도 `registry_publish["artifact"]`를 통해 같은 artifact를 검사하게 변경한다.
 
 - [ ] **Step 2: 변경한 테스트가 기존 구현에서 실패하는지 확인**
 

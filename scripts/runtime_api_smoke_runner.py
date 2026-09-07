@@ -119,44 +119,6 @@ def build_create_request(
         raise ValueError("Runtime smoke deployment requires at least one exposed container")
 
     runtime_workload = {"containers": runtime_containers}
-    internal_connections = workload.get("internal_connections")
-    if internal_connections is not None:
-        if not isinstance(internal_connections, list):
-            raise ValueError("workload.internal_connections must be a list")
-        ports_by_container = {
-            container["name"]: set(container["ports"])
-            for container in runtime_containers
-        }
-        normalized_connections = []
-        seen_connections = set()
-        for connection in internal_connections:
-            if not isinstance(connection, dict):
-                raise ValueError("each internal connection must be an object")
-            source = connection.get("source_container")
-            destination = connection.get("destination_container")
-            protocol = connection.get("protocol")
-            port = _positive_int(connection.get("port"), "internal connection port")
-            if source not in ports_by_container or destination not in ports_by_container:
-                raise ValueError("internal connection must reference declared containers")
-            if source == destination:
-                raise ValueError("internal connection containers must be different")
-            if protocol != "TCP":
-                raise ValueError("internal connection protocol must be TCP")
-            if port not in ports_by_container[destination]:
-                raise ValueError("internal connection port must be declared by destination")
-            key = (source, destination, protocol, port)
-            if key in seen_connections:
-                raise ValueError("internal connections must be unique")
-            seen_connections.add(key)
-            normalized_connections.append(
-                {
-                    "source_container": source,
-                    "destination_container": destination,
-                    "protocol": protocol,
-                    "port": port,
-                }
-            )
-        runtime_workload["internal_connections"] = normalized_connections
 
     resource_profile = artifact.get("resource_profile")
     if not isinstance(resource_profile, dict):

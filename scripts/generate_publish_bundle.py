@@ -176,8 +176,6 @@ def generate_bundle(
         )
 
     workload = {"containers": workload_containers}
-    if metadata.get("internal_connections"):
-        workload["internal_connections"] = metadata["internal_connections"]
     if "healthcheck" in metadata:
         workload["healthcheck"] = metadata["healthcheck"]
 

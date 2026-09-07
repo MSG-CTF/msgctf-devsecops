@@ -17,7 +17,7 @@ Git 변경 내역에서 `info.yaml`이 있는 문제 디렉터리를 찾아 검�
 ### `validate_info_spec.py`
 
 `info.yaml`, 컨테이너 정의, Docker build context, architecture, port,
-healthcheck, resource profile과 `internal_connections`를 검증합니다. 문제
+healthcheck와 resource profile을 검증합니다. 문제
 category는 신뢰된 `WEB | PWN` isolation profile로 정규화하며 raw Kubernetes
 NetworkPolicy 입력은 거절합니다. 검증 결과에서는 flag를 제거하고 build
 matrix와 정규화된 metadata를 생성합니다.
@@ -32,8 +32,8 @@ matrix와 정규화된 metadata를 생성합니다.
 
 두 자료에는 같은 `registry_revision`, digest 고정 `workload.containers[]`와
 `isolation_profile`, 발행 branch인 `source_ref`, 정확한 commit인 `source_sha`가
-포함됩니다. tag, `latest`, MSG-CTF GHCR 밖의 최종 image는 거절합니다. 선언된
-`internal_connections`는 workload에 그대로 보존합니다.
+포함됩니다. tag, `latest`, MSG-CTF GHCR 밖의 최종 image는 거절합니다.
+컨테이너 연결과 문제 간 격리는 Runtime의 K3s 네트워크 정책이 담당합니다.
 
 컨테이너별 공급망 소요 시간을 검증해
 `artifact-v2.json`의 `evidence.containers[].timing`에 보존합니다.

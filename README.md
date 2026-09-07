@@ -87,11 +87,6 @@ deployment:
       image: postgres:16
       ports: [5432]
       expose: false
-  internal_connections:
-    - source_container: web
-      destination_container: db
-      protocol: TCP
-      port: 5432
   healthcheck:
     container: web
     port: 9090
@@ -109,8 +104,8 @@ deployment:
 - `build`는 문제 디렉터리 내부의 Docker build context만 가리킬 수 있습니다.
 - 외부 `image`는 `latest`나 암묵적 tag를 사용할 수 없으며 명시적 non-latest tag 또는 digest가 필요합니다.
 - `expose: true`인 컨테이너의 포트만 참가자에게 공개합니다.
-- 컨테이너 간 통신은 `internal_connections`에 TCP 방향과 목적지 포트를
-  명시합니다. 선언하지 않은 통신은 Runtime NetworkPolicy가 차단합니다.
+- 한 문제의 컨테이너 연결과 문제 간 격리는 Runtime의 K3s 네트워크와
+  NetworkPolicy가 관리합니다. 출제자는 연결 규칙을 따로 선언하지 않습니다.
 - 출제자는 raw Kubernetes `NetworkPolicy`를 입력하지 않습니다. CI는 문제
   category를 `WEB` 또는 `PWN` `isolation_profile`로 정규화하고 Runtime이
   승인된 정책을 생성합니다.

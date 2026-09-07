@@ -184,7 +184,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             },
         )
 
-    def test_preserves_internal_connections_in_runtime_request(self):
+    def test_does_not_forward_legacy_internal_connections(self):
         artifact = copy.deepcopy(ARTIFACT)
         artifact["workload"]["containers"].append(
             {
@@ -209,10 +209,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             team_id=TEAM_ID,
         )
 
-        self.assertEqual(
-            request["workload"]["internal_connections"],
-            artifact["workload"]["internal_connections"],
-        )
+        self.assertNotIn("internal_connections", request["workload"])
 
     def test_creates_polls_and_always_deletes_runtime_workload(self):
         self.start_server()

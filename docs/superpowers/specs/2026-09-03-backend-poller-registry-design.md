@@ -48,7 +48,6 @@ Backend poller가 읽는 공식 파일은 `artifact-v2.json`이다. 파일에는
 - `workload.containers[]`
 - 각 컨테이너의 GHCR digest image와 `ports[].public`
 - 선택형 `workload.healthcheck`
-- 선택형 `workload.internal_connections[]`
 - `resource_profile`
 - `source_ref`
 - `source_sha`
