@@ -17,7 +17,7 @@
 - `registry-publish.json`은 수동 호환성 검증용 `{"artifact": <artifact-v2>}` wrapper만 제공한다.
 - CI는 release를 활성화하지 않는다. active release 전환과 롤백은 Backend 또는 관리자가 담당한다.
 - Runtime, Scheduler, Resource Broker 저장소의 코드는 수정하지 않는다.
-- 포트별 `public` 정보는 artifact에서 손실 없이 보존한다. 현재 Runtime이 표현하지 못하는 혼합 노출 포트는 임의 변환하지 않는다.
+- 포트별 `public` 정보는 artifact에서 손실 없이 보존하고 Runtime 신규 요청의 `ports`와 `exposed_ports`로 변환한다.
 - 기존 GHCR build-once, scan, push와 K3s smoke 경로는 직접 Registry API 제거 때문에 깨지지 않아야 한다.
 
 ---
@@ -318,7 +318,7 @@ Expected: 기존 문서에 직접 API 전송용 URL, token, `Idempotency-Key` �
 - DevSecOps workflow에는 Backend base URL 또는 service token이 필요하지 않다.
 - Backend 운영 환경의 `RELEASE_POLL_REPO`, `RELEASE_POLL_GITHUB_TOKEN`은 Backend 팀이 관리한다.
 - 동일 `registry_revision`의 중복 수집과 active release 전환은 Backend가 처리한다.
-- 혼합 public/private 포트는 Runtime DTO 확정 전까지 손실 변환하지 않는다.
+- 혼합 public/private 포트는 Runtime 신규 DTO의 `ports`와 `exposed_ports`로 변환한다.
 - 실제 poller 통합 완료 증거는 Actions artifact 수집, 최초 등록, 중복 재수집, active 미변경을 함께 확인해야 한다.
 
 `docs/challenge-registry-integration.md`의 과거 직접 API 연결 전제와 service token 대기 항목을 poller 기반 통합 상태로 교체한다. 과거 로컬 등록 결과는 호환성 증거로 남기되 운영 연결 완료로 표현하지 않는다.
@@ -432,7 +432,7 @@ PR comment에 아래 내용을 기록한다.
 - `registry-publish.json`은 `{"artifact": ...}` wrapper임
 - 실행한 테스트와 결과
 - active 전환은 Backend 소유임
-- 혼합 포트는 Runtime 계약 확정이 필요한 별도 항목임
+- 혼합 포트는 Runtime PR #41의 `exposed_ports` 계약으로 변환함
 
 PR은 리뷰 전 자동 merge하지 않는다.
 
@@ -457,4 +457,4 @@ Backend PR #26이 poller 포함 상태로 배포된 환경에서 Backend 팀과 
 3. 등록 직후 active release는 자동 변경되지 않는다.
 4. Backend/admin이 활성화한 release의 `release_id`와 digest가 인스턴스 생성 요청까지 동일하게 전달된다.
 
-Runtime 팀이 포트별 공개 여부를 표현하는 DTO를 확정하면 PR #6에서 exact `(container_name, port)` endpoint set 검증과 실제 K3s cold pull, 인증 실패, `ImagePullBackOff`, cleanup 증거를 별도로 수행한다.
+PR #6에서 `exposed_ports` 기준 exact `(container_name, port)` endpoint set 검증과 실제 K3s cold pull, 인증 실패, `ImagePullBackOff`, cleanup 증거를 별도로 수행한다.

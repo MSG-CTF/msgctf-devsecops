@@ -86,7 +86,7 @@ def build_create_request(
         if not isinstance(artifact_ports, list) or not artifact_ports:
             raise ValueError("container ports must be a non-empty list")
         ports = []
-        public_values = set()
+        exposed_ports = []
         for port_spec in artifact_ports:
             if not isinstance(port_spec, dict):
                 raise ValueError("container port must be an object")
@@ -97,26 +97,30 @@ def build_create_request(
             if not isinstance(public, bool):
                 raise ValueError("container port public must be a boolean")
             ports.append(port)
-            public_values.add(public)
+            if public:
+                exposed_ports.append(port)
 
-        if len(public_values) != 1:
-            raise ValueError(
-                "Runtime contract exposes ports by container, so one container cannot mix public and private ports"
-            )
-        expose = public_values == {True}
-        exposed = exposed or expose
+        exposed = exposed or bool(exposed_ports)
         runtime_containers.append(
             {
                 "name": name,
                 "image": image,
                 "ports": ports,
-                "expose": expose,
+                "exposed_ports": exposed_ports,
                 "run_as_user": _positive_int(container.get("run_as_user", 10001), "run_as_user"),
             }
         )
 
     if not exposed:
         raise ValueError("Runtime smoke deployment requires at least one exposed container")
+    if _isolation_profile(artifact.get("category")) == "PWN":
+        public_containers = [
+            container for container in runtime_containers if container["exposed_ports"]
+        ]
+        if len(public_containers) != 1:
+            raise ValueError("PWN Runtime requires exactly one public container")
+        if len(public_containers[0]["ports"]) != 1:
+            raise ValueError("PWN public container must declare exactly one port")
 
     runtime_workload = {"containers": runtime_containers}
 

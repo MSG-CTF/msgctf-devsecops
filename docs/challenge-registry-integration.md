@@ -87,10 +87,10 @@ NetworkPolicy를 생성합니다. 동일 challenge instance 내부 통신 허용
 연결 그래프, raw selector, CIDR, Kubernetes manifest 또는 NetworkPolicy를 주입할
 수 없습니다.
 
-외부 egress는 현재 Runtime 기본 정책을 사용합니다. 제한된 egress 설정의 필드명과
-허용 값은 Runtime API 계약이 확정된 뒤 `info.yaml` DSL과 publish bundle에 함께
-추가합니다. 그 전에는 `deployment.network_policy`를 거절합니다.
-혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고 보존합니다.
+외부 egress는 Runtime `STANDARD@v2` 기본 정책 `NONE`을 사용합니다. 현재 외부
+egress DSL이나 raw NetworkPolicy 입력은 제공하지 않으며
+`deployment.network_policy`를 거절합니다. publish bundle은 포트별 `public` 값을
+보존하고 Runtime 신규 요청에서는 전체 `ports`와 공개할 `exposed_ports`로 변환합니다.
 
 ## poller 운영 연결
 

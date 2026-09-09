@@ -115,8 +115,8 @@ deployment:
 - 출제자는 raw Kubernetes manifest나 `NetworkPolicy`를 입력하지 않습니다. CI는
   문제 category를 `WEB` 또는 `PWN` `isolation_profile`로 정규화하고 Runtime이
   승인된 정책을 생성합니다.
-- 외부 egress는 현재 Runtime 기본 정책을 따릅니다. 제한된 egress DSL은 Runtime
-  API 계약이 확정된 뒤 추가하며, 그 전에는 `network_policy` 입력을 거절합니다.
+- 외부 egress는 Runtime `STANDARD@v2` 기본 정책 `NONE`을 따릅니다. 현재 별도
+  egress DSL을 제공하지 않으며 `network_policy` 입력을 거절합니다.
 - `resource_profile`은 문제의 모든 컨테이너를 합산한 값입니다.
 - `flag`는 존재 여부만 검증하며 로그, output, artifact에 기록하지 않습니다.
 - `deployment`가 없는 정적 문제는 Docker build와 image 발행을 수행하지 않습니다.
@@ -241,8 +241,8 @@ DevSecOps는 `artifact-v2.json`과 GHCR digest image를 발행하고, Backend po
 `-publish-bundle` artifact 수집, challenge 매핑, release 등록, 동일
 `registry_revision`의 중복 처리를 소유합니다. Backend/admin은 active release
 전환과 롤백을 소유합니다. Runtime/Secure Provisioner는 active workload의 K3s
-배포와 정리를 소유합니다. 혼합 public/private port는 Runtime DTO가 확정될
-때까지 손실 변환하지 않습니다.
+배포와 정리를 소유합니다. 선택형 Runtime smoke는 `ports[].public`을 신규 Runtime
+계약의 `ports`와 `exposed_ports`로 변환하며 `expose`는 전송하지 않습니다.
 
 Backend 운영 환경의 `RELEASE_POLL_REPO`와 `RELEASE_POLL_GITHUB_TOKEN`은 Backend
 팀이 관리합니다. CI는 Backend DB, Scheduler 또는 Broker를 직접 조작하지 않으며,

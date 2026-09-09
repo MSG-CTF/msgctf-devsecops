@@ -39,7 +39,8 @@ matrix와 정규화된 metadata를 생성합니다.
 `artifact-v2.json`의 `evidence.containers[].timing`에 보존합니다.
 Backend poller는 성공한 `-publish-bundle` artifact에서 이 파일을 수집해 challenge
 매핑, release 등록과 같은 `registry_revision`의 중복 처리를 수행합니다. 혼합
-public/private port는 Runtime DTO가 확정될 때까지 변환하지 않고 보존합니다.
+public/private port는 publish bundle에 포트별로 보존하고 Runtime smoke 요청에서는
+전체 `ports`와 공개할 `exposed_ports`로 변환합니다.
 
 ### `pipeline_timing.py`
 

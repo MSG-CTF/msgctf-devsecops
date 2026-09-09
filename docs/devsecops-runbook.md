@@ -162,11 +162,11 @@ cold pull, 인증 실패, `ImagePullBackOff`, 실행 digest 일치 항목은 Run
 
 ### Scheduler와 Runtime
 
-- Secure Provisioner `dev`는 멀티 컨테이너, digest image, port, `expose`,
-  resource limit와 `WEB | PWN` 격리 profile을 수용합니다.
-- Scheduler `feature/live-e2e-contract`도 멀티 컨테이너 Runtime DTO를 반영했지만
-  아직 `dev` 병합 전입니다.
-- DevSecOps smoke runner는 현재 Runtime API 계약으로 변환하되 CI가 Kubernetes
+- Secure Provisioner PR #41은 신규 요청에서 `internal_connections`를 거절하고,
+  `ports`와 `exposed_ports`, resource limit, `WEB | PWN` 격리 profile을 수용합니다.
+- Scheduler는 동일한 신규 Runtime DTO로 전환해야 합니다.
+- DevSecOps smoke runner는 publish bundle의 포트별 공개 정보를 신규 Runtime API
+  계약으로 변환하되 CI가 Kubernetes
   manifest나 운영 target 선택을 소유하지 않습니다.
 - `info.yaml`에는 `run_as_user`가 없으므로 smoke 기본 UID는 `10001`입니다. 운영
   계약에서 이미지별 UID가 필요하면 Runtime·출제 양식 담당과 필드를 확정해야 합니다.

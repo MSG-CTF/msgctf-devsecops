@@ -106,8 +106,8 @@ K3s 네트워크와 NetworkPolicy로 관리합니다. CI는 연결 그래프나 
 - 동일 challenge instance 내부 컨테이너 통신 허용: Runtime
 - challenge 간 격리 및 team 간 격리: Runtime
 - 외부 공개 의도: CI가 `expose`와 `ports`를 `ports[].public`로 정규화
-- 외부 egress: Runtime 기본 정책 적용
-- 제한된 egress DSL: Runtime API 계약 확정 후 별도 추가
+- Runtime smoke 요청: `ports[].public`을 `ports`와 `exposed_ports`로 변환
+- 외부 egress: Runtime `STANDARD@v2` 기본 정책 `NONE`
 
 계약 확정 전에는 출제자의 `network_policy` 입력을 거절합니다. raw Kubernetes
 selector, CIDR 또는 manifest를 publish bundle에 전달하지 않습니다.
@@ -147,8 +147,8 @@ DevSecOps는 `isolation_profile`, `workload.containers[]`, `ports[].public`,
 `healthcheck`, `resource_profile`을 전달합니다.
 Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy,
 SecurityContext와 cleanup을 구현합니다.
-혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고
-`artifact-v2.json`에 보존합니다.
+`artifact-v2.json`은 포트별 공개 의도를 보존하고, smoke runner는 Runtime 신규
+요청에 전체 `ports`와 공개 포트만 담은 `exposed_ports`를 전송합니다.
 발행 후 smoke test는 SSM으로 Runtime node 안의 Secure Provisioner API를 호출해
 생성과 삭제 Operation이 모두 성공하는지만 확인합니다.
 
