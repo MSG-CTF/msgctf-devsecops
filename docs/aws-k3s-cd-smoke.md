@@ -82,8 +82,9 @@ Smoke instance와 team UUID는 GitHub run 정보로 결정적으로 생성됩니
 
 - Runtime팀 API의 현재 격리 profile에 맞춰 `pwn`은 `PWN`, 나머지는 `WEB`을 사용합니다.
 - `info.yaml`에 `run_as_user`가 없으면 smoke 요청은 non-root UID `10001`을 사용합니다.
-- 한 컨테이너 안에서 public 포트와 private 포트를 섞는 artifact는 Runtime의 현재
-  container 단위 `expose` 계약으로 손실 없이 변환할 수 없어 거부합니다.
+- publish bundle의 `ports[].public`을 Runtime 신규 계약의 전체 `ports`와 공개 포트
+  목록인 `exposed_ports`로 변환하며 `expose`는 함께 보내지 않습니다.
+- PWN은 공개 컨테이너와 해당 컨테이너의 포트를 각각 정확히 하나만 허용합니다.
 - 운영 참가자 instance 생성은 Backend, Scheduler, Broker, Runtime 경로가 담당합니다.
   이 job은 문제 revision 발행 직후의 임시 통합 검증입니다.
 

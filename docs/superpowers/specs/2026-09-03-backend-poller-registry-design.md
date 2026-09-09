@@ -48,9 +48,9 @@ Backend poller가 읽는 공식 파일은 `artifact-v2.json`이다. 파일에는
 - `workload.containers[]`
 - 각 컨테이너의 GHCR digest image와 `ports[].public`
 - 선택형 `workload.healthcheck`
-- 선택형 `workload.internal_connections[]`
 - `resource_profile`
 - `source_ref`
+- `source_sha`
 - `scan_result: "PASS"`
 - 컨테이너별 scan, SBOM과 timing evidence
 
@@ -113,13 +113,10 @@ Backend가 별도 API와 권한으로 수행한다.
 
 ## 혼합 포트 경계
 
-Registry artifact는 포트별 `public` 값을 보존한다. 현재 Runtime `dev` 계약은
-`ports: [int]`와 컨테이너 단위 `expose`를 사용하므로 한 컨테이너 안에서 public과
-private 포트가 섞인 workload를 손실 없이 변환할 수 없다.
-
-이 변경에서는 Runtime DTO를 임의로 확장하거나 포트를 누락하지 않는다. 혼합 포트
-지원은 Runtime 팀이 확정한 DTO를 받은 뒤 별도 계약 변경으로 구현한다. 그전까지
-DevSecOps smoke runner는 표현할 수 없는 혼합 노출 workload를 명시적으로 거절한다.
+Registry artifact는 포트별 `public` 값을 보존한다. Runtime PR #41의 신규 계약은
+전체 `ports: [int]`와 공개할 `exposed_ports: [int]`를 분리하므로 한 컨테이너 안의
+public/private 포트를 손실 없이 표현할 수 있다. DevSecOps smoke runner는 이 두
+필드로 변환하고 구형 `expose`는 전송하지 않는다.
 
 ## 테스트
 

@@ -107,6 +107,9 @@ class WorkflowContractTests(unittest.TestCase):
             'echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}"',
             text,
         )
+        self.assertIn('--source-ref "$GITHUB_REF"', text)
+        self.assertIn('--source-sha "$GITHUB_SHA"', text)
+        self.assertNotIn('--source-ref "$GITHUB_SHA"', text)
         self.assertEqual(text.count("${{ steps.image.outputs.run_tag }}"), 6)
         self.assertEqual(
             set(workflow["jobs"]),

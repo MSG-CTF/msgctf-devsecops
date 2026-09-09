@@ -86,7 +86,7 @@ def build_create_request(
         if not isinstance(artifact_ports, list) or not artifact_ports:
             raise ValueError("container ports must be a non-empty list")
         ports = []
-        public_values = set()
+        exposed_ports = []
         for port_spec in artifact_ports:
             if not isinstance(port_spec, dict):
                 raise ValueError("container port must be an object")
@@ -97,66 +97,32 @@ def build_create_request(
             if not isinstance(public, bool):
                 raise ValueError("container port public must be a boolean")
             ports.append(port)
-            public_values.add(public)
+            if public:
+                exposed_ports.append(port)
 
-        if len(public_values) != 1:
-            raise ValueError(
-                "Runtime contract exposes ports by container, so one container cannot mix public and private ports"
-            )
-        expose = public_values == {True}
-        exposed = exposed or expose
+        exposed = exposed or bool(exposed_ports)
         runtime_containers.append(
             {
                 "name": name,
                 "image": image,
                 "ports": ports,
-                "expose": expose,
+                "exposed_ports": exposed_ports,
                 "run_as_user": _positive_int(container.get("run_as_user", 10001), "run_as_user"),
             }
         )
 
     if not exposed:
         raise ValueError("Runtime smoke deployment requires at least one exposed container")
+    if _isolation_profile(artifact.get("category")) == "PWN":
+        public_containers = [
+            container for container in runtime_containers if container["exposed_ports"]
+        ]
+        if len(public_containers) != 1:
+            raise ValueError("PWN Runtime requires exactly one public container")
+        if len(public_containers[0]["ports"]) != 1:
+            raise ValueError("PWN public container must declare exactly one port")
 
     runtime_workload = {"containers": runtime_containers}
-    internal_connections = workload.get("internal_connections")
-    if internal_connections is not None:
-        if not isinstance(internal_connections, list):
-            raise ValueError("workload.internal_connections must be a list")
-        ports_by_container = {
-            container["name"]: set(container["ports"])
-            for container in runtime_containers
-        }
-        normalized_connections = []
-        seen_connections = set()
-        for connection in internal_connections:
-            if not isinstance(connection, dict):
-                raise ValueError("each internal connection must be an object")
-            source = connection.get("source_container")
-            destination = connection.get("destination_container")
-            protocol = connection.get("protocol")
-            port = _positive_int(connection.get("port"), "internal connection port")
-            if source not in ports_by_container or destination not in ports_by_container:
-                raise ValueError("internal connection must reference declared containers")
-            if source == destination:
-                raise ValueError("internal connection containers must be different")
-            if protocol != "TCP":
-                raise ValueError("internal connection protocol must be TCP")
-            if port not in ports_by_container[destination]:
-                raise ValueError("internal connection port must be declared by destination")
-            key = (source, destination, protocol, port)
-            if key in seen_connections:
-                raise ValueError("internal connections must be unique")
-            seen_connections.add(key)
-            normalized_connections.append(
-                {
-                    "source_container": source,
-                    "destination_container": destination,
-                    "protocol": protocol,
-                    "port": port,
-                }
-            )
-        runtime_workload["internal_connections"] = normalized_connections
 
     resource_profile = artifact.get("resource_profile")
     if not isinstance(resource_profile, dict):
