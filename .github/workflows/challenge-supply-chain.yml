@@ -381,7 +381,8 @@ jobs:
           python3 .msgctf-ci/scripts/generate_publish_bundle.py \
             --metadata dist/input/metadata.json \
             --results-dir dist/results \
-            --source-ref "$GITHUB_SHA" \
+            --source-ref "$GITHUB_REF" \
+            --source-sha "$GITHUB_SHA" \
             --revision "$REVISION" \
             --artifact-output dist/artifact-v2.json \
             --registry-output dist/registry-publish.json

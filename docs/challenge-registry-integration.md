@@ -73,18 +73,24 @@ digest와 `ports[].public`도 입력 bundle과 일치했습니다.
 
 ## NetworkPolicy 경계
 
-publish bundle은 raw Kubernetes NetworkPolicy를 포함하지 않습니다. 다음 의도만
-전달합니다.
+`info.yaml`은 `docker-compose.yml`이나 Kubernetes manifest를 직접 실행하기 위한
+파일이 아니라, 출제자가 workload 의도를 선언하는 제한된 플랫폼 DSL입니다.
+publish bundle은 다음 정규화된 값만 전달합니다.
 
 - `isolation_profile`: `WEB | PWN`
 - `workload.containers[]`
 - `ports[].public`
-- 선택형 `workload.internal_connections[]`
 
-Runtime/Secure Provisioner는 이 값으로 default-deny, DNS, public ingress와 선언된
-컨테이너 간 TCP 통신 정책을 생성합니다. 출제자와 CI는 임의 egress 또는 Kubernetes
-NetworkPolicy를 주입할 수 없습니다.
-혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고 보존합니다.
+Runtime/Secure Provisioner는 이 값으로 Namespace, Service, Gateway/Ingress와
+NetworkPolicy를 생성합니다. 동일 challenge instance 내부 통신 허용, challenge 간
+격리, team 간 격리와 DNS 정책도 Runtime이 일관되게 적용합니다. 출제자와 CI는
+연결 그래프, raw selector, CIDR, Kubernetes manifest 또는 NetworkPolicy를 주입할
+수 없습니다.
+
+외부 egress는 Runtime `STANDARD@v2` 기본 정책 `NONE`을 사용합니다. 현재 외부
+egress DSL이나 raw NetworkPolicy 입력은 제공하지 않으며
+`deployment.network_policy`를 거절합니다. publish bundle은 포트별 `public` 값을
+보존하고 Runtime 신규 요청에서는 전체 `ports`와 공개할 `exposed_ports`로 변환합니다.
 
 ## poller 운영 연결
 

@@ -44,7 +44,10 @@ class BackendPollerDocumentationTests(unittest.TestCase):
         )
         self.assertIn("`registry_revision`의 중복 처리를 소유합니다.", text)
         self.assertIn("Backend/admin은 active release 전환과 롤백을 소유하고", text)
-        self.assertIn("혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고 보존합니다.", text)
+        self.assertIn(
+            "Runtime 신규 요청에서는 전체 `ports`와 공개할 `exposed_ports`로 변환합니다.",
+            text,
+        )
         self.assertIn("성공한 Actions artifact 수집", text)
         self.assertIn("최초 release 등록", text)
         self.assertIn("같은 `registry_revision`의 중복 재수집", text)

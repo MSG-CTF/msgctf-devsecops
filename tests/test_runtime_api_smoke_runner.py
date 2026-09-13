@@ -26,7 +26,7 @@ ARTIFACT = {
                 "image": f"ghcr.io/msg-ctf/challenges/koth-template/service@{DIGEST}",
                 "ports": [
                     {"port": 8080, "public": True},
-                    {"port": 9090, "public": True},
+                    {"port": 9090, "public": False},
                 ],
             }
         ],
@@ -176,7 +176,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                         "name": "service",
                         "image": ARTIFACT["workload"]["containers"][0]["image"],
                         "ports": [8080, 9090],
-                        "expose": True,
+                        "exposed_ports": [8080],
                         "run_as_user": 10001,
                     }
                 ],
@@ -184,7 +184,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             },
         )
 
-    def test_preserves_internal_connections_in_runtime_request(self):
+    def test_does_not_forward_legacy_internal_connections(self):
         artifact = copy.deepcopy(ARTIFACT)
         artifact["workload"]["containers"].append(
             {
@@ -209,9 +209,11 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             team_id=TEAM_ID,
         )
 
+        self.assertNotIn("internal_connections", request["workload"])
+        self.assertNotIn("expose", request["workload"]["containers"][0])
         self.assertEqual(
-            request["workload"]["internal_connections"],
-            artifact["workload"]["internal_connections"],
+            request["workload"]["containers"][1]["exposed_ports"],
+            [],
         )
 
     def test_creates_polls_and_always_deletes_runtime_workload(self):
@@ -249,7 +251,11 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         self.assertEqual(delete_body["delete_reason"], "ADMIN_FORCED")
 
     def test_maps_pwn_category_to_pwn_isolation_profile(self):
-        artifact = dict(ARTIFACT, category="pwn")
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["workload"]["containers"][0]["ports"] = [
+            {"port": 31337, "public": True}
+        ]
 
         request = build_create_request(
             artifact,
@@ -259,6 +265,40 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         )
 
         self.assertEqual(request["isolation_profile"], "PWN")
+
+    def test_rejects_pwn_with_multiple_public_containers(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+        artifact["workload"]["containers"][0]["ports"] = [
+            {"port": 31337, "public": True}
+        ]
+        artifact["workload"]["containers"].append(
+            {
+                "name": "helper",
+                "image": f"ghcr.io/msg-ctf/challenges/koth-template/helper@{DIGEST}",
+                "ports": [{"port": 8080, "public": True}],
+            }
+        )
+
+        with self.assertRaisesRegex(ValueError, "exactly one public container"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-pwn-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
+
+    def test_rejects_pwn_public_container_with_multiple_ports(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        artifact["category"] = "pwn"
+
+        with self.assertRaisesRegex(ValueError, "exactly one port"):
+            build_create_request(
+                artifact,
+                target_id="aws-k3s-pwn-001",
+                instance_id=INSTANCE_ID,
+                team_id=TEAM_ID,
+            )
 
     def test_rejects_malformed_create_result_without_invalid_delete_request(self):
         self.start_server()

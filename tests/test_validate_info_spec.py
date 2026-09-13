@@ -64,12 +64,31 @@ class ValidateInfoSpecTests(unittest.TestCase):
     def test_pwn_server_uses_pwn_isolation_profile(self):
         raw = self._raw_fixture()
         raw["category"] = "pwn"
+        raw["deployment"]["containers"][0]["ports"] = [31337]
+        del raw["deployment"]["healthcheck"]
 
         metadata = self._validate_raw(raw)
 
         self.assertEqual(metadata["isolation_profile"], "PWN")
 
-    def test_accepts_declared_internal_connection(self):
+    def test_rejects_pwn_with_multiple_public_containers(self):
+        raw = self._raw_fixture()
+        raw["category"] = "pwn"
+        raw["deployment"]["containers"][0]["ports"] = [31337]
+        raw["deployment"]["containers"][1]["expose"] = True
+        del raw["deployment"]["healthcheck"]
+
+        with self.assertRaisesRegex(ValueError, "exactly one public container"):
+            self._validate_raw(raw)
+
+    def test_rejects_pwn_public_container_with_multiple_ports(self):
+        raw = self._raw_fixture()
+        raw["category"] = "pwn"
+
+        with self.assertRaisesRegex(ValueError, "exactly one port"):
+            self._validate_raw(raw)
+
+    def test_rejects_internal_connections_as_runtime_owned(self):
         raw = self._raw_fixture()
         raw["deployment"]["internal_connections"] = [
             {
@@ -80,83 +99,35 @@ class ValidateInfoSpecTests(unittest.TestCase):
             }
         ]
 
-        metadata = self._validate_raw(raw)
-
-        self.assertEqual(
-            metadata["internal_connections"],
-            raw["deployment"]["internal_connections"],
-        )
-
-    def test_rejects_internal_connection_to_undeclared_port(self):
-        raw = self._raw_fixture()
-        raw["deployment"]["internal_connections"] = [
-            {
-                "source_container": "web",
-                "destination_container": "helper",
-                "protocol": "TCP",
-                "port": 9999,
-            }
-        ]
-
-        with self.assertRaisesRegex(ValueError, "destination container port"):
-            self._validate_raw(raw)
-
-    def test_rejects_invalid_internal_connection_contracts(self):
-        invalid_connections = [
-            (
-                {
-                    "source_container": "unknown",
-                    "destination_container": "helper",
-                    "protocol": "TCP",
-                    "port": 9091,
-                },
-                "declared containers",
-            ),
-            (
-                {
-                    "source_container": "web",
-                    "destination_container": "web",
-                    "protocol": "TCP",
-                    "port": 8080,
-                },
-                "must be different",
-            ),
-            (
-                {
-                    "source_container": "web",
-                    "destination_container": "helper",
-                    "protocol": "UDP",
-                    "port": 9091,
-                },
-                "must be TCP",
-            ),
-        ]
-        for connection, message in invalid_connections:
-            with self.subTest(connection=connection):
-                raw = self._raw_fixture()
-                raw["deployment"]["internal_connections"] = [connection]
-                with self.assertRaisesRegex(ValueError, message):
-                    self._validate_raw(raw)
-
-    def test_rejects_duplicate_internal_connections(self):
-        raw = self._raw_fixture()
-        connection = {
-            "source_container": "web",
-            "destination_container": "helper",
-            "protocol": "TCP",
-            "port": 9091,
-        }
-        raw["deployment"]["internal_connections"] = [connection, connection]
-
-        with self.assertRaisesRegex(ValueError, "duplicates"):
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
             self._validate_raw(raw)
 
     def test_rejects_raw_network_policy(self):
         raw = self._raw_fixture()
         raw["deployment"]["network_policy"] = {"egress": [{"to": "0.0.0.0/0"}]}
 
-        with self.assertRaisesRegex(ValueError, "NetworkPolicy"):
+        with self.assertRaisesRegex(ValueError, "platform DSL contract is finalized"):
             self._validate_raw(raw)
+
+    def test_rejects_kubernetes_implementation_fields(self):
+        for field in (
+            "manifest",
+            "manifests",
+            "namespace",
+            "service",
+            "gateway",
+            "ingress",
+            "kubernetes",
+        ):
+            with self.subTest(field=field):
+                raw = self._raw_fixture()
+                raw["deployment"][field] = {}
+
+                with self.assertRaisesRegex(
+                    ValueError,
+                    "Kubernetes implementation fields are Runtime-owned",
+                ):
+                    self._validate_raw(raw)
 
     def test_rejects_unknown_deployment_field(self):
         raw = self._raw_fixture()

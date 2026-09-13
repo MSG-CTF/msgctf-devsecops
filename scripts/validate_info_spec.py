@@ -122,52 +122,6 @@ def _validate_healthcheck(raw, containers):
     return {"container": container_name, "port": port, "path": path}
 
 
-def _validate_internal_connections(raw, containers):
-    if raw is None:
-        return []
-    if not isinstance(raw, list):
-        raise ValueError("deployment.internal_connections must be a list")
-
-    by_name = {container["name"]: container for container in containers}
-    connections = []
-    seen = set()
-    for entry in raw:
-        if not isinstance(entry, dict):
-            raise ValueError("each internal connection must be an object")
-        source = _required_string(
-            entry.get("source_container"),
-            "internal_connections.source_container",
-        )
-        destination = _required_string(
-            entry.get("destination_container"),
-            "internal_connections.destination_container",
-        )
-        if source not in by_name or destination not in by_name:
-            raise ValueError("internal connection must reference declared containers")
-        if source == destination:
-            raise ValueError("internal connection containers must be different")
-        if entry.get("protocol") != "TCP":
-            raise ValueError("internal connection protocol must be TCP")
-        port = _positive_int(entry.get("port"), "internal_connections.port")
-        if port > 65535 or port not in by_name[destination]["ports"]:
-            raise ValueError(
-                "internal connection port must reference a destination container port"
-            )
-        key = (source, destination, "TCP", port)
-        if key in seen:
-            raise ValueError("internal connections must not contain duplicates")
-        seen.add(key)
-        connections.append(
-            {
-                "source_container": source,
-                "destination_container": destination,
-                "protocol": "TCP",
-                "port": port,
-            }
-        )
-    return connections
-
-
 def validate_spec(challenge_path):
     challenge_path = Path(challenge_path).resolve()
     if not challenge_path.is_dir():
@@ -207,12 +161,27 @@ def validate_spec(challenge_path):
         "containers",
         "resource_profile",
         "healthcheck",
-        "internal_connections",
     }
     unsupported_fields = sorted(set(deployment) - allowed_deployment_fields)
     if "network_policy" in deployment:
         raise ValueError(
-            "raw Kubernetes NetworkPolicy is Runtime-owned and must not be declared"
+            "deployment.network_policy is not supported until its limited platform "
+            "DSL contract is finalized; raw Kubernetes NetworkPolicy must not be declared"
+        )
+    kubernetes_fields = {
+        "manifest",
+        "manifests",
+        "namespace",
+        "service",
+        "gateway",
+        "ingress",
+        "kubernetes",
+    }
+    declared_kubernetes_fields = sorted(set(deployment) & kubernetes_fields)
+    if declared_kubernetes_fields:
+        raise ValueError(
+            "Kubernetes implementation fields are Runtime-owned and must not be "
+            "declared: " + ", ".join(declared_kubernetes_fields)
         )
     if unsupported_fields:
         raise ValueError(
@@ -235,6 +204,12 @@ def validate_spec(challenge_path):
     names = [container["name"] for container in containers]
     if len(names) != len(set(names)):
         raise ValueError("container name values must be unique")
+    if category == "pwn":
+        public_containers = [container for container in containers if container["expose"]]
+        if len(public_containers) != 1:
+            raise ValueError("PWN deployment requires exactly one public container")
+        if len(public_containers[0]["ports"]) != 1:
+            raise ValueError("PWN public container must declare exactly one port")
 
     raw_profile = deployment.get("resource_profile")
     if not isinstance(raw_profile, dict):
@@ -251,12 +226,6 @@ def validate_spec(challenge_path):
         "containers": containers,
         "resource_profile": resource_profile,
     })
-    internal_connections = _validate_internal_connections(
-        deployment.get("internal_connections"),
-        containers,
-    )
-    if internal_connections:
-        metadata["internal_connections"] = internal_connections
     healthcheck = _validate_healthcheck(deployment.get("healthcheck"), containers)
     if healthcheck:
         metadata["healthcheck"] = healthcheck

@@ -20,6 +20,10 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 
 `scripts/validate_info_spec.py`가 다음 항목을 검사합니다.
 
+`info.yaml`은 Kubernetes manifest가 아니라 출제자가 작성하는 제한된 플랫폼
+배포 DSL입니다. 출제자는 workload 의도만 선언하고 Runtime이 실제 Kubernetes
+리소스를 생성합니다.
+
 - 문제 디렉터리 이름
 - `name`, `category`, `description`, `flag`
 - `deployment`가 없는 정적 문제와 서버 문제 구분
@@ -32,8 +36,7 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 - port 범위
 - healthcheck container·port·path
 - 문제 category에서 결정한 `WEB | PWN` isolation profile
-- `internal_connections`의 source·destination·TCP 목적지 포트
-- raw Kubernetes NetworkPolicy 입력 금지
+- raw Kubernetes manifest, Namespace, Service, Gateway/Ingress와 NetworkPolicy 입력 금지
 - CPU, memory, ephemeral storage 값
 
 검증 결과에는 `flag`가 포함되지 않습니다.
@@ -94,9 +97,20 @@ KOTH 문제도 같은 규칙을 사용합니다. `info.yaml`의 `deployment.cont
 - `registry-publish.json`: 같은 artifact를 감싼 수동 API 검증용 wrapper
 
 두 파일은 같은 `registry_revision`, `isolation_profile`과
-`workload.containers[]`를 보존합니다. `workload.internal_connections[]`가 있으면
-Runtime은 선언된 방향과 포트만 허용하는 NetworkPolicy를 생성합니다. CI는 raw
-NetworkPolicy를 생성하거나 전달하지 않습니다.
+`workload.containers[]`를 보존합니다. 컨테이너 연결과 문제 간 격리는 Runtime이
+K3s 네트워크와 NetworkPolicy로 관리합니다. CI는 연결 그래프나 raw NetworkPolicy를
+생성하거나 전달하지 않습니다.
+
+현재 MVP의 네트워크 책임은 다음과 같습니다.
+
+- 동일 challenge instance 내부 컨테이너 통신 허용: Runtime
+- challenge 간 격리 및 team 간 격리: Runtime
+- 외부 공개 의도: CI가 `expose`와 `ports`를 `ports[].public`로 정규화
+- Runtime smoke 요청: `ports[].public`을 `ports`와 `exposed_ports`로 변환
+- 외부 egress: Runtime `STANDARD@v2` 기본 정책 `NONE`
+
+계약 확정 전에는 출제자의 `network_policy` 입력을 거절합니다. raw Kubernetes
+selector, CIDR 또는 manifest를 publish bundle에 전달하지 않습니다.
 
 실행 중 instance가 참조하는 revision은 active가 아니더라도 보존합니다.
 
@@ -130,11 +144,11 @@ DevSecOps가 검증한 다음 필드를 그대로 사용합니다.
 ### Runtime 및 격리보안
 
 DevSecOps는 `isolation_profile`, `workload.containers[]`, `ports[].public`,
-`workload.internal_connections[]`, `healthcheck`, `resource_profile`을 전달합니다.
+`healthcheck`, `resource_profile`을 전달합니다.
 Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy,
 SecurityContext와 cleanup을 구현합니다.
-혼합 public/private port는 Runtime DTO가 확정될 때까지 손실 변환하지 않고
-`artifact-v2.json`에 보존합니다.
+`artifact-v2.json`은 포트별 공개 의도를 보존하고, smoke runner는 Runtime 신규
+요청에 전체 `ports`와 공개 포트만 담은 `exposed_ports`를 전송합니다.
 발행 후 smoke test는 SSM으로 Runtime node 안의 Secure Provisioner API를 호출해
 생성과 삭제 Operation이 모두 성공하는지만 확인합니다.
 
