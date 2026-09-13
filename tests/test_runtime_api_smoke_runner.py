@@ -289,15 +289,6 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                 "ports": [{"port": 5432, "public": False}],
             },
         ]
-        artifact["workload"]["internal_connections"] = [
-            {
-                "source_container": "web",
-                "destination_container": "db",
-                "protocol": "TCP",
-                "port": 5432,
-            }
-        ]
-
         request = build_create_request(
             artifact,
             target_id="aws-k3s-lab",
@@ -331,12 +322,9 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                 for container in request["workload"]["containers"]
             )
         )
-        self.assertEqual(
-            request["workload"]["internal_connections"],
-            artifact["workload"]["internal_connections"],
-        )
+        self.assertNotIn("internal_connections", request["workload"])
 
-    def test_preserves_internal_connections_in_runtime_request(self):
+    def test_does_not_forward_legacy_internal_connections(self):
         artifact = copy.deepcopy(ARTIFACT)
         artifact["workload"]["containers"].append(
             {
@@ -361,10 +349,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             team_id=TEAM_ID,
         )
 
-        self.assertEqual(
-            request["workload"]["internal_connections"],
-            artifact["workload"]["internal_connections"],
-        )
+        self.assertNotIn("internal_connections", request["workload"])
 
     def test_creates_polls_and_always_deletes_runtime_workload(self):
         self.start_server()

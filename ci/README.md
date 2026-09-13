@@ -20,6 +20,10 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 
 `scripts/validate_info_spec.py`가 다음 항목을 검사합니다.
 
+`info.yaml`은 Kubernetes manifest가 아니라 출제자가 작성하는 제한된 플랫폼
+배포 DSL입니다. 출제자는 workload 의도만 선언하고 Runtime이 실제 Kubernetes
+리소스를 생성합니다.
+
 - 문제 디렉터리 이름
 - `name`, `category`, `description`, `flag`
 - `deployment`가 없는 정적 문제와 서버 문제 구분
@@ -32,8 +36,7 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 - port 범위
 - healthcheck container·port·path
 - 문제 category에서 결정한 `WEB | PWN` isolation profile
-- `internal_connections`의 source·destination·TCP 목적지 포트
-- raw Kubernetes NetworkPolicy 입력 금지
+- raw Kubernetes manifest, Namespace, Service, Gateway/Ingress와 NetworkPolicy 입력 금지
 - CPU, memory, ephemeral storage 값
 
 검증 결과에는 `flag`가 포함되지 않습니다.
@@ -86,35 +89,45 @@ commit tag는 추적과 발행을 위한 입력이고 Runtime 계약은 digest�
 KOTH 문제도 같은 규칙을 사용합니다. `info.yaml`의 `deployment.containers`에
 선언된 `service`를 발행하며 로컬 Compose 전용 `checker`는 발행 대상이 아닙니다.
 
-### 5. Atomic Publish 자료
+### 5. Publish Bundle 자료
 
 `scripts/generate_publish_bundle.py`가 두 파일을 생성합니다.
 
-- `artifact-v2.json`: Runtime과 Scheduler가 읽을 immutable workload
-- `registry-publish.json`: Challenge Registry가 한 transaction으로 revision을 추가하고 active를 전환할 요청
+- `artifact-v2.json`: Backend poller 자동 수집과 Runtime이 읽을 immutable workload
+- `registry-publish.json`: 같은 artifact를 감싼 수동 API 검증용 wrapper
 
 두 파일은 같은 `registry_revision`, `isolation_profile`과
-`workload.containers[]`를 보존합니다. `workload.internal_connections[]`가 있으면
-Runtime은 선언된 방향과 포트만 허용하는 NetworkPolicy를 생성합니다. CI는 raw
-NetworkPolicy를 생성하거나 전달하지 않습니다.
+`workload.containers[]`를 보존합니다. 컨테이너 연결과 문제 간 격리는 Runtime이
+K3s 네트워크와 NetworkPolicy로 관리합니다. CI는 연결 그래프나 raw NetworkPolicy를
+생성하거나 전달하지 않습니다.
 
-Registry는 기존 active revision을 먼저 해제한 뒤 새 row를 쓰는 방식으로 처리하면 안 됩니다. 새 revision 저장과 active 전환이 하나의 transaction에서 성공해야 합니다. 실패하면 기존 active revision을 유지해야 합니다.
+현재 MVP의 네트워크 책임은 다음과 같습니다.
+
+- 동일 challenge instance 내부 컨테이너 통신 허용: Runtime
+- challenge 간 격리 및 team 간 격리: Runtime
+- 외부 공개 의도: CI가 `expose`와 `ports`를 `ports[].public`로 정규화
+- Runtime smoke 요청: `ports[].public`을 `ports`와 `exposed_ports`로 변환
+- 외부 egress: Runtime `STANDARD@v2` 기본 정책 `NONE`
+
+계약 확정 전에는 출제자의 `network_policy` 입력을 거절합니다. raw Kubernetes
+selector, CIDR 또는 manifest를 publish bundle에 전달하지 않습니다.
 
 실행 중 instance가 참조하는 revision은 active가 아니더라도 보존합니다.
 
-Backend가 등록 API를 제공하면 reusable workflow의 `publish_registry`를 켜서
-`registry-publish.json`을 HTTPS로 전달합니다. API는 `Idempotency-Key`를 기준으로
-같은 문제와 revision의 중복 요청을 안전하게 처리해야 합니다. Registry 등록이
-실패하면 새 revision을 배포 가능 상태로 간주하지 않습니다.
+성공한 `-publish-bundle` Actions artifact의 `artifact-v2.json`이 자동 수집의
+공식 입력입니다. Backend poller가 challenge 매핑, release 등록과 같은
+`registry_revision`의 중복 처리를 소유하며, Backend/admin이 active release 전환과
+롤백을 소유합니다. DevSecOps workflow에는 Backend base URL 또는 service token이
+필요하지 않습니다.
 
 ## 팀 계약
 
 ### Challenge Registry
 
-- DevSecOps: 검증된 revision publish
+- DevSecOps: `artifact-v2.json`과 GHCR digest image 발행
+- Backend poller: Actions artifact 수집, challenge 매핑, release 등록, duplicate 처리
 - Scheduler: active revision read-only 조회
-- Backend/Registry: slug와 `challenge_id` 매핑 및 transaction 제공
-- DevSecOps와 Backend: `registry-publish.json` 요청 및 인증 계약 유지
+- Backend/admin: active release 전환과 롤백
 
 ### Resource Broker
 
@@ -131,9 +144,11 @@ DevSecOps가 검증한 다음 필드를 그대로 사용합니다.
 ### Runtime 및 격리보안
 
 DevSecOps는 `isolation_profile`, `workload.containers[]`, `ports[].public`,
-`workload.internal_connections[]`, `healthcheck`, `resource_profile`을 전달합니다.
+`healthcheck`, `resource_profile`을 전달합니다.
 Runtime은 이를 이용해 Namespace, Pod, Service, Gateway, NetworkPolicy,
 SecurityContext와 cleanup을 구현합니다.
+`artifact-v2.json`은 포트별 공개 의도를 보존하고, smoke runner는 Runtime 신규
+요청에 전체 `ports`와 공개 포트만 담은 `exposed_ports`를 전송합니다.
 발행 후 smoke test는 SSM으로 Runtime node 안의 Secure Provisioner API를 호출해
 생성과 삭제 Operation이 모두 성공하는지만 확인합니다.
 

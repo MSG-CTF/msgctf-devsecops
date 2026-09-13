@@ -107,8 +107,9 @@ Smoke instance와 team UUID는 GitHub run 정보로 결정적으로 생성됩니
 
 Smoke runner는 `artifact-v2.json`의 `revision`과 `registry_revision`이 같은지,
 `isolation_profile`이 문제 category와 일치하는지, `scan_result`가 `PASS`인지 먼저
-확인합니다. `containers[]`의 digest 이미지와 선택형 `internal_connections[]`는
-같은 publish bundle에서 읽어 Runtime 요청에 전달합니다.
+확인합니다. `containers[]`의 digest 이미지를 같은 publish bundle에서 읽어 Runtime
+요청에 전달합니다. 동일 인스턴스 내부 통신은 Runtime `STANDARD@v2` 기본 정책이며
+신규 요청에 `internal_connections`를 전달하지 않습니다.
 
 bundle의 컨테이너 포트는 다음처럼 Runtime PR #39 계약으로 변환합니다.
 
