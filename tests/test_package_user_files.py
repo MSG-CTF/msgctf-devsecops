@@ -75,7 +75,67 @@ class PackageUserFilesTests(unittest.TestCase):
             self.assertFalse((root / "dist" / "user-files.zip").exists())
             self.assertTrue((root / "dist" / "user-files.json").is_file())
 
-    def test_rejects_symbolic_links(self):
+    def test_rejects_symbolic_links_inside_for_user(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            for_user = root / "challenge" / "prob" / "for_user"
+            for_user.mkdir(parents=True)
+            target = for_user / "target.txt"
+            target.write_text("participant file", encoding="utf-8")
+            (for_user / "alias.txt").symlink_to(target)
+
+            with self.assertRaisesRegex(ValueError, "symbolic link"):
+                package_user_files(
+                    root / "challenge",
+                    root / "dist",
+                    "web-example",
+                    SOURCE_REF,
+                    SOURCE_SHA,
+                    revision=1,
+                )
+
+    def test_rejects_symbolic_linked_challenge_root(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            challenge = root / "challenge"
+            (challenge / "prob" / "for_user").mkdir(parents=True)
+            linked_challenge = root / "linked-challenge"
+            linked_challenge.symlink_to(challenge, target_is_directory=True)
+
+            with self.assertRaisesRegex(ValueError, "challenge root.*symbolic link"):
+                package_user_files(
+                    linked_challenge,
+                    root / "dist",
+                    "web-example",
+                    SOURCE_REF,
+                    SOURCE_SHA,
+                    revision=1,
+                )
+
+    def test_rejects_symbolic_linked_prob_directory(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            challenge = root / "challenge"
+            challenge.mkdir()
+            outside_prob = root / "outside-prob"
+            (outside_prob / "for_user").mkdir(parents=True)
+            (outside_prob / "for_user" / "secret.txt").write_text(
+                "secret",
+                encoding="utf-8",
+            )
+            (challenge / "prob").symlink_to(outside_prob, target_is_directory=True)
+
+            with self.assertRaisesRegex(ValueError, "prob.*symbolic link"):
+                package_user_files(
+                    challenge,
+                    root / "dist",
+                    "web-example",
+                    SOURCE_REF,
+                    SOURCE_SHA,
+                    revision=1,
+                )
+
+    def test_rejects_file_that_resolves_outside_challenge_root(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             for_user = root / "challenge" / "prob" / "for_user"
@@ -84,7 +144,7 @@ class PackageUserFilesTests(unittest.TestCase):
             outside.write_text("secret", encoding="utf-8")
             (for_user / "escape.txt").symlink_to(outside)
 
-            with self.assertRaisesRegex(ValueError, "symbolic link"):
+            with self.assertRaisesRegex(ValueError, "stay inside challenge root"):
                 package_user_files(
                     root / "challenge",
                     root / "dist",

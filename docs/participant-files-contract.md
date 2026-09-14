@@ -44,9 +44,10 @@ GHCR에 저장하지 않으며, ZIP 자체를 Backend DB에 넣는 방식도 사
 
 - 기본 최대 파일 수: 1,000개
 - 기본 최대 압축 전 합계: 100 MiB
-- 심볼릭 링크 금지
+- 문제 폴더, `prob`, `for_user`와 하위 항목의 심볼릭 링크 금지
 - 일반 파일이 아닌 FIFO, socket, device 파일 금지
 - ZIP 내부 경로는 `prob/for_user/` 기준 상대 경로만 허용
+- ZIP 후보의 실제 경로가 해당 문제 폴더 밖이면 차단
 - 파일 순서와 ZIP metadata를 고정해 같은 입력은 같은 ZIP을 생성
 
 문제 파일은 의도적으로 실행 파일이나 취약한 binary를 포함할 수 있으므로 image용

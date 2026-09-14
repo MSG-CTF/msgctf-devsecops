@@ -24,7 +24,18 @@ def _write_json(path, value):
     )
 
 
-def _collect_files(for_user, max_files, max_total_bytes):
+def _resolve_inside_challenge(path, challenge_root):
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to(challenge_root)
+    except (OSError, ValueError) as error:
+        raise ValueError(
+            "for_user file must stay inside challenge root"
+        ) from error
+    return resolved
+
+
+def _collect_files(for_user, challenge_root, max_files, max_total_bytes):
     files = []
     total_bytes = 0
     for directory, dirnames, filenames in os.walk(for_user, followlinks=False):
@@ -34,6 +45,7 @@ def _collect_files(for_user, max_files, max_total_bytes):
                 raise ValueError("for_user must not contain a symbolic link")
         for name in sorted(filenames):
             path = directory / name
+            _resolve_inside_challenge(path, challenge_root)
             if path.is_symlink():
                 raise ValueError("for_user must not contain a symbolic link")
             mode = path.stat().st_mode
@@ -75,10 +87,13 @@ def package_user_files(
     max_files=DEFAULT_MAX_FILES,
     max_total_bytes=DEFAULT_MAX_TOTAL_BYTES,
 ):
-    challenge_root = Path(challenge_root).resolve()
+    challenge_root = Path(challenge_root)
     output_dir = Path(output_dir)
+    if challenge_root.is_symlink():
+        raise ValueError("challenge root must not be a symbolic link")
     if not challenge_root.is_dir():
         raise ValueError("challenge root must be an existing directory")
+    challenge_root = challenge_root.resolve(strict=True)
     if not CHALLENGE_SLUG.fullmatch(challenge_slug):
         raise ValueError("challenge_slug has an invalid format")
     if not isinstance(source_ref, str) or not source_ref.strip():
@@ -93,7 +108,10 @@ def package_user_files(
     output_dir.mkdir(parents=True, exist_ok=True)
     archive_path = output_dir / "user-files.zip"
     manifest_path = output_dir / "user-files.json"
-    for_user = challenge_root / "prob" / "for_user"
+    prob = challenge_root / "prob"
+    if prob.is_symlink():
+        raise ValueError("prob must not be a symbolic link")
+    for_user = prob / "for_user"
 
     if for_user.is_symlink():
         raise ValueError("for_user must not be a symbolic link")
@@ -114,6 +132,7 @@ def package_user_files(
 
     files, uncompressed_size = _collect_files(
         for_user,
+        challenge_root,
         max_files,
         max_total_bytes,
     )

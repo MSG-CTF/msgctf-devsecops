@@ -53,8 +53,9 @@ job 준비 시간은 포함하지 않습니다.
 문제의 `prob/for_user/`를 검사해 `user-files.zip`과 `user-files.json`을
 생성합니다. manifest에는 문제 slug, source commit, `registry_revision`, ZIP의
 SHA-256, 크기와 파일 수가 포함됩니다. 참가자 파일이 없으면 `present: false`인
-manifest만 생성합니다. 심볼릭 링크, 특수 파일, 기본 1,000개 초과 파일과 압축 전
-100 MiB 초과 입력은 거절합니다.
+manifest만 생성합니다. 문제 폴더부터 하위 항목까지의 심볼릭 링크, 문제 폴더 밖
+실제 경로, 특수 파일, 기본 1,000개 초과 파일과 압축 전 100 MiB 초과 입력은
+거절합니다.
 
 ### `render_publish_summary.py`
 
