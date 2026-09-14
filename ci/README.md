@@ -44,6 +44,11 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 정적 문제는 이 단계에서 검증을 마치며 Docker build, 보안 image scan 및 OCI
 발행 job을 실행하지 않습니다.
 
+정적·서버 문제 모두 `prob/for_user/`가 있으면 참가자 제공 파일 전달 대상으로
+분류합니다. 승인된 `main` 발행에서 해당 디렉터리를 ZIP으로 패키징하고 SHA-256,
+파일 수, 크기와 source commit을 `user-files.json`에 기록합니다. 파일이 없는 문제도
+`present: false` manifest를 발행해 Backend가 상태를 명확히 구분할 수 있게 합니다.
+
 ### 2. 컨테이너 image 처리
 
 `build` 컨테이너는 해당 디렉터리만 Docker build context로 사용합니다. `image` 컨테이너는 외부 Registry에서 명시적 non-latest tag 또는 digest로 image를 가져온 뒤 source digest를 기록합니다.
@@ -121,6 +126,16 @@ selector, CIDR 또는 manifest를 publish bundle에 전달하지 않습니다.
 필요하지 않습니다.
 
 ## 팀 계약
+
+### 참가자 제공 파일
+
+- DevSecOps: `user-files.zip`, `user-files.json` Actions artifact 발행
+- Backend poller: artifact 수집, checksum 확인과 challenge release 연결
+- Object Storage 담당: ZIP 영구 보관과 다운로드 접근 제어
+- Backend DB: ZIP 본문이 아닌 object key와 파일 metadata 저장
+
+Backend 저장 계약이 확정되기 전에는 Actions artifact까지만 발행하며, GHCR에는
+참가자 파일을 올리지 않습니다.
 
 ### Challenge Registry
 
