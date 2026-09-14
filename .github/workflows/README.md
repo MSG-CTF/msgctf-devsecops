@@ -33,6 +33,7 @@ caller는 자동 실행에서 `source_ref: ${{ github.sha }}`를 전달합니다
 - Actions Summary에 컨테이너별 GHCR digest 표시
 - Build/Pull, Trivy Scan, GHCR Push와 합계 시간 측정
 - publish bundle을 90일 보관하고 artifact 이름을 caller output으로 제공
+- `prob/for_user/`를 ZIP과 무결성 manifest로 만들어 별도 artifact로 90일 보관
 - 설정된 경우 SSM을 통해 Secure Provisioner API로 K3s 생성·삭제 smoke test
 
 승인된 `main` 실행만 이 workflow를 호출해 image와 publish bundle을 발행합니다.

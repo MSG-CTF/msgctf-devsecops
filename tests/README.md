@@ -24,6 +24,11 @@ digest 고정, SBOM 증거, scan 결과, revision, flag 제외와 Runtime·Regis
 
 Build/Pull, Scan, GHCR Push 시간과 합계 계산, 잘못된 시각 입력 차단을 검증합니다.
 
+### `test_package_user_files.py`
+
+`prob/for_user/` ZIP과 무결성 manifest 생성, 파일이 없는 문제 처리, 심볼릭 링크,
+파일 수와 크기 제한을 검증합니다.
+
 ### `test_render_publish_summary.py`
 
 Actions Summary에 컨테이너별 GHCR digest, publish bundle 이름과 단계별 시간이
