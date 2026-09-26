@@ -23,3 +23,8 @@ Monitoring 팀과 맞춰야 할 계약도 포함합니다.
 
 Backend poller의 Actions artifact 수집 기반 release 등록 운영 계약과, 과거 로컬
 Registry 등록의 호환성 증거를 기록합니다.
+
+### `participant-files-contract.md`
+
+`prob/for_user/` 참가자 제공 파일의 ZIP 생성, 무결성 manifest, Actions artifact
+전달 방식과 Backend·Object Storage 역할 경계를 정의합니다.

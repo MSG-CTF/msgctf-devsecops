@@ -71,7 +71,7 @@ class WorkflowContractTests(unittest.TestCase):
         outputs = workflow["on"]["workflow_call"]["outputs"]
         self.assertEqual(
             set(outputs),
-            {"challenge_slug", "publish_bundle_name"},
+            {"challenge_slug", "publish_bundle_name", "user_files_bundle_name"},
         )
         self.assertEqual(
             outputs["challenge_slug"]["value"],
@@ -80,6 +80,10 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(
             outputs["publish_bundle_name"]["value"],
             "${{ jobs.aggregate.outputs.publish_bundle_name }}",
+        )
+        self.assertEqual(
+            outputs["user_files_bundle_name"]["value"],
+            "${{ jobs.package-user-files.outputs.user_files_bundle_name }}",
         )
         aggregate_outputs = workflow["jobs"]["aggregate"]["outputs"]
         self.assertEqual(
@@ -101,7 +105,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(text.count("ref: ${{ inputs.devsecops_ref }}"), 1)
         self.assertEqual(
             text.count("ref: ${{ needs.validate.outputs.devsecops_sha }}"),
-            3,
+            4,
         )
         self.assertIn(
             'echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}"',
@@ -117,6 +121,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "validate",
                 "build-scan-push",
                 "aggregate",
+                "package-user-files",
                 "k3s-smoke-deploy",
             },
         )
@@ -198,6 +203,33 @@ class WorkflowContractTests(unittest.TestCase):
             "--argjson timing",
         ):
             self.assertIn(required, text)
+
+        user_files_job = workflow["jobs"]["package-user-files"]
+        self.assertEqual(user_files_job["needs"], "validate")
+        self.assertIn("inputs.publish_images", user_files_job["if"])
+        self.assertIn("github.event_name != 'pull_request'", user_files_job["if"])
+        source_checkout = next(
+            step
+            for step in user_files_job["steps"]
+            if step.get("name") == "문제 저장소 가져오기"
+        )
+        self.assertEqual(source_checkout["with"]["repository"], "${{ github.repository }}")
+        self.assertEqual(source_checkout["with"]["ref"], "${{ github.sha }}")
+        self.assertEqual(source_checkout["with"]["persist-credentials"], "false")
+        package_step = next(
+            step
+            for step in user_files_job["steps"]
+            if step.get("name") == "참가자 제공 파일 패키징"
+        )
+        self.assertIn("package_user_files.py", package_step["run"])
+        upload_step = next(
+            step
+            for step in user_files_job["steps"]
+            if step.get("name") == "참가자 파일 bundle 업로드"
+        )
+        self.assertEqual(upload_step["uses"], "actions/upload-artifact@v4")
+        self.assertEqual(upload_step["with"]["retention-days"], "90")
+        self.assertEqual(upload_step["with"]["if-no-files-found"], "error")
 
     def test_branch_validation_can_disable_all_publish_and_deploy_steps(self):
         path = ROOT / ".github/workflows/challenge-supply-chain.yml"

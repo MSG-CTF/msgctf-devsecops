@@ -38,6 +38,9 @@ on:
       publish_bundle_name:
         description: Runtime과 Challenge Registry가 내려받을 Actions artifact 이름
         value: ${{ jobs.aggregate.outputs.publish_bundle_name }}
+      user_files_bundle_name:
+        description: Backend poller가 내려받을 참가자 파일 Actions artifact 이름
+        value: ${{ jobs.package-user-files.outputs.user_files_bundle_name }}
     secrets:
       AWS_ROLE_TO_ASSUME:
         required: false
@@ -335,6 +338,60 @@ jobs:
         with:
           name: container-result-${{ needs.validate.outputs.artifact_scope }}-${{ matrix.name }}
           path: results/
+
+  package-user-files:
+    needs: validate
+    if: >-
+      inputs.publish_images &&
+      github.event_name != 'pull_request' &&
+      needs.validate.result == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      user_files_bundle_name: ${{ steps.package.outputs.bundle_name }}
+    permissions:
+      contents: read
+    steps:
+      - name: 문제 저장소 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ github.sha }}
+          path: challenge-source
+          persist-credentials: false
+
+      - name: DevSecOps 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
+          path: .msgctf-ci
+          persist-credentials: false
+
+      - name: 참가자 제공 파일 패키징
+        id: package
+        env:
+          ARTIFACT_SCOPE: ${{ needs.validate.outputs.artifact_scope }}
+          CHALLENGE_PATH: ${{ inputs.challenge_path }}
+          CHALLENGE_SLUG: ${{ needs.validate.outputs.challenge_slug }}
+          REVISION: ${{ inputs.revision }}
+        run: |
+          bundle_name="${CHALLENGE_SLUG}-${ARTIFACT_SCOPE}-user-files-bundle"
+          echo "bundle_name=$bundle_name" >> "$GITHUB_OUTPUT"
+          python3 .msgctf-ci/scripts/package_user_files.py \
+            --challenge-root "challenge-source/${CHALLENGE_PATH}" \
+            --output-dir dist/user-files \
+            --challenge-slug "$CHALLENGE_SLUG" \
+            --source-ref "$GITHUB_REF" \
+            --source-sha "$GITHUB_SHA" \
+            --revision "$REVISION"
+
+      - name: 참가자 파일 bundle 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.bundle_name }}
+          path: dist/user-files/
+          if-no-files-found: error
+          retention-days: 90
 
   aggregate:
     needs:

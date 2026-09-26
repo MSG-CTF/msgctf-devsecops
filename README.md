@@ -181,10 +181,23 @@ GHCR push, publish bundle 생성과 Runtime smoke는 승인된 `main` 실행에�
    └ sbom/<container>.cdx.json
 ```
 
+참가자 제공 파일은 deployment 유무와 관계없이 별도 artifact로 발행합니다.
+
+```text
+<challenge_slug>-<artifact_scope>-user-files-bundle/
+├ user-files.json
+└ user-files.zip
+```
+
+`prob/for_user/`가 없거나 비어 있으면 ZIP 없이 `present: false`인 manifest만
+생성합니다. ZIP은 GHCR이나 DB에 직접 저장하지 않으며 Backend poller가 이 artifact를
+수집해 Object Storage와 문제 릴리스에 연결합니다. 상세 계약은
+[`docs/participant-files-contract.md`](docs/participant-files-contract.md)를 참고합니다.
+
 publish bundle은 GitHub Actions artifact로 90일 보관합니다. 성공한 실행의
 Summary에는 문제 slug, revision, 보안 검사 결과, 컨테이너별 GHCR 경로,
 OCI digest와 단계별 소요 시간이 표시됩니다. reusable workflow 호출자는 `challenge_slug`와
-`publish_bundle_name` output을 후속 job에서 사용할 수 있습니다.
+`publish_bundle_name`, `user_files_bundle_name` output을 후속 job에서 사용할 수 있습니다.
 
 `artifact_scope`는 workflow 호출마다 생성되는 고유값입니다. 같은 문제를 한
 Actions run에서 중복 호출하거나 job을 재실행해도 metadata, 컨테이너 결과와 최종
