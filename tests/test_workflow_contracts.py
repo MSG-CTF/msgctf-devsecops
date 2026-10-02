@@ -12,6 +12,31 @@ def load_workflow(path):
 
 
 class WorkflowContractTests(unittest.TestCase):
+    def test_execution_audit_is_diagnostic_and_uploaded_before_spec_gate(self):
+        for relative_path in (
+            ".github/workflows/challenge-supply-chain.yml",
+            ".github/workflows/challenge-branch-validation.yml",
+        ):
+            with self.subTest(workflow=relative_path):
+                steps = load_workflow(ROOT / relative_path)["jobs"]["validate"]["steps"]
+                audit = next(step for step in steps if step.get("id") == "execution_audit")
+                upload = next(step for step in steps if step.get("name") == "실행 설정 점검 자료 업로드")
+                gate = next(step for step in steps if step.get("id") == "spec")
+                scope = next(step for step in steps if step.get("id") == "scope")
+                self.assertLess(steps.index(scope), steps.index(audit))
+                self.assertLess(steps.index(upload), steps.index(gate))
+                self.assertIn('"$CHALLENGE_PATH"', audit["run"])
+                self.assertIn("git rev-parse HEAD", audit["run"])
+                self.assertNotIn("${{ inputs.challenge_path }}", audit["run"])
+                self.assertTrue(upload["with"]["name"].endswith("-execution-settings"))
+                self.assertEqual(upload["with"]["retention-days"], "14")
+                self.assertEqual(audit.get("continue-on-error"), "true")
+                self.assertEqual(upload.get("continue-on-error"), "true")
+                self.assertEqual(upload.get("if"), "steps.execution_audit.outcome == 'success'")
+                self.assertNotIn("continue-on-error", gate)
+                security_gate = next(step for step in steps if step.get("name") == "저장소 Gitleaks 검사")
+                self.assertNotIn("continue-on-error", security_gate)
+
     def test_gitleaks_checks_current_files_and_reachable_git_history(self):
         for relative_path in (
             ".github/workflows/challenge-supply-chain.yml",
