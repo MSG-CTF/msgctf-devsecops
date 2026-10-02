@@ -20,6 +20,14 @@ RESOURCE_FIELDS = (
 )
 
 
+def _reject_unknown_fields(raw, allowed, field):
+    if any(key not in allowed for key in raw):
+        raise ValueError(
+            f"{field} contains unsupported fields; 지원하지 않는 실행 설정은 "
+            "자동 전달되지 않습니다. 실행 설정 계약 문서를 확인하세요."
+        )
+
+
 def _required_string(value, field):
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field} must be a non-empty string")
@@ -64,6 +72,7 @@ def _validate_ports(raw_ports, container_name):
 def _validate_container(challenge_path, raw):
     if not isinstance(raw, dict):
         raise ValueError("each deployment container must be an object")
+    _reject_unknown_fields(raw, {"name", "build", "image", "ports", "expose"}, "container")
     name = _required_string(raw.get("name"), "container.name")
     if not SAFE_NAME.fullmatch(name):
         raise ValueError("container name must be a safe lowercase identifier")
@@ -106,6 +115,7 @@ def _validate_healthcheck(raw, containers):
         return None
     if not isinstance(raw, dict):
         raise ValueError("deployment.healthcheck must be an object")
+    _reject_unknown_fields(raw, {"container", "port", "path"}, "healthcheck")
     container_name = _required_string(
         raw.get("container"),
         "healthcheck.container",
@@ -214,6 +224,7 @@ def validate_spec(challenge_path):
     raw_profile = deployment.get("resource_profile")
     if not isinstance(raw_profile, dict):
         raise ValueError("deployment.resource_profile must be an object")
+    _reject_unknown_fields(raw_profile, set(RESOURCE_FIELDS), "resource_profile")
     resource_profile = {
         field: _positive_int(raw_profile.get(field), f"resource_profile.{field}")
         for field in RESOURCE_FIELDS

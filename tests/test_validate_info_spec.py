@@ -136,6 +136,27 @@ class ValidateInfoSpecTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported fields"):
             self._validate_raw(raw)
 
+    def test_rejects_unsupported_container_execution_settings_without_values(self):
+        for field in ("environment", "env", "command", "entrypoint", "volumes", "networks"):
+            with self.subTest(field=field):
+                raw = self._raw_fixture()
+                raw["deployment"]["containers"][0][field] = "sensitive-test-value"
+                with self.assertRaisesRegex(ValueError, "unsupported fields") as result:
+                    self._validate_raw(raw)
+                self.assertNotIn("sensitive-test-value", str(result.exception))
+
+    def test_rejects_unknown_healthcheck_setting(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["healthcheck"]["timeout"] = 3
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
+            self._validate_raw(raw)
+
+    def test_rejects_unknown_resource_setting(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["resource_profile"]["storage_path"] = "/data"
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
+            self._validate_raw(raw)
+
     def test_accepts_backend_team_koth_template_contract(self):
         metadata = validate_spec(KOTH_FIXTURE)
 
