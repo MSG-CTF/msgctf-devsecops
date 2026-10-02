@@ -142,7 +142,10 @@ def validate_spec(challenge_path):
     info_path = challenge_path / "info.yaml"
     if not info_path.is_file():
         raise ValueError("info.yaml must exist directly under the challenge directory")
-    raw = yaml.safe_load(info_path.read_text(encoding="utf-8"))
+    try:
+        raw = yaml.safe_load(info_path.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, RecursionError):
+        raise ValueError("info.yaml 문법을 확인하세요. 비밀값 보호를 위해 원문은 출력하지 않습니다.") from None
     if not isinstance(raw, dict):
         raise ValueError("info.yaml root must be an object")
 
@@ -265,7 +268,12 @@ def main():
     parser.add_argument("--github-output", type=Path)
     args = parser.parse_args()
 
-    metadata = validate_spec(args.challenge_path)
+    try:
+        metadata = validate_spec(args.challenge_path)
+    except ValueError as error:
+        parser.error(str(error))
+    except (OSError, UnicodeError):
+        parser.error("문제 파일을 읽지 못했습니다. 경로와 인코딩을 확인하세요.")
     matrix = container_matrix(metadata)
     if args.metadata_output:
         args.metadata_output.parent.mkdir(parents=True, exist_ok=True)

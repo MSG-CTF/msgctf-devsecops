@@ -58,6 +58,7 @@ jobs:
 
       - name: 문제 실행 설정 이름 점검
         id: execution_audit
+        continue-on-error: true
         env:
           CHALLENGE_PATH: ${{ inputs.challenge_path }}
           ARTIFACT_SCOPE: ${{ steps.scope.outputs.artifact_scope }}
@@ -67,6 +68,8 @@ jobs:
             --output-dir "execution-settings/${ARTIFACT_SCOPE}"
 
       - name: 실행 설정 점검 자료 업로드
+        if: steps.execution_audit.outcome == 'success'
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.scope.outputs.artifact_scope }}-execution-settings

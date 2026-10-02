@@ -30,6 +30,12 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertNotIn("${{ inputs.challenge_path }}", audit["run"])
                 self.assertTrue(upload["with"]["name"].endswith("-execution-settings"))
                 self.assertEqual(upload["with"]["retention-days"], "14")
+                self.assertEqual(audit.get("continue-on-error"), "true")
+                self.assertEqual(upload.get("continue-on-error"), "true")
+                self.assertEqual(upload.get("if"), "steps.execution_audit.outcome == 'success'")
+                self.assertNotIn("continue-on-error", gate)
+                security_gate = next(step for step in steps if step.get("name") == "저장소 Gitleaks 검사")
+                self.assertNotIn("continue-on-error", security_gate)
 
     def test_gitleaks_checks_current_files_and_reachable_git_history(self):
         for relative_path in (

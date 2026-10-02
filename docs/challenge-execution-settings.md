@@ -37,6 +37,7 @@ healthcheck나 관리자 포트를 참가자 포트와 함께 선언했다고 �
 미지원 컨테이너·healthcheck·resource_profile 필드는 이제 validator가 오류로
 처리합니다. environment, env, command, volumes, networks 등을 지금 info.yaml에
 추가하면 실행에 적용되지 않고 명세 검증에서 거절됩니다.
+YAML 문법 오류도 원문이나 traceback 대신 고정된 안내로 출력해 비밀값 노출을 막습니다.
 
 ## 실제 문제 점검
 
@@ -151,6 +152,8 @@ for_user, exploit, 링크와 의존 패키지는 제외합니다. 1 MiB 초과 �
 
 두 reusable workflow에서 검증 전에 `<artifact_scope>-execution-settings` 자료를
 업로드하며 14일 보관합니다. 이는 성공한 release bundle이 아닌 진단 자료입니다.
+진단 도구나 자료 업로드가 실패해도 실제 명세·Gitleaks 검증은 계속 실행되며,
+명세와 보안 검사 실패는 기존처럼 CI를 차단합니다.
 문제 저장소 caller의 workflow와 devsecops_ref를 함께 업데이트해야 실제 문제
 Actions에도 반영됩니다. 이번 PR에서 문제 저장소는 변경하지 않습니다.
 
