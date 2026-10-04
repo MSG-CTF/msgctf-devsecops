@@ -178,7 +178,8 @@ jobs:
           version: v0.72.0
           image-ref: ${{ steps.image.outputs.ref }}
           format: json
-          output: branch-results/indexer/vulnerability/trivy.json
+          output: ${{ runner.temp }}/indexer-trivy.json
+          trivy-config: .msgctf-ci/ci/trivy-gate.yaml
           scanners: vuln
           severity: CRITICAL
           ignore-unfixed: true
@@ -194,7 +195,8 @@ jobs:
         run: |
           image_id="$(docker image inspect "$SCANNED_IMAGE" --format '{{.Id}}')"
           python3 .msgctf-ci/scripts/vulnerability_exception_gate.py \
-            --report branch-results/indexer/vulnerability/trivy.json \
+            --report "$RUNNER_TEMP/indexer-trivy.json" \
+            --sanitized-report branch-results/indexer/vulnerability/trivy.json \
             --output branch-results/indexer/vulnerability/decision.json \
             --challenge-slug "$CHALLENGE_SLUG" --container-name "$CONTAINER_NAME" \
             --image-id "$image_id"

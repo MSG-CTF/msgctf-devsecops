@@ -26,6 +26,7 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertEqual(scan["if"], condition)
                 self.assertEqual(scan["with"]["format"], "json")
                 self.assertEqual(scan["with"]["exit-code"], "0")
+                self.assertEqual(scan["with"].get("trivy-config"), ".msgctf-ci/ci/trivy-gate.yaml")
                 gate = next(s for s in steps if s.get("name") == "승인된 indexer 취약점 예외 판정")
                 self.assertEqual(gate["if"], condition)
                 self.assertNotIn("continue-on-error", gate)
