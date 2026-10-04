@@ -48,6 +48,9 @@ Scheduler가 Challenge Registry의 active revision 조회
 
 CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 소유하지 않습니다. 해당 영역은 Runtime 및 격리보안팀의 책임입니다.
 
+의도된 문제 취약점은 [승인된 예외 정책](docs/intentional-vulnerability-exceptions.md)으로
+패키지·버전·취약점 ID를 한정하며, secret 검사나 다른 문제의 보안 기준은 완화하지 않습니다.
+
 ## 문제 저장소 계약
 
 출제 문제는 다음 구조를 사용합니다.

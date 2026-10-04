@@ -12,6 +12,31 @@ def load_workflow(path):
 
 
 class WorkflowContractTests(unittest.TestCase):
+    def test_indexer_exception_is_scoped_and_secret_scan_remains_blocking(self):
+        for path, job in (
+            (".github/workflows/challenge-branch-validation.yml", "build-scan"),
+            (".github/workflows/challenge-supply-chain.yml", "build-scan-push"),
+        ):
+            with self.subTest(path=path):
+                steps = load_workflow(ROOT / path)["jobs"][job]["steps"]
+                ordinary = next(s for s in steps if s.get("name") == "Trivy 취약점 차단 검사")
+                condition = "needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer'"
+                self.assertEqual(ordinary.get("if"), "${{ !(" + condition + ") }}")
+                scan = next(s for s in steps if s.get("name") == "indexer 원본 취약점 보고서 생성")
+                self.assertEqual(scan["if"], condition)
+                self.assertEqual(scan["with"]["format"], "json")
+                self.assertEqual(scan["with"]["exit-code"], "0")
+                gate = next(s for s in steps if s.get("name") == "승인된 indexer 취약점 예외 판정")
+                self.assertEqual(gate["if"], condition)
+                self.assertNotIn("continue-on-error", gate)
+                self.assertIn("vulnerability_exception_gate.py", gate["run"])
+                self.assertIn("docker image inspect", gate["run"])
+                upload = next(s for s in steps if s.get("name") == "indexer 취약점 판정 증거 업로드")
+                self.assertIn("always()", upload["if"])
+                secret = next(s for s in steps if s.get("name") == "Trivy image secret 차단 검사")
+                self.assertNotIn("if", secret)
+                self.assertEqual(secret["with"]["exit-code"], "1")
+
     def test_gitleaks_checks_current_files_and_reachable_git_history(self):
         for relative_path in (
             ".github/workflows/challenge-supply-chain.yml",
@@ -114,7 +139,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn('--source-ref "$GITHUB_REF"', text)
         self.assertIn('--source-sha "$GITHUB_SHA"', text)
         self.assertNotIn('--source-ref "$GITHUB_SHA"', text)
-        self.assertEqual(text.count("${{ steps.image.outputs.run_tag }}"), 6)
+        self.assertEqual(text.count("${{ steps.image.outputs.run_tag }}"), 8)
         self.assertEqual(
             set(workflow["jobs"]),
             {
