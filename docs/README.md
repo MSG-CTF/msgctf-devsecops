@@ -1,5 +1,7 @@
 # 문서
 
+- [참가자 파일 GCS 저장](participant-files-gcs.md): 승인된 main 파일 저장과 Backend 영수증 연결 제안
+
 문제 저장소와 DevSecOps 공급망을 연결할 때 필요한 예제와 운영 문서를
 관리합니다.
 

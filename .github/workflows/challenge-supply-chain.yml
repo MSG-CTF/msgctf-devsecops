@@ -21,6 +21,11 @@ on:
         required: false
         default: true
         type: boolean
+      enable_user_files_gcs_upload:
+        description: 승인된 main 참가자 파일을 GCS에도 저장할지 여부 (기본 비활성)
+        required: false
+        default: false
+        type: boolean
       enable_k3s_smoke_deploy:
         description: Secure Provisioner API를 통한 AWS K3s 임시 배포 검증 실행 여부
         required: false
@@ -390,6 +395,63 @@ jobs:
         with:
           name: ${{ steps.package.outputs.bundle_name }}
           path: dist/user-files/
+          if-no-files-found: error
+          retention-days: 90
+
+  upload-user-files-gcs:
+    name: 승인된 참가자 파일 GCS 저장
+    needs: [validate, build-scan-push, package-user-files]
+    if: >-
+      always() &&
+      inputs.enable_user_files_gcs_upload && inputs.publish_images &&
+      github.repository == 'MSG-CTF/2026_MSG_CTF' &&
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.validate.result == 'success' &&
+      needs.package-user-files.result == 'success' &&
+      (needs.validate.outputs.is_server == 'false' || needs.build-scan-push.result == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: user-files-gcs
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: 고정 버전의 공급망 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
+          path: .msgctf-ci
+          persist-credentials: false
+      - name: 검사된 참가자 파일 bundle 가져오기
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package-user-files.outputs.user_files_bundle_name }}
+          path: dist/user-files
+      - name: GCS 전용 의존성 설치
+        run: python3 -m pip install -r .msgctf-ci/ci/gcs-requirements.txt
+      - name: 업로드 전 무인증 저장 계획 생성
+        working-directory: .msgctf-ci
+        run: |
+          python3 -m scripts.upload_user_files_gcs \
+            --bundle-dir ../dist/user-files --output ../dist/gcs-plan.json
+      - name: 승인된 Workload Identity로 Google Cloud 인증
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/309055091666/locations/global/workloadIdentityPools/github-actions/providers/msg-github-actions
+          service_account: gcs-file-upload-devops@msg-broker.iam.gserviceaccount.com
+          project_id: msg-broker
+      - name: 참가자 ZIP과 manifest를 덮어쓰기 없이 저장
+        working-directory: .msgctf-ci
+        run: |
+          python3 -m scripts.upload_user_files_gcs \
+            --bundle-dir ../dist/user-files --output ../dist/gcs-receipt.json --apply
+      - name: GCS 저장 완료 영수증 발행
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ needs.package-user-files.outputs.user_files_bundle_name }}-gcs-receipt
+          path: dist/gcs-receipt.json
           if-no-files-found: error
           retention-days: 90
 

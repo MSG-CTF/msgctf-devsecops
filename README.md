@@ -1,5 +1,9 @@
 # MSGCTF 출제 문제 검증 CI/CD
 
+참가자 파일의 선택적 GCS 저장과 전체 main 문제 수집 계획은
+[참가자 파일 GCS 저장](docs/participant-files-gcs.md)에 정리했습니다.
+새 기능은 기본 비활성이며 계약·권한 승인 전에는 실제 업로드하지 않습니다.
+
 
 별도 `2026_MSG_CTF` 저장소에 제출된 문제의 `info.yaml`과 Dockerfile을
 검증하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry
