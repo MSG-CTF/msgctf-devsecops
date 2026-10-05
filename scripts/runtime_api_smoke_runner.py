@@ -7,13 +7,14 @@ import argparse
 import http.client
 import json
 import re
+import ssl
 import time
 import uuid
 from pathlib import Path
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.parse import urlsplit, urlunsplit
+from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 
 
 DIGEST_IMAGE = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
@@ -21,6 +22,40 @@ SERVICE_TOKEN = re.compile(r"^[A-Za-z0-9_-]{43,128}$")
 FINAL_OPERATION_STATES = {"SUCCEEDED", "FAILED"}
 ENDPOINT_FIELDS = {"container_name", "port", "protocol", "service_url"}
 ENDPOINT_PROTOCOLS = {"HTTP", "TCP"}
+
+
+def normalize_api_origin(api_url: str) -> str:
+    """API 접두 경로를 제거하고 TLS 또는 명시적인 로컬 HTTP만 허용합니다."""
+    if not isinstance(api_url, str) or any(character.isspace() for character in api_url) or "\\" in api_url:
+        raise ValueError("Runtime API URL has an invalid format")
+    try:
+        parsed = urlsplit(api_url)
+        hostname = parsed.hostname
+        port = parsed.port
+    except ValueError as error:
+        raise ValueError("Runtime API URL has an invalid host or port") from error
+    if (
+        not hostname or parsed.username is not None or parsed.password is not None
+        or parsed.query or parsed.fragment
+        or parsed.path not in ("", "/", "/internal/v1", "/internal/v1/")
+        or (port is not None and not 1 <= port <= 65535)
+    ):
+        raise ValueError("Runtime API URL must be an origin or /internal/v1 base URL")
+    if parsed.scheme != "https" and not (
+        parsed.scheme == "http" and hostname in {"127.0.0.1", "localhost"} and port is not None
+    ):
+        raise ValueError("Remote Runtime API requires HTTPS; HTTP is loopback-only")
+    return urlunsplit((parsed.scheme, parsed.netloc, "", "", ""))
+
+
+class NoRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, request, fp, code, message, headers, new_url):
+        raise HTTPError(new_url, code, "Runtime API redirect refused", headers, fp)
+
+
+def build_runtime_opener():
+    context = ssl.create_default_context()
+    return build_opener(NoRedirectHandler(), HTTPSHandler(context=context)), context
 
 
 class RetryableRuntimeError(RuntimeError):
@@ -170,13 +205,12 @@ def build_create_request(
 
 class RuntimeClient:
     def __init__(self, api_url: str, token: str, timeout: float) -> None:
-        if not api_url.startswith(("http://127.0.0.1:", "http://localhost:")):
-            raise ValueError("Runtime smoke API URL must be a loopback HTTP URL")
         if not SERVICE_TOKEN.fullmatch(token):
             raise ValueError("Runtime service token has an invalid format")
-        self.api_url = api_url.rstrip("/")
+        self.api_url = normalize_api_origin(api_url)
         self.token = token
         self.timeout = timeout
+        self.opener, self.tls_context = build_runtime_opener()
 
     def request(self, method: str, path: str, body: dict[str, Any] | None = None) -> dict[str, Any]:
         encoded = None if body is None else json.dumps(body).encode("utf-8")
@@ -190,7 +224,7 @@ class RuntimeClient:
             },
         )
         try:
-            with urlopen(request, timeout=self.timeout) as response:
+            with self.opener.open(request, timeout=self.timeout) as response:
                 payload = response.read().decode("utf-8")
         except HTTPError as error:
             try:

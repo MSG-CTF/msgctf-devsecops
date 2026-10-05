@@ -9,6 +9,14 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `runtime_connection_probe.py`
+
+토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.
+생성·삭제·이미지 pull은 수행하지 않으며 401을 실제 배포 성공으로 기록하지 않습니다.
+
+`runtime_api_smoke_runner.py`는 loopback HTTP 또는 인증서를 검증하는 원격 HTTPS를
+지원합니다. 원격 redirect와 URL 내부 token·query를 허용하지 않습니다.
+
 ### `discover_changed_challenges.py`
 
 Git 변경 내역에서 `info.yaml`이 있는 문제 디렉터리를 찾아 검증 대상으로
