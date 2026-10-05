@@ -1,0 +1,39 @@
+name: GHCR 이미지 정리 후보 조회
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  inventory:
+    name: 삭제 없는 버전 보존·검토 보고서
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: 공급망 도구 가져오기
+        uses: actions/checkout@v4
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: GHCR 목록과 정리 후보 계산
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/ghcr_cleanup_plan.py --output-dir dist/ghcr-cleanup
+      - name: 보고서 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ghcr-cleanup-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/ghcr-cleanup/
+          if-no-files-found: error
+          retention-days: 90
+      - name: 조회 결과 요약
+        if: always()
+        run: |
+          if [ -f dist/ghcr-cleanup/cleanup-plan.md ]; then
+            cat dist/ghcr-cleanup/cleanup-plan.md >> "$GITHUB_STEP_SUMMARY"
+          fi
