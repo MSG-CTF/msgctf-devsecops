@@ -1,0 +1,4498 @@
+{
+  "schema_version": "1.0",
+  "source_sha": "efb2fa39f5e935224fc4be1d24bea6db5930c57a",
+  "audit_only": true,
+  "challenges": [
+    {
+      "challenge_slug": "crypto-nerves",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/web/Dockerfile",
+          "name": "FLAG"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "chall"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "reused-seal",
+              "environment_names": [],
+              "execution_fields": [],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/chall.py",
+          "name": "FLAG_PATH"
+        }
+      ],
+      "review_required": [
+        "container_mapping",
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "crypto-tr88",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "forensic-evidence",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "forensic-leftovers",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "forensic-the-last-record",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "service",
+              "environment_names": [
+                "ARENA_ATTACK_RATE_PER_SEC",
+                "ARENA_COOLDOWN_SECONDS",
+                "ARENA_REGEN_PER_SEC",
+                "ARENA_TURN_SECONDS",
+                "DATA_DIR",
+                "DEV_MODE",
+                "FLAG",
+                "KOTH_CHALLENGE_ID",
+                "KOTH_INTERNAL_TOKEN",
+                "PLATFORM_INTERNAL_TOKEN",
+                "TRUSTED_PROXY_HOPS"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "tmpfs",
+                "healthcheck",
+                "read_only"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "DATABASE_PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "DATA_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "DEV_TEAM_TOKENS"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "KOTH_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "PLATFORM_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/service/config.py",
+          "name": "TEAM_TOKEN_VERIFY_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/run.py",
+          "name": "HEALTH_PORT"
+        },
+        {
+          "path": "prob/for_organizer/service/run.py",
+          "name": "PORT"
+        }
+      ],
+      "review_required": [
+        "environment",
+        "healthcheck",
+        "read_only",
+        "tmpfs",
+        "volumes"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "backend",
+        "judge-coordinator",
+        "score-service",
+        "service"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "backend",
+              "environment_names": [
+                "ALLOW_INSECURE_DATABASE",
+                "ALLOW_INSECURE_PLATFORM_HTTP",
+                "DATABASE_MIGRATION_MODE",
+                "DATABASE_POOL_MAX_SIZE",
+                "DATABASE_POOL_MIN_SIZE",
+                "DATABASE_URL",
+                "DATA_DIR",
+                "DEV_MODE",
+                "DEV_TEAM_TOKENS",
+                "HIDDEN_SUITE_SHA256",
+                "JUDGE_CHALLENGE_ID",
+                "JUDGE_DISPATCH_ATTEMPTS",
+                "JUDGE_DISPATCH_BACKOFF_BASE_SECONDS",
+                "JUDGE_DISPATCH_BACKOFF_CAP_SECONDS",
+                "JUDGE_DISPATCH_TIMEOUT_SECONDS",
+                "JUDGE_DISPATCH_TOKEN",
+                "JUDGE_DISPATCH_URL",
+                "JUDGE_MODE",
+                "JUDGE_PROFILE",
+                "KOTH_CHALLENGE_ID",
+                "KOTH_INTERNAL_TOKEN",
+                "MAX_ARTIFACT_BYTES",
+                "MAX_CONCURRENT_REQUESTS",
+                "MAX_CONCURRENT_SUBMISSIONS",
+                "MAX_CONCURRENT_UPLOADS",
+                "MAX_PENDING_ARTIFACT_BYTES_GLOBAL",
+                "MAX_PENDING_SUBMISSIONS_GLOBAL",
+                "MAX_PENDING_SUBMISSIONS_PER_TEAM",
+                "MAX_SESSIONS_PER_TEAM",
+                "MIN_FREE_STORAGE_BYTES",
+                "MIN_SUBMISSION_INTERVAL_SECONDS",
+                "PLATFORM_INTERNAL_TOKEN",
+                "PORT",
+                "REQUEST_HARD_TIMEOUT_SECONDS",
+                "REQUEST_TIMEOUT_SECONDS",
+                "SCORE_SNAPSHOT_HMAC_KEY_FILE",
+                "SCORE_SNAPSHOT_HMAC_KEY_ID",
+                "SERVE_LOCAL_DOWNLOADS",
+                "SERVICE_ROLE",
+                "SHUTDOWN_GRACE_SECONDS",
+                "SUBMISSION_HISTORY_PER_TEAM",
+                "SUBMISSION_METADATA_RETENTION_SECONDS",
+                "SUBMISSION_TRANSITION_HMAC_KEY_FILE",
+                "SUBMISSION_TRANSITION_HMAC_KEY_ID",
+                "SUITE_VERSION",
+                "TEAM_LIST_URL",
+                "TEAM_TOKEN_VERIFY_URL",
+                "UPLOAD_TIMEOUT_SECONDS"
+              ],
+              "execution_fields": [
+                "environment",
+                "command",
+                "entrypoint",
+                "volumes",
+                "tmpfs",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "app",
+                "database",
+                "judge"
+              ],
+              "depends_on": [
+                "data-init",
+                "judge-worker",
+                "postgres",
+                "protected-keys-init"
+              ]
+            },
+            {
+              "name": "checker",
+              "environment_names": [
+                "CLUB_ID",
+                "TARGET_HOST",
+                "TARGET_PORT",
+                "TEAM_ID"
+              ],
+              "execution_fields": [
+                "environment",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "app"
+              ],
+              "depends_on": [
+                "backend"
+              ]
+            },
+            {
+              "name": "data-init",
+              "environment_names": [],
+              "execution_fields": [
+                "command",
+                "entrypoint",
+                "volumes",
+                "user",
+                "read_only",
+                "cap_add",
+                "network_mode"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "database-migration",
+              "environment_names": [
+                "ALLOW_INSECURE_DATABASE",
+                "DATABASE_MIGRATION_MODE",
+                "DEV_MODE",
+                "MIGRATION_DATABASE_URL"
+              ],
+              "execution_fields": [
+                "environment",
+                "command",
+                "tmpfs",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "database"
+              ],
+              "depends_on": [
+                "postgres"
+              ]
+            },
+            {
+              "name": "frontend",
+              "environment_names": [
+                "BACKEND_UPSTREAM"
+              ],
+              "execution_fields": [
+                "environment",
+                "tmpfs",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "app"
+              ],
+              "depends_on": [
+                "backend",
+                "protected-keys-init"
+              ]
+            },
+            {
+              "name": "judge-worker",
+              "environment_names": [
+                "BIND_HOST",
+                "DEV_MODE",
+                "HIDDEN_CASES_PATH",
+                "HIDDEN_SUITE_SHA256",
+                "JUDGE_CPU_SECONDS",
+                "JUDGE_DISABLE_SECCOMP",
+                "JUDGE_DISPATCH_TOKEN",
+                "JUDGE_FILE_BYTES",
+                "JUDGE_MEMORY_BYTES",
+                "JUDGE_MODE",
+                "JUDGE_PROFILE",
+                "JUDGE_TIMEOUT_SECONDS",
+                "KOTH_CHALLENGE_ID",
+                "MAX_ARTIFACT_BYTES",
+                "MAX_STDERR_BYTES",
+                "MAX_STDOUT_BYTES",
+                "PORT",
+                "SHUTDOWN_GRACE_SECONDS",
+                "SUITE_VERSION",
+                "WORKER_JOB_ACQUIRE_TIMEOUT_SECONDS",
+                "WORKER_MAX_CONCURRENT_JOBS",
+                "WORKER_MAX_CONCURRENT_REQUESTS",
+                "WORKER_RESPONSE_DEADLINE_SECONDS"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "tmpfs",
+                "networks",
+                "read_only",
+                "cap_add"
+              ],
+              "networks": [
+                "judge"
+              ],
+              "depends_on": []
+            },
+            {
+              "name": "postgres",
+              "environment_names": [
+                "POSTGRES_DB",
+                "POSTGRES_PASSWORD",
+                "POSTGRES_USER"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "tmpfs",
+                "healthcheck",
+                "networks",
+                "read_only",
+                "cap_add"
+              ],
+              "networks": [
+                "database"
+              ],
+              "depends_on": []
+            },
+            {
+              "name": "protected-keys-init",
+              "environment_names": [
+                "CHALLENGE_ID",
+                "MIGRATION_DATABASE_URL",
+                "SNAPSHOT_KEY_ID",
+                "SUITE_VERSION",
+                "TRANSITION_KEY_ID"
+              ],
+              "execution_fields": [
+                "environment",
+                "command",
+                "entrypoint",
+                "volumes",
+                "tmpfs",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "database"
+              ],
+              "depends_on": [
+                "database-migration"
+              ]
+            }
+          ],
+          "networks": [
+            "app",
+            "database",
+            "judge"
+          ],
+          "internal_networks": [
+            "database",
+            "judge"
+          ]
+        },
+        {
+          "path": "prob/for_organizer/deploy/compose.production.yml",
+          "services": [
+            {
+              "name": "backend",
+              "environment_names": [
+                "ATTESTATION_KEY_ID",
+                "ATTESTATION_PUBLIC_KEYRING_DIR",
+                "ATTESTATION_PUBLIC_KEY_FILE",
+                "AUTH_CIRCUIT_FAILURE_THRESHOLD",
+                "AUTH_CIRCUIT_OPEN_SECONDS",
+                "AUTH_MAX_CONCURRENT_VERIFICATIONS",
+                "AUTH_VERIFY_ACQUIRE_TIMEOUT_SECONDS",
+                "AUTH_VERIFY_BURST",
+                "AUTH_VERIFY_RATE_PER_SECOND",
+                "DATABASE_CONNECT_TIMEOUT_SECONDS",
+                "DATABASE_MIGRATION_MODE",
+                "DATABASE_POOL_MAX_SIZE",
+                "DATABASE_POOL_MIN_SIZE",
+                "DATABASE_STATEMENT_TIMEOUT_MS",
+                "DATA_DIR",
+                "DEV_MODE",
+                "EVALUATION_KEY_ID",
+                "EXPECTED_ACTIVE_TEAM_MAX",
+                "EXPECTED_ACTIVE_TEAM_MIN",
+                "GENERATOR_VERSION",
+                "JSON_BODY_ABSOLUTE_TIMEOUT_SECONDS",
+                "JSON_BODY_IDLE_TIMEOUT_SECONDS",
+                "JSON_BODY_MAX_CONCURRENT",
+                "JUDGE_CHALLENGE_ID",
+                "JUDGE_DISPATCH_ATTEMPTS",
+                "JUDGE_DISPATCH_BACKOFF_BASE_SECONDS",
+                "JUDGE_DISPATCH_BACKOFF_CAP_SECONDS",
+                "JUDGE_DISPATCH_CA_FILE",
+                "JUDGE_DISPATCH_CLIENT_CERT_FILE",
+                "JUDGE_DISPATCH_CLIENT_KEY_FILE",
+                "JUDGE_DISPATCH_TIMEOUT_SECONDS",
+                "JUDGE_DISPATCH_TOKEN_FILE",
+                "JUDGE_DISPATCH_URL",
+                "JUDGE_MODE",
+                "JUDGE_PROFILE",
+                "KOTH_CHALLENGE_ID",
+                "MAX_ACCEPTED_EVALUATIONS_GLOBAL",
+                "MAX_ACCEPTED_EVALUATIONS_PER_TEAM",
+                "MAX_ARTIFACT_BYTES",
+                "MAX_CONCURRENT_REQUESTS",
+                "MAX_CONCURRENT_SUBMISSIONS",
+                "MAX_CONCURRENT_UPLOADS",
+                "MAX_PENDING_ARTIFACT_BYTES_GLOBAL",
+                "MAX_PENDING_SUBMISSIONS_GLOBAL",
+                "MAX_PENDING_SUBMISSIONS_PER_TEAM",
+                "MAX_UPLOAD_BYTES_GLOBAL_WINDOW",
+                "MAX_UPLOAD_BYTES_PER_TEAM_WINDOW",
+                "MIN_FREE_STORAGE_BYTES",
+                "MIN_SUBMISSION_INTERVAL_SECONDS",
+                "PLATFORM_CA_FILE",
+                "PLATFORM_CLIENT_CERT_FILE",
+                "PLATFORM_CLIENT_KEY_FILE",
+                "PLATFORM_INTERNAL_TOKEN_FILE",
+                "PORT",
+                "PUBLIC_DATABASE_URL",
+                "REQUEST_HARD_TIMEOUT_SECONDS",
+                "REQUEST_TIMEOUT_SECONDS",
+                "SERVE_LOCAL_DOWNLOADS",
+                "SERVICE_ROLE",
+                "SESSION_HMAC_KEYRING_DIR",
+                "SESSION_HMAC_KEY_FILE",
+                "SESSION_HMAC_KEY_ID",
+                "SESSION_TTL_SECONDS",
+                "SHUTDOWN_GRACE_SECONDS",
+                "SUBMISSION_LEASE_SECONDS",
+                "SUBMISSION_RECEIPT_KEY_ID",
+                "SUBMISSION_RECEIPT_PRIVATE_KEY_FILE",
+                "SUBMISSION_RECEIPT_PUBLIC_KEYRING_DIR",
+                "SUBMISSION_TRANSITION_HMAC_KEY_FILE",
+                "SUBMISSION_TRANSITION_HMAC_KEY_ID",
+                "SUITE_SHA256",
+                "SUITE_VERSION",
+                "TEAM_LIST_FAILURE_BACKOFF_SECONDS",
+                "TEAM_LIST_STALE_IF_ERROR_SECONDS",
+                "TEAM_LIST_URL",
+                "TEAM_TOKEN_VERIFY_URL",
+                "UPLOAD_QUOTA_WINDOW_SECONDS",
+                "UPLOAD_TIMEOUT_SECONDS"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "tmpfs",
+                "healthcheck",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "app",
+                "outbound"
+              ],
+              "depends_on": [
+                "data-init",
+                "migrate"
+              ]
+            },
+            {
+              "name": "backend-internal",
+              "environment_names": [
+                "ATTESTATION_KEY_ID",
+                "ATTESTATION_PUBLIC_KEYRING_DIR",
+                "ATTESTATION_PUBLIC_KEY_FILE",
+                "DATABASE_CONNECT_TIMEOUT_SECONDS",
+                "DATABASE_MIGRATION_MODE",
+                "DATABASE_POOL_MAX_SIZE",
+                "DATABASE_POOL_MIN_SIZE",
+                "DATABASE_STATEMENT_TIMEOUT_MS",
+                "DATA_DIR",
+                "DEV_MODE",
+                "EVALUATION_KEY_ID",
+                "EXPECTED_ACTIVE_TEAM_MAX",
+                "EXPECTED_ACTIVE_TEAM_MIN",
+                "GENERATOR_VERSION",
+                "JUDGE_CHALLENGE_ID",
+                "JUDGE_PROFILE",
+                "KOTH_CHALLENGE_ID",
+                "KOTH_INTERNAL_TOKEN_FILE",
+                "MAX_CONCURRENT_REQUESTS",
+                "PLATFORM_CA_FILE",
+                "PLATFORM_CLIENT_CERT_FILE",
+                "PLATFORM_CLIENT_KEY_FILE",
+                "PLATFORM_INTERNAL_TOKEN_FILE",
+                "PORT",
+                "REQUEST_HARD_TIMEOUT_SECONDS",
+                "REQUEST_TIMEOUT_SECONDS",
+                "SCORE_DATABASE_URL",
+                "SCORE_SNAPSHOT_HMAC_KEYRING_DIR",
+                "SCORE_SNAPSHOT_HMAC_KEY_FILE",
+                "SCORE_SNAPSHOT_HMAC_KEY_ID",
+                "SERVICE_ROLE",
+                "SHUTDOWN_GRACE_SECONDS",
+                "SUBMISSION_RECEIPT_KEY_ID",
+                "SUBMISSION_RECEIPT_PUBLIC_KEYRING_DIR",
+                "SUBMISSION_RECEIPT_PUBLIC_KEY_FILE",
+                "SUITE_SHA256",
+                "SUITE_VERSION",
+                "TEAM_LIST_FAILURE_BACKOFF_SECONDS",
+                "TEAM_LIST_STALE_IF_ERROR_SECONDS",
+                "TEAM_LIST_URL"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "tmpfs",
+                "healthcheck",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "internal",
+                "outbound"
+              ],
+              "depends_on": [
+                "migrate"
+              ]
+            },
+            {
+              "name": "data-init",
+              "environment_names": [],
+              "execution_fields": [
+                "command",
+                "entrypoint",
+                "volumes",
+                "user",
+                "read_only",
+                "cap_add",
+                "network_mode"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "frontend",
+              "environment_names": [
+                "BACKEND_UPSTREAM"
+              ],
+              "execution_fields": [
+                "environment",
+                "tmpfs",
+                "healthcheck",
+                "depends_on",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "app",
+                "public"
+              ],
+              "depends_on": [
+                "backend"
+              ]
+            },
+            {
+              "name": "migrate",
+              "environment_names": [
+                "DATABASE_MIGRATION_MODE",
+                "MIGRATION_DATABASE_URL"
+              ],
+              "execution_fields": [
+                "environment",
+                "command",
+                "volumes",
+                "tmpfs",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "outbound"
+              ],
+              "depends_on": []
+            }
+          ],
+          "networks": [
+            "app",
+            "internal",
+            "outbound",
+            "public"
+          ],
+          "internal_networks": [
+            "app",
+            "internal"
+          ]
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "ALLOW_INSECURE_PLATFORM_HTTP"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "ALLOW_WEAK_DATABASE_TLS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "DATABASE_MIGRATION_MODE"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "DATABASE_POOL_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "DATA_DIR"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "HIDDEN_CASES_PATH"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_CPU_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_DISABLE_SECCOMP"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_DISPATCH_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_DISPATCH_URL"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_FILE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_MEMORY_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_MODE"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "JUDGE_WORKER_PORT"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "KOTH_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_CONCURRENT_DOWNLOADS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_CONCURRENT_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_CONCURRENT_SUBMISSIONS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_CONCURRENT_UPLOADS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_SESSIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_STDERR_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MAX_STDOUT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MIGRATION_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MIN_FREE_STORAGE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "MIN_SUBMISSION_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "PLATFORM_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "PUBLIC_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "REQUEST_HARD_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "REQUEST_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SCORE_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SERVE_LOCAL_DOWNLOADS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SERVICE_ROLE"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SESSION_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SUBMISSION_HISTORY_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SUBMISSION_METADATA_RETENTION_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "TEAM_LIST_URL"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "TEAM_TOKEN_VERIFY_URL"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "UPLOAD_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "WORKER_JOB_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "WORKER_RESPONSE_DEADLINE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/checker/checker.py",
+          "name": "TARGET_HOST"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "ATTESTATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "ATTESTATION_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "ATTESTATION_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "BACKEND_IMAGE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "EVALUATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "EXPECTED_ACTIVE_TEAM_MAX"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "EXPECTED_ACTIVE_TEAM_MIN"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "FRONTEND_IMAGE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "GENERATOR_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "INTERNAL_PORT"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_COORDINATOR_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_DISPATCH_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_DISPATCH_URL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_ACCEPTED_EVALUATIONS_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_ACCEPTED_EVALUATIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_PENDING_ARTIFACT_BYTES_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_PENDING_SUBMISSIONS_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_PENDING_SUBMISSIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_UPLOAD_BYTES_GLOBAL_WINDOW"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MAX_UPLOAD_BYTES_PER_TEAM_WINDOW"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MIGRATION_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "MIN_SUBMISSION_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PLATFORM_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "POSTGRES_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PUBLIC_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PUBLIC_PLATFORM_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PUBLIC_PLATFORM_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PUBLIC_PLATFORM_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PUBLIC_PORT"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "PUBLIC_SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_KOTH_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_PLATFORM_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_PLATFORM_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_PLATFORM_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_SERVICE_IMAGE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_SNAPSHOT_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SESSION_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SESSION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SESSION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SESSION_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUBMISSION_RECEIPT_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUBMISSION_RECEIPT_PRIVATE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "TEAM_LIST_URL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "TEAM_TOKEN_VERIFY_URL"
+        },
+        {
+          "path": "prob/for_organizer/deploy/.env.production.example",
+          "name": "UPLOAD_QUOTA_WINDOW_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/frontend/Dockerfile",
+          "name": "BACKEND_UPSTREAM"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "COORDINATOR_ALLOW_HTTP"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "JUDGE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "MAX_STDERR_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "MAX_STDOUT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "RUNNER_TOTAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "SANDBOX_CPU_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "SANDBOX_FILE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "SANDBOX_MEMORY_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/runner.py",
+          "name": "SANDBOX_NPROC"
+        },
+        {
+          "path": "prob/for_organizer/job-runner/tests/test_runner.py",
+          "name": "COORDINATOR_ALLOW_HTTP"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/Dockerfile",
+          "name": "PATH"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "ALLOW_INSECURE_DEV_DATABASE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "ALLOW_INSECURE_DEV_RUNNER_HTTP"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "API_CLIENT_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "API_REQUEST_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "ATTESTATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "ATTESTATION_PRIVATE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "BODY_DEADLINE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "BODY_IDLE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "CACHE_INTEGRITY_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "CONTEXT_MAX_AGE_MS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "COORDINATOR_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "DB_POOL_MAX"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "DB_POOL_MIN"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "DB_POOL_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "EVALUATION_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "EVALUATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "EVALUATION_LEASE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "EVALUATION_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "GENERATOR_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "JOB_TOKEN_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "JUDGE_DISPATCH_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "LISTEN_BACKLOG"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "MAX_ACTIVE_EVALUATIONS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "MAX_ACTIVE_RUNNER_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "MAX_CONCURRENT_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "MAX_STDOUT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RANDOM_CASE_COUNT"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RESPONSE_PAD_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_ACTIVE_DEADLINE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_COORDINATOR_URL"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_IMAGE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_NAMESPACE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_PIDS_LIMIT"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_RUNTIME_CLASS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_RUNTIME_CLASS_ALLOWLIST"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_TOTAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "RUNNER_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "SETTLEMENT_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "TLS_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "TLS_HANDSHAKE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/coordinator.py",
+          "name": "TLS_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "CACHE_INTEGRITY_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "CACHE_INTEGRITY_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "CACHE_RUNTIME_ROLE"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "COORDINATOR_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/migrate.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/tests/postgres_integration.py",
+          "name": "TEST_POSTGRES_OWNER_DSN"
+        },
+        {
+          "path": "prob/for_organizer/judge-coordinator/tests/postgres_integration.py",
+          "name": "TEST_POSTGRES_RUNTIME_DSN"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/Dockerfile",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "ATTESTATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "ATTESTATION_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "ATTESTATION_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "EVALUATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "GENERATOR_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "JUDGE_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SESSION_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SESSION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SESSION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUBMISSION_RECEIPT_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PRIVATE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/attestation.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "HIDDEN_CASES_PATH"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_CPU_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISABLE_SECCOMP"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_ATTEMPTS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_BACKOFF_BASE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_BACKOFF_CAP_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_DISPATCH_URL"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_FILE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_MEMORY_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_MODE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "JUDGE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "MAX_STDERR_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "MAX_STDOUT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "SANDBOX_BASE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "WORKER_JOB_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "WORKER_LISTEN_BACKLOG"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "WORKER_MAX_CONCURRENT_JOBS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "WORKER_MAX_CONCURRENT_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "WORKER_REQUEST_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/judge_worker.py",
+          "name": "WORKER_RESPONSE_DEADLINE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/judge-worker/sandbox_exec.py",
+          "name": "SANDBOX_DISABLE_SECCOMP"
+        },
+        {
+          "path": "prob/for_organizer/score-service/Dockerfile",
+          "name": "SERVICE_ROLE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "ATTESTATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "ATTESTATION_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "ATTESTATION_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "EVALUATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "GENERATOR_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "JUDGE_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SESSION_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SESSION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SESSION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PRIVATE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/attestation.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "ALLOW_INSECURE_DATABASE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "ALLOW_WEAK_DATABASE_TLS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DATABASE_CONNECT_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DATABASE_MIGRATION_MODE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DATABASE_POOL_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DATABASE_POOL_MAX_SIZE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DATABASE_POOL_MIN_SIZE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DATABASE_STATEMENT_TIMEOUT_MS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/database.py",
+          "name": "MIGRATION_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "HIDDEN_CASES_PATH"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_CPU_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISABLE_SECCOMP"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_ATTEMPTS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_BACKOFF_BASE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_BACKOFF_CAP_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_DISPATCH_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_FILE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_MEMORY_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_MODE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "JUDGE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "MAX_STDERR_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "MAX_STDOUT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "SANDBOX_BASE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/score-service/judge.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "ARTIFACT_PRUNE_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "AUTH_CIRCUIT_FAILURE_THRESHOLD"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "AUTH_CIRCUIT_OPEN_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "AUTH_MAX_CONCURRENT_VERIFICATIONS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "AUTH_VERIFY_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "AUTH_VERIFY_BURST"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "AUTH_VERIFY_RATE_PER_SECOND"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "DATABASE_MIGRATION_MODE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "DATA_DIR"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "DEV_TEAM_TOKENS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "EXPECTED_ACTIVE_TEAM_MAX"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "EXPECTED_ACTIVE_TEAM_MIN"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "HTTP_LISTEN_BACKLOG"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "JSON_BODY_ABSOLUTE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "JSON_BODY_IDLE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "JSON_BODY_MAX_CONCURRENT"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "JUDGE_ERROR_RECOVERY_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "LEADERBOARD_CACHE_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "LEADERBOARD_COMPUTE_WAIT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_ACCEPTED_EVALUATIONS_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_ACCEPTED_EVALUATIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_CONCURRENT_DOWNLOADS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_CONCURRENT_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_CONCURRENT_SUBMISSIONS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_CONCURRENT_UPLOADS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_PENDING_ARTIFACT_BYTES_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_PENDING_SUBMISSIONS_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_PENDING_SUBMISSIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_SESSIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_UPLOAD_BYTES_GLOBAL_WINDOW"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MAX_UPLOAD_BYTES_PER_TEAM_WINDOW"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MIN_FREE_STORAGE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "MIN_SUBMISSION_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "PLATFORM_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "PLATFORM_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "PLATFORM_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "PUBLIC_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "RECOVERY_BATCH_SIZE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "RECOVERY_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "REQUEST_HARD_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "REQUEST_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SCORE_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SERVICE_ROLE"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SESSION_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SUBMISSION_HISTORY_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SUBMISSION_LEASE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SUBMISSION_METADATA_RETENTION_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "TEAM_LIST_FAILURE_BACKOFF_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "TEAM_LIST_STALE_IF_ERROR_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "TEAM_LIST_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "TEAM_TOKEN_VERIFY_URL"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "UPLOAD_QUOTA_WINDOW_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/score-service/service.py",
+          "name": "UPLOAD_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "SERVICE_ROLE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "ATTESTATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "ATTESTATION_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "ATTESTATION_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "EVALUATION_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "GENERATOR_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "JUDGE_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SCORE_SNAPSHOT_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SESSION_HMAC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SESSION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SESSION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PRIVATE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEYRING_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUBMISSION_RECEIPT_PUBLIC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUBMISSION_TRANSITION_HMAC_KEY_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/attestation.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "ALLOW_INSECURE_DATABASE"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "ALLOW_WEAK_DATABASE_TLS"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DATABASE_CONNECT_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DATABASE_MIGRATION_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DATABASE_POOL_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DATABASE_POOL_MAX_SIZE"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DATABASE_POOL_MIN_SIZE"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DATABASE_STATEMENT_TIMEOUT_MS"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/database.py",
+          "name": "MIGRATION_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "HIDDEN_CASES_PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "HIDDEN_SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_CPU_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISABLE_SECCOMP"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_ATTEMPTS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_BACKOFF_BASE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_BACKOFF_CAP_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_TOKEN_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_DISPATCH_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_FILE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_MEMORY_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "JUDGE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "MAX_STDERR_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "MAX_STDOUT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "SANDBOX_BASE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "SUITE_SHA256"
+        },
+        {
+          "path": "prob/for_organizer/service/judge.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "JUDGE_PROFILE"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "WORKER_JOB_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "WORKER_LISTEN_BACKLOG"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "WORKER_MAX_CONCURRENT_JOBS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "WORKER_MAX_CONCURRENT_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "WORKER_REQUEST_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/judge_worker.py",
+          "name": "WORKER_RESPONSE_DEADLINE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/sandbox_exec.py",
+          "name": "SANDBOX_DISABLE_SECCOMP"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "ARTIFACT_PRUNE_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "AUTH_CIRCUIT_FAILURE_THRESHOLD"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "AUTH_CIRCUIT_OPEN_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "AUTH_MAX_CONCURRENT_VERIFICATIONS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "AUTH_VERIFY_ACQUIRE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "AUTH_VERIFY_BURST"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "AUTH_VERIFY_RATE_PER_SECOND"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "DATABASE_MIGRATION_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "DATA_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "DEV_TEAM_TOKENS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "EXPECTED_ACTIVE_TEAM_MAX"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "EXPECTED_ACTIVE_TEAM_MIN"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "HTTP_LISTEN_BACKLOG"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "JSON_BODY_ABSOLUTE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "JSON_BODY_IDLE_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "JSON_BODY_MAX_CONCURRENT"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "JUDGE_ERROR_RECOVERY_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "LEADERBOARD_CACHE_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "LEADERBOARD_COMPUTE_WAIT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_ACCEPTED_EVALUATIONS_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_ACCEPTED_EVALUATIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_ARTIFACT_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_CONCURRENT_DOWNLOADS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_CONCURRENT_REQUESTS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_CONCURRENT_SUBMISSIONS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_CONCURRENT_UPLOADS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_PENDING_ARTIFACT_BYTES_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_PENDING_SUBMISSIONS_GLOBAL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_PENDING_SUBMISSIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_SESSIONS_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_UPLOAD_BYTES_GLOBAL_WINDOW"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MAX_UPLOAD_BYTES_PER_TEAM_WINDOW"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MIN_FREE_STORAGE_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "MIN_SUBMISSION_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "PLATFORM_CA_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "PLATFORM_CLIENT_CERT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "PLATFORM_CLIENT_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "PUBLIC_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "RECOVERY_BATCH_SIZE"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "RECOVERY_INTERVAL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "REQUEST_HARD_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "REQUEST_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SCORE_DATABASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SERVICE_ROLE"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SESSION_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SHUTDOWN_GRACE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SUBMISSION_HISTORY_PER_TEAM"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SUBMISSION_LEASE_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SUBMISSION_METADATA_RETENTION_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "SUITE_VERSION"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "TEAM_LIST_FAILURE_BACKOFF_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "TEAM_LIST_STALE_IF_ERROR_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "TEAM_LIST_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "TEAM_TOKEN_VERIFY_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "UPLOAD_QUOTA_WINDOW_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/service.py",
+          "name": "UPLOAD_TIMEOUT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/test_service.py",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/test_service.py",
+          "name": "HIDDEN_CASES_PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/test_service.py",
+          "name": "JUDGE_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/test_service.py",
+          "name": "SUITE_VERSION"
+        }
+      ],
+      "review_required": [
+        "cap_add",
+        "command",
+        "container_mapping",
+        "depends_on",
+        "entrypoint",
+        "environment",
+        "healthcheck",
+        "network_mode",
+        "network_segmentation",
+        "networks",
+        "read_only",
+        "tmpfs",
+        "user",
+        "volumes"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "checker",
+              "environment_names": [
+                "HEALTH_PORT",
+                "KOTH_INTERNAL_TOKEN",
+                "PARTICIPANT_PORT",
+                "PERIOD_ID",
+                "SCORED_AT",
+                "TARGET_HOST"
+              ],
+              "execution_fields": [
+                "environment",
+                "depends_on"
+              ],
+              "networks": [],
+              "depends_on": [
+                "service"
+              ]
+            },
+            {
+              "name": "e2e",
+              "environment_names": [
+                "HEALTH_ORIGIN",
+                "KOTH_DATABASE_PATH",
+                "KOTH_INTERNAL_TOKEN",
+                "KOTH_REPLAYS_DIR",
+                "KOTH_RUNNER_SOCKET_PATH",
+                "KOTH_SUBMISSIONS_DIR",
+                "LOCAL_TEAM_TOKEN_A",
+                "LOCAL_TEAM_TOKEN_B",
+                "PERIOD_ID",
+                "SCORED_AT",
+                "TARGET_ORIGIN"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "platform-test",
+              "environment_names": [
+                "INTERNAL_TOKEN",
+                "KOTH_CHALLENGE_ID",
+                "LOCAL_TEAM_TOKEN_A",
+                "LOCAL_TEAM_TOKEN_B"
+              ],
+              "execution_fields": [
+                "environment",
+                "healthcheck",
+                "read_only"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "runner",
+              "environment_names": [],
+              "execution_fields": [
+                "volumes",
+                "tmpfs",
+                "read_only",
+                "cap_add",
+                "network_mode"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "service",
+              "environment_names": [
+                "INTERNAL_TOKEN",
+                "KOTH_CHALLENGE_ID",
+                "KOTH_DATABASE_PATH",
+                "KOTH_INTERNAL_TOKEN",
+                "KOTH_OFFICIAL_SCHEDULER_ENABLED",
+                "KOTH_PLATFORM_BASE_URL",
+                "KOTH_PUBLIC_ORIGIN",
+                "KOTH_REPLAYS_DIR",
+                "KOTH_RUNNER_MODE",
+                "KOTH_RUNNER_SOCKET_PATH",
+                "KOTH_SUBMISSIONS_DIR"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "healthcheck",
+                "depends_on"
+              ],
+              "networks": [],
+              "depends_on": [
+                "platform-test",
+                "runner"
+              ]
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/local/platform_stub.py",
+          "name": "INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/local/platform_stub.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/local/platform_stub.py",
+          "name": "LOCAL_TEAM_TOKEN_A"
+        },
+        {
+          "path": "prob/for_organizer/local/platform_stub.py",
+          "name": "LOCAL_TEAM_TOKEN_B"
+        },
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "LANG"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/test_local_probes.py",
+          "name": "PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/integration/capacity_probe.py",
+          "name": "KOTH_CAPACITY_TEAM_COUNT"
+        },
+        {
+          "path": "prob/for_organizer/service/tests/integration/runner_test_entry.py",
+          "name": "KOTH_TEST_FAIL_STARTUP"
+        }
+      ],
+      "review_required": [
+        "cap_add",
+        "container_mapping",
+        "depends_on",
+        "environment",
+        "healthcheck",
+        "network_mode",
+        "read_only",
+        "tmpfs",
+        "volumes"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "jenga"
+      ],
+      "compose": [
+        {
+          "path": "docker-compose.layers.yml",
+          "services": [],
+          "networks": [],
+          "internal_networks": [],
+          "error": "yaml_unparsed"
+        },
+        {
+          "path": "docker-compose.yml",
+          "services": [
+            {
+              "name": "admin",
+              "environment_names": [
+                "FLAG",
+                "L1_KEY",
+                "L2_KEY"
+              ],
+              "execution_fields": [
+                "environment"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "gateway",
+              "environment_names": [
+                "ALLOW_DEMO_AUTH",
+                "JWT_SECRET",
+                "KOTH_INTERNAL_TOKEN",
+                "L0_KEY",
+                "SCORE_STATE_FILE",
+                "TICK_HISTORY_FILE",
+                "TICK_SECONDS"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "scorebot",
+              "environment_names": [
+                "LAYER_URLS",
+                "SCOREBOARD_URL"
+              ],
+              "execution_fields": [
+                "environment",
+                "command",
+                "volumes",
+                "depends_on",
+                "working_dir"
+              ],
+              "networks": [],
+              "depends_on": [
+                "admin",
+                "gateway",
+                "storage"
+              ]
+            },
+            {
+              "name": "storage",
+              "environment_names": [
+                "L0_KEY",
+                "L1_KEY"
+              ],
+              "execution_fields": [
+                "environment"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "DEV_AUTH_BYPASS"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "DEV_AUTH_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "JENGA_DB"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "KOTH_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "PLATFORM_URL"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "SESSION_SECRET"
+        }
+      ],
+      "review_required": [
+        "command",
+        "container_mapping",
+        "depends_on",
+        "environment",
+        "volumes",
+        "working_dir"
+      ],
+      "incomplete": true
+    },
+    {
+      "challenge_slug": "koth-nonce-upon-a-time",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "service",
+              "environment_names": [
+                "DATA_DIR",
+                "DEV_MODE",
+                "DEV_TEAM_TOKENS",
+                "KOTH_CHALLENGE_ID",
+                "KOTH_INTERNAL_TOKEN",
+                "PLATFORM_INTERNAL_TOKEN",
+                "SUBMISSION_COOLDOWN_SECONDS",
+                "TRUSTED_PROXY_HOPS"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "tmpfs",
+                "healthcheck",
+                "read_only"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/service/run.py",
+          "name": "HTTP_THREADS"
+        },
+        {
+          "path": "prob/for_organizer/service/run.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "DATABASE_PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "DATA_DIR"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "DEV_TEAM_TOKENS"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "KOTH_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "PLATFORM_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "TEAM_LIST_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/nuat/config.py",
+          "name": "TEAM_TOKEN_VERIFY_URL"
+        }
+      ],
+      "review_required": [
+        "environment",
+        "healthcheck",
+        "read_only",
+        "tmpfs",
+        "volumes"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "backend",
+        "service",
+        "submit",
+        "test"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "backend",
+              "environment_names": [
+                "KOTH_INTERNAL_TOKEN",
+                "KOTH_SCORING_SECRET",
+                "LICENSE_JWT_SECRET",
+                "LOCAL_DEV",
+                "PLATFORM_INTERNAL_TOKEN",
+                "PORT",
+                "RUNNER_INTERNAL_TOKEN",
+                "STATE_DB",
+                "SUBMIT_RUNNER_URL",
+                "TEAM_LIST_URL",
+                "TEAM_TOKEN_VERIFY_URL",
+                "TEST_RUNNER_URL"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "depends_on"
+              ],
+              "networks": [],
+              "depends_on": [
+                "submit",
+                "test"
+              ]
+            },
+            {
+              "name": "service",
+              "environment_names": [
+                "BACKEND_HOST",
+                "BACKEND_PORT"
+              ],
+              "execution_fields": [
+                "environment",
+                "depends_on"
+              ],
+              "networks": [],
+              "depends_on": [
+                "backend"
+              ]
+            },
+            {
+              "name": "submit",
+              "environment_names": [
+                "PORT",
+                "RUNNER_ALLOWED_MODES",
+                "RUNNER_INTERNAL_TOKEN",
+                "RUNNER_MAX_CONCURRENCY",
+                "RUNNER_MAX_WAIT_QUEUE",
+                "RUNNER_QUEUE_WAIT_SECONDS"
+              ],
+              "execution_fields": [
+                "environment"
+              ],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "test",
+              "environment_names": [
+                "PORT",
+                "RUNNER_ALLOWED_MODES",
+                "RUNNER_INTERNAL_TOKEN",
+                "RUNNER_MAX_CONCURRENCY",
+                "RUNNER_MAX_WAIT_QUEUE",
+                "RUNNER_QUEUE_WAIT_SECONDS"
+              ],
+              "execution_fields": [
+                "environment"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/checker/checker.py",
+          "name": "KOTH_CHALLENGE_ID"
+        },
+        {
+          "path": "prob/for_organizer/checker/checker.py",
+          "name": "TARGET_HOST"
+        },
+        {
+          "path": "prob/for_organizer/checker/checker.py",
+          "name": "TARGET_PORT"
+        },
+        {
+          "path": "prob/for_organizer/checker/checker.py",
+          "name": "TEAM_ID"
+        },
+        {
+          "path": "prob/for_organizer/frontend/Dockerfile",
+          "name": "BACKEND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/frontend/Dockerfile",
+          "name": "BACKEND_PORT"
+        },
+        {
+          "path": "prob/for_organizer/frontend/Dockerfile",
+          "name": "NGINX_ENTRYPOINT_LOCAL_RESOLVERS"
+        },
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "STATE_DB"
+        },
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "SUBMIT_RUNNER_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "TEST_RUNNER_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/server.js",
+          "name": "STATE_DB"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "BOT_PYTHON"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "BOT_RUNNER_ALLOW_INPROCESS"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "BOT_WORKER_PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "RUNNER_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "SUBMIT_RUNNER_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "SystemRoot"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/botRunner.js",
+          "name": "TEST_RUNNER_URL"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/license.js",
+          "name": "LICENSE_JWT_SECRET"
+        },
+        {
+          "path": "prob/for_organizer/service/lib/session.js",
+          "name": "SESSION_TTL_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/submit/Dockerfile",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/submit/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/submit/Dockerfile",
+          "name": "RUNNER_ALLOWED_MODES"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "PATH"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "RUNNER_ALLOWED_MODES"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "RUNNER_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "RUNNER_MAX_CONCURRENCY"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "RUNNER_MAX_WAIT_QUEUE"
+        },
+        {
+          "path": "prob/for_organizer/submit/runner_server.py",
+          "name": "RUNNER_QUEUE_WAIT_SECONDS"
+        },
+        {
+          "path": "prob/for_organizer/test/Dockerfile",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/test/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/test/Dockerfile",
+          "name": "RUNNER_ALLOWED_MODES"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "PATH"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "RUNNER_ALLOWED_MODES"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "RUNNER_INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "RUNNER_MAX_CONCURRENCY"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "RUNNER_MAX_WAIT_QUEUE"
+        },
+        {
+          "path": "prob/for_organizer/test/runner_server.py",
+          "name": "RUNNER_QUEUE_WAIT_SECONDS"
+        }
+      ],
+      "review_required": [
+        "depends_on",
+        "environment",
+        "volumes"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/compose.yaml",
+          "services": [
+            {
+              "name": "web",
+              "environment_names": [],
+              "execution_fields": [],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/web/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [
+        {
+          "path": "docker-compose.yml",
+          "services": [
+            {
+              "name": "re-qr",
+              "environment_names": [
+                "AUTO_GENERATE",
+                "BASE_URL",
+                "FLAG",
+                "INSTANCE_SEED"
+              ],
+              "execution_fields": [
+                "environment"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/web/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/web/server/app.py",
+          "name": "AUTO_GENERATE"
+        },
+        {
+          "path": "prob/for_organizer/web/server/app.py",
+          "name": "BASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/web/server/app.py",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/web/server/app.py",
+          "name": "INSTANCE_DIR"
+        },
+        {
+          "path": "prob/for_organizer/web/server/app.py",
+          "name": "INSTANCE_SEED"
+        }
+      ],
+      "review_required": [
+        "container_mapping",
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "misc-snack-thief",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "osint-ramen-man",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "osint-trace",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "chall"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "pwn-msgdriver",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "service",
+              "environment_names": [],
+              "execution_fields": [],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "price-tag"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "random6"
+      ],
+      "compose": [],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/Dockerfile",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/Dockerfile",
+          "name": "PORT"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "rev-ezpz",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "rev-phantom-lattice",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "rev-rework",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "tinyvm"
+      ],
+      "compose": [],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "TINYVM_CLIENT_TIMEOUT"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "TINYVM_HOST"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "TINYVM_PORT"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "bot",
+        "case-vault",
+        "core",
+        "exporter",
+        "indexer",
+        "inventory-metadata",
+        "portal"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "bot",
+              "environment_names": [
+                "CHROME_PATH",
+                "CORE_INTERNAL_URL",
+                "INTERNAL_TOKEN",
+                "PORT",
+                "PUBLIC_BASE_URL",
+                "PUBLIC_COOKIE_DOMAIN",
+                "VISIT_MS"
+              ],
+              "execution_fields": [
+                "environment",
+                "depends_on",
+                "networks"
+              ],
+              "networks": [
+                "appnet"
+              ],
+              "depends_on": [
+                "core"
+              ]
+            },
+            {
+              "name": "case-vault",
+              "environment_names": [
+                "FLAG",
+                "INTERNAL_TOKEN",
+                "PORT",
+                "REEL_FRAGMENT"
+              ],
+              "execution_fields": [
+                "environment",
+                "tmpfs",
+                "healthcheck",
+                "networks",
+                "read_only"
+              ],
+              "networks": [
+                "vaultnet"
+              ],
+              "depends_on": []
+            },
+            {
+              "name": "core",
+              "environment_names": [
+                "BOT_URL",
+                "CARTRIDGE_KEY",
+                "CASE_VAULT_HOST",
+                "CASE_VAULT_PORT",
+                "INTERNAL_TOKEN",
+                "PORT"
+              ],
+              "execution_fields": [
+                "environment",
+                "healthcheck",
+                "depends_on",
+                "networks"
+              ],
+              "networks": [
+                "appnet",
+                "vaultnet"
+              ],
+              "depends_on": [
+                "case-vault"
+              ]
+            },
+            {
+              "name": "exporter",
+              "environment_names": [
+                "MAX_BYTES",
+                "PORT"
+              ],
+              "execution_fields": [
+                "environment",
+                "healthcheck",
+                "networks"
+              ],
+              "networks": [
+                "exportnet"
+              ],
+              "depends_on": []
+            },
+            {
+              "name": "indexer",
+              "environment_names": [
+                "CARTRIDGE_KEY",
+                "PORT",
+                "REEL_FRAGMENT"
+              ],
+              "execution_fields": [
+                "environment",
+                "tmpfs",
+                "healthcheck",
+                "networks",
+                "read_only",
+                "cap_add"
+              ],
+              "networks": [
+                "cartridgenet"
+              ],
+              "depends_on": []
+            },
+            {
+              "name": "inventory-metadata",
+              "environment_names": [
+                "INVENTORY_SIGNING_KEY",
+                "PORT"
+              ],
+              "execution_fields": [
+                "environment",
+                "networks"
+              ],
+              "networks": [
+                "exportnet"
+              ],
+              "depends_on": []
+            },
+            {
+              "name": "portal",
+              "environment_names": [
+                "CARTRIDGE_HOST",
+                "CARTRIDGE_PORT",
+                "CORE_HOST",
+                "CORE_PORT",
+                "EXPORTER_HOST",
+                "EXPORTER_PORT",
+                "INTERNAL_TOKEN"
+              ],
+              "execution_fields": [
+                "environment",
+                "depends_on",
+                "networks"
+              ],
+              "networks": [
+                "appnet",
+                "cartridgenet",
+                "edge",
+                "exportnet"
+              ],
+              "depends_on": [
+                "core",
+                "exporter",
+                "indexer"
+              ]
+            }
+          ],
+          "networks": [
+            "appnet",
+            "cartridgenet",
+            "edge",
+            "exportnet",
+            "vaultnet"
+          ],
+          "internal_networks": [
+            "appnet",
+            "cartridgenet",
+            "exportnet",
+            "vaultnet"
+          ]
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "CARTRIDGE_KEY"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "INTERNAL_TOKEN"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "INVENTORY_SIGNING_KEY"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "PORTAL_PORT"
+        },
+        {
+          "path": "prob/for_organizer/.env.example",
+          "name": "REEL_FRAGMENT"
+        },
+        {
+          "path": "prob/for_organizer/bot/Dockerfile",
+          "name": "CHROME_PATH"
+        },
+        {
+          "path": "prob/for_organizer/bot/server.js",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/bot/server.js",
+          "name": "CORE_INTERNAL_URL"
+        },
+        {
+          "path": "prob/for_organizer/bot/server.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/bot/server.js",
+          "name": "PUBLIC_BASE_URL"
+        },
+        {
+          "path": "prob/for_organizer/bot/server.js",
+          "name": "VISIT_MS"
+        },
+        {
+          "path": "prob/for_organizer/case-vault/healthcheck.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/case-vault/server.js",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/case-vault/server.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/core/server.js",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/core/server.js",
+          "name": "BOT_URL"
+        },
+        {
+          "path": "prob/for_organizer/core/server.js",
+          "name": "CASE_VAULT_HOST"
+        },
+        {
+          "path": "prob/for_organizer/core/server.js",
+          "name": "CASE_VAULT_PORT"
+        },
+        {
+          "path": "prob/for_organizer/core/server.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/exporter/server.js",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/exporter/server.js",
+          "name": "MAX_BYTES"
+        },
+        {
+          "path": "prob/for_organizer/exporter/server.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/indexer/server.js",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/indexer/server.js",
+          "name": "PATH"
+        },
+        {
+          "path": "prob/for_organizer/indexer/server.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/indexer/server.js",
+          "name": "REEL_FRAGMENT"
+        },
+        {
+          "path": "prob/for_organizer/inventory-metadata/server.js",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/inventory-metadata/server.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "BIND_HOST"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "CARTRIDGE_HOST"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "CARTRIDGE_PORT"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "CORE_HOST"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "CORE_PORT"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "EXPORTER_HOST"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "EXPORTER_PORT"
+        },
+        {
+          "path": "prob/for_organizer/portal/server.py",
+          "name": "PORT"
+        }
+      ],
+      "review_required": [
+        "cap_add",
+        "depends_on",
+        "environment",
+        "healthcheck",
+        "network_segmentation",
+        "networks",
+        "read_only",
+        "tmpfs"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "web",
+              "environment_names": [
+                "ATTENDANCE_REWARD",
+                "DATABASE_PATH",
+                "FLAG",
+                "FLAG_PRICE",
+                "RACE_DELAY",
+                "SECRET_KEY"
+              ],
+              "execution_fields": [
+                "environment",
+                "volumes",
+                "healthcheck"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/service/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/service/app.py",
+          "name": "ATTENDANCE_REWARD"
+        },
+        {
+          "path": "prob/for_organizer/service/app.py",
+          "name": "DATABASE_PATH"
+        },
+        {
+          "path": "prob/for_organizer/service/app.py",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/service/app.py",
+          "name": "FLAG_PRICE"
+        },
+        {
+          "path": "prob/for_organizer/service/app.py",
+          "name": "RACE_DELAY"
+        },
+        {
+          "path": "prob/for_organizer/service/app.py",
+          "name": "SECRET_KEY"
+        }
+      ],
+      "review_required": [
+        "environment",
+        "healthcheck",
+        "volumes"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/Dockerfile",
+          "name": "PYTHONDONTWRITEBYTECODE"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/app.py",
+          "name": "SECRET_KEY"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "challenge",
+              "environment_names": [
+                "DEV_MODE",
+                "FLAG"
+              ],
+              "execution_fields": [
+                "environment",
+                "tmpfs",
+                "read_only"
+              ],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/service/src/config.js",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/src/config.js",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/service/test/config.test.js",
+          "name": "DEV_MODE"
+        },
+        {
+          "path": "prob/for_organizer/service/test/config.test.js",
+          "name": "FLAG"
+        }
+      ],
+      "review_required": [
+        "container_mapping",
+        "environment",
+        "read_only",
+        "tmpfs"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "db",
+        "web"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "db",
+              "environment_names": [],
+              "execution_fields": [],
+              "networks": [],
+              "depends_on": []
+            },
+            {
+              "name": "web",
+              "environment_names": [
+                "DB_HOST"
+              ],
+              "execution_fields": [
+                "environment",
+                "depends_on"
+              ],
+              "networks": [],
+              "depends_on": [
+                "db"
+              ]
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/db/Dockerfile",
+          "name": "POSTGRES_DB"
+        },
+        {
+          "path": "prob/for_organizer/db/Dockerfile",
+          "name": "POSTGRES_PASSWORD"
+        },
+        {
+          "path": "prob/for_organizer/db/Dockerfile",
+          "name": "POSTGRES_USER"
+        },
+        {
+          "path": "prob/for_organizer/web/app.py",
+          "name": "DB_HOST"
+        },
+        {
+          "path": "prob/for_organizer/web/app.py",
+          "name": "DB_NAME"
+        },
+        {
+          "path": "prob/for_organizer/web/app.py",
+          "name": "DB_PASS"
+        },
+        {
+          "path": "prob/for_organizer/web/app.py",
+          "name": "DB_USER"
+        }
+      ],
+      "review_required": [
+        "depends_on",
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "server"
+      ],
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "services": [
+            {
+              "name": "server",
+              "environment_names": [],
+              "execution_fields": [],
+              "networks": [],
+              "depends_on": []
+            }
+          ],
+          "networks": [],
+          "internal_networks": []
+        }
+      ],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/server/Dockerfile",
+          "name": "HOME"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "FLAG_FILE"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_ANVIL_PORT"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_CLIENT_TIMEOUT"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_HOST"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_MAX_RESETS"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_MAX_SESSIONS"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_PACK_PRICE_WEI"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_PORT"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_QA_VOUCHER_NONCE"
+        },
+        {
+          "path": "prob/for_organizer/server/server.py",
+          "name": "INFINITE_PACK_REQUIRED_PACKS"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "challenge"
+      ],
+      "compose": [],
+      "environment_references": [
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "GATEWAY_PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "RPC_PROXY_PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "RPC_UPSTREAM_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/.env.example",
+          "name": "SIGNER_PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/Dockerfile",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/Dockerfile",
+          "name": "HARDHAT_DISABLE_TELEMETRY_PROMPT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/Dockerfile",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/hardhat.config.js",
+          "name": "RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/bootstrap-and-deploy.js",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/bootstrap-and-deploy.js",
+          "name": "ORACLE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/bootstrap-and-deploy.js",
+          "name": "RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/deploy.js",
+          "name": "DEPLOYER_PRIVATE_KEY"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/deploy.js",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/deploy.js",
+          "name": "ORACLE_PRIVATE_KEY"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/deploy.js",
+          "name": "PLAYER_ADDRESS"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/deploy.js",
+          "name": "RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/start-challenge.js",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/start-challenge.js",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/challenge/scripts/start-challenge.js",
+          "name": "PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/frontdoor.js",
+          "name": "FRONTDOOR_GATEWAY_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/frontdoor.js",
+          "name": "FRONTDOOR_HOST"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/frontdoor.js",
+          "name": "FRONTDOOR_PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/frontdoor.js",
+          "name": "FRONTDOOR_RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/gateway.js",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/gateway.js",
+          "name": "FLAG"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/gateway.js",
+          "name": "GATEWAY_HOST"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/gateway.js",
+          "name": "GATEWAY_PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/gateway.js",
+          "name": "RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/gateway.js",
+          "name": "SIGNER_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/rpc-proxy.js",
+          "name": "RPC_PROXY_HOST"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/rpc-proxy.js",
+          "name": "RPC_PROXY_PORT"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/rpc-proxy.js",
+          "name": "RPC_UPSTREAM_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/signer.js",
+          "name": "DEPLOYMENT_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/signer.js",
+          "name": "ORACLE_KEY_FILE"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/signer.js",
+          "name": "ORACLE_PRIVATE_KEY"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/signer.js",
+          "name": "RPC_URL"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/signer.js",
+          "name": "SIGNER_HOST"
+        },
+        {
+          "path": "prob/for_organizer/challenge/services/signer.js",
+          "name": "SIGNER_PORT"
+        }
+      ],
+      "review_required": [
+        "environment"
+      ],
+      "incomplete": false
+    }
+  ]
+}

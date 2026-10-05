@@ -66,6 +66,11 @@ gh workflow run pipeline-self-test.yml \
 401은 주소·TLS·비인증 접근 차단의 증거이지 Runtime 배포 SHA·서비스 token의
 유효성·workload 실행 성공·운영 격리 완료의 증거가 아닙니다.
 
+수동 Actions의 실제 무인증 HTTPS 점검도 성공했습니다:
+[실행 37306556117](https://github.com/MSG-CTF/msgctf-devsecops/actions/runs/37306556117).
+이 기록은 해당 실행 시점의 접속 결과이며 토큰 인증이나 배포 완료 기록으로
+사용하지 않습니다. 보고서의 요청 시간은 HTTP 점검 시간이고 GHCR cold pull 시간이 아닙니다.
+
 2026년 10월 5일 로컬 curl과 Python 점검에서 인증서를 검증한 HTTPS 연결과
 HTTP 401을 확인했습니다. Python의 기본 CA 경로가 비어 있어 첫 점검은 실패했고,
 macOS에 이미 설치된 `/etc/ssl/cert.pem`을 명시한 재실행은 성공했습니다.
@@ -99,7 +104,7 @@ Backend Poller에 직접 등록 API를 호출하는 설계와 연결하지 않�
 
 ## 후속 검증 순서
 
-1. 토큰 없는 Actions HTTPS 점검.
+1. 토큰 없는 Actions HTTPS 점검(위 실행에서 확인, 실제 배포 시험 전 다시 확인).
 2. 인증과 승인된 WEB 1개 생성·HTTP 응답·삭제. 실패 cleanup 확인.
 3. 두 target의 승인 WEB 3개와 새 digest cold pull, 실제 실행 digest 확인.
 4. mixed ports, 내부 통신, 팀·인스턴스 간 격리, reset.
@@ -109,3 +114,13 @@ Backend Poller에 직접 등록 API를 호출하는 설계와 연결하지 않�
 현재 임의 환경변수와 문제 healthcheck는 지원하지 않는다고 전달받았습니다.
 FLAG Secret 시험이 있다는 이유로 모든 문제의 실행 설정이 해결됐다고 말하지
 않습니다. 각 필드의 공통 계약과 실제 지원 여부를 확인해야 합니다.
+
+## 리뷰 반영 후 상태
+
+- 확인 완료: 인증서 검증, 주소 정규화, redirect 차단, 무인증 Actions 401.
+- 준비 필요: 확인 가능한 배포 commit, CI 전용 토큰, 승인된 digest별 실행 정책.
+- 미검증: 실제 새 이미지 pull, 생성, 접속, reset, 삭제와 실패 정리 및 격리.
+- 별도 구현 필요: 기존 AWS SSM 호출 대신 GCP의 인증된 Runtime API를 호출하는 job.
+
+이 PR의 병합만으로 실제 GCP 배포를 켜지 않습니다. 준비 항목을 받으면 Runtime팀과
+시험 대상·권한·cleanup 범위를 승인한 후 별도 PR과 실행 기록으로 검증합니다.

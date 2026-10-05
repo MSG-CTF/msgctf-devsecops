@@ -17,6 +17,12 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 `runtime_api_smoke_runner.py`는 loopback HTTP 또는 인증서를 검증하는 원격 HTTPS를
 지원합니다. 원격 redirect와 URL 내부 token·query를 허용하지 않습니다.
 
+### `audit_execution_settings.py`
+
+문제의 Compose 실행 설정과 환경변수 참조 이름만 수집합니다. 값·FLAG·소스 내용은
+출력하지 않으며, 진단 JSON과 문제별 표를 생성합니다. 지원 계약과 사용법은
+[실행 설정 계약](../docs/challenge-execution-settings.md)을 참고합니다.
+
 ### `discover_changed_challenges.py`
 
 Git 변경 내역에서 `info.yaml`이 있는 문제 디렉터리를 찾아 검증 대상으로
