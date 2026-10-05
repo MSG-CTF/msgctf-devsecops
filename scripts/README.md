@@ -16,6 +16,12 @@ GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버�
 실패는 오류로 기록합니다. 실제 사용 확인 전 후보를 삭제 가능한 목록으로
 취급하지 않습니다.
 
+### `audit_execution_settings.py`
+
+문제의 Compose 실행 설정과 환경변수 참조 이름만 수집합니다. 값·FLAG·소스 내용은
+출력하지 않으며, 진단 JSON과 문제별 표를 생성합니다. 지원 계약과 사용법은
+[실행 설정 계약](../docs/challenge-execution-settings.md)을 참고합니다.
+
 ### `discover_changed_challenges.py`
 
 Git 변경 내역에서 `info.yaml`이 있는 문제 디렉터리를 찾아 검증 대상으로

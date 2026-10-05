@@ -12,6 +12,57 @@ def load_workflow(path):
 
 
 class WorkflowContractTests(unittest.TestCase):
+    def test_indexer_exception_is_scoped_and_secret_scan_remains_blocking(self):
+        for path, job in (
+            (".github/workflows/challenge-branch-validation.yml", "build-scan"),
+            (".github/workflows/challenge-supply-chain.yml", "build-scan-push"),
+        ):
+            with self.subTest(path=path):
+                steps = load_workflow(ROOT / path)["jobs"][job]["steps"]
+                ordinary = next(s for s in steps if s.get("name") == "Trivy 취약점 차단 검사")
+                condition = "needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer'"
+                self.assertEqual(ordinary.get("if"), "${{ !(" + condition + ") }}")
+                scan = next(s for s in steps if s.get("name") == "indexer 원본 취약점 보고서 생성")
+                self.assertEqual(scan["if"], condition)
+                self.assertEqual(scan["with"]["format"], "json")
+                self.assertEqual(scan["with"]["exit-code"], "0")
+                self.assertEqual(scan["with"].get("trivy-config"), ".msgctf-ci/ci/trivy-gate.yaml")
+                gate = next(s for s in steps if s.get("name") == "승인된 indexer 취약점 예외 판정")
+                self.assertEqual(gate["if"], condition)
+                self.assertNotIn("continue-on-error", gate)
+                self.assertIn("vulnerability_exception_gate.py", gate["run"])
+                self.assertIn("docker image inspect", gate["run"])
+                upload = next(s for s in steps if s.get("name") == "indexer 취약점 판정 증거 업로드")
+                self.assertIn("always()", upload["if"])
+                secret = next(s for s in steps if s.get("name") == "Trivy image secret 차단 검사")
+                self.assertNotIn("if", secret)
+                self.assertEqual(secret["with"]["exit-code"], "1")
+
+    def test_execution_audit_is_diagnostic_and_uploaded_before_spec_gate(self):
+        for relative_path in (
+            ".github/workflows/challenge-supply-chain.yml",
+            ".github/workflows/challenge-branch-validation.yml",
+        ):
+            with self.subTest(workflow=relative_path):
+                steps = load_workflow(ROOT / relative_path)["jobs"]["validate"]["steps"]
+                audit = next(step for step in steps if step.get("id") == "execution_audit")
+                upload = next(step for step in steps if step.get("name") == "실행 설정 점검 자료 업로드")
+                gate = next(step for step in steps if step.get("id") == "spec")
+                scope = next(step for step in steps if step.get("id") == "scope")
+                self.assertLess(steps.index(scope), steps.index(audit))
+                self.assertLess(steps.index(upload), steps.index(gate))
+                self.assertIn('"$CHALLENGE_PATH"', audit["run"])
+                self.assertIn("git rev-parse HEAD", audit["run"])
+                self.assertNotIn("${{ inputs.challenge_path }}", audit["run"])
+                self.assertTrue(upload["with"]["name"].endswith("-execution-settings"))
+                self.assertEqual(upload["with"]["retention-days"], "14")
+                self.assertEqual(audit.get("continue-on-error"), "true")
+                self.assertEqual(upload.get("continue-on-error"), "true")
+                self.assertEqual(upload.get("if"), "steps.execution_audit.outcome == 'success'")
+                self.assertNotIn("continue-on-error", gate)
+                security_gate = next(step for step in steps if step.get("name") == "저장소 Gitleaks 검사")
+                self.assertNotIn("continue-on-error", security_gate)
+
     def test_gitleaks_checks_current_files_and_reachable_git_history(self):
         for relative_path in (
             ".github/workflows/challenge-supply-chain.yml",
@@ -114,7 +165,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn('--source-ref "$GITHUB_REF"', text)
         self.assertIn('--source-sha "$GITHUB_SHA"', text)
         self.assertNotIn('--source-ref "$GITHUB_SHA"', text)
-        self.assertEqual(text.count("${{ steps.image.outputs.run_tag }}"), 6)
+        self.assertEqual(text.count("${{ steps.image.outputs.run_tag }}"), 8)
         self.assertEqual(
             set(workflow["jobs"]),
             {

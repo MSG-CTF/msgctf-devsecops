@@ -10,6 +10,11 @@ GHCR 이미지 버전의 보존 정책, 삭제 없는 후보 조회 방법, 실�
 
 ## 파일
 
+### `challenge-execution-settings.md`
+
+현재 info.yaml과 publish bundle의 지원 필드, 문제별 실행 설정 점검표,
+환경변수·healthcheck·스토리지·네트워크 계약의 미확정 부분과 담당별 요청을 정리합니다.
+
 ### `challenge-caller-example.yml`
 
 문제 저장소가 `challenge-supply-chain.yml` reusable workflow를 호출하는

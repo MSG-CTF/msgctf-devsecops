@@ -90,6 +90,30 @@ python3 scripts/ghcr_cleanup_plan.py \
 보고서는 위 조회 시점의 snapshot입니다. 새 이미지 발행으로 수량이 바뀔 수
 있으며 삭제 직전에 다시 조회해야 합니다.
 
+## 리뷰 후 병합·확인 순서
+
+리뷰에서 확인한 103개 보존·7개 검토 후보는 위 snapshot의 계산 결과이며,
+후보 7개의 삭제 승인이 아닙니다. 후보는 실제 사용 확인 전까지 그대로 보존합니다.
+
+1. 읽기 전용 도구와 workflow를 리뷰 승인 후 main에 병합합니다.
+2. 아래 수동 Actions를 main에서 실행해 runner의 package 목록 조회 권한을 확인합니다.
+3. 보고서와 workflow 결과를 확인하고, 예상 package가 조회 범위에 포함됐는지
+   package 담당자의 목록과 대조합니다. 실행 성공만으로 조직 전체 private package
+   접근을 증명하지 않습니다.
+4. 403/404 또는 조회 누락이 있으면 저장소의 package Actions 읽기 접근을 확인합니다.
+   조회 권한 문제를 해결하기 위해 삭제 권한이나 토큰 원문을 추가하지 않습니다.
+5. Backend·Runtime·KOTH 사용 digest와 OCI 참조 확인은 별도 후속 작업입니다.
+
+```bash
+gh workflow run ghcr-cleanup-dry-run.yml \
+  --repo MSG-CTF/msgctf-devsecops \
+  --ref main
+```
+
+현재 PR 보완에서는 병합과 수동 Actions 권한 검증을 실행하지 않았습니다.
+로컬의 개인 계정 조회 성공은 Actions의 GITHUB_TOKEN 권한 검증과 다릅니다.
+보고서를 받더라도 이 PR에는 실제 삭제 기능이 없으며 이미지 삭제는 0건입니다.
+
 ## 실제 삭제 전에 받을 자료
 
 1. Backend: active release와 rollback 대상의 정확한 GHCR digest 목록.

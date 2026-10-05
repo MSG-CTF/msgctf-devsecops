@@ -52,6 +52,14 @@ GHCR 이미지 버전은 [삭제 없는 정리 후보 조회](docs/ghcr-cleanup.
 active release·실행 중 digest와 KOTH의 별도 사용 목록을 확인하기 전에는 실제
 이미지를 삭제하지 않습니다.
 
+의도된 문제 취약점은 [승인된 예외 정책](docs/intentional-vulnerability-exceptions.md)으로
+패키지·버전·취약점 ID를 한정하며, secret 검사나 다른 문제의 보안 기준은 완화하지 않습니다.
+
+이미지 검증 성공과 문제 실행 준비 완료는 다릅니다. 현재 지원 필드, Compose에서
+확인해야 할 환경변수·저장소·네트워크 설정과 담당별 요청은
+[문제 실행 설정 계약](docs/challenge-execution-settings.md)에 정리했습니다.
+미지원 실행 설정은 info.yaml에서 거절하며, 진단 자료에는 설정 값이나 FLAG를 넣지 않습니다.
+
 ## 문제 저장소 계약
 
 출제 문제는 다음 구조를 사용합니다.

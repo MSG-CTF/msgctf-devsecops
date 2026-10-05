@@ -1,0 +1,8 @@
+# 출제자 trivy.yaml의 skip/ignore/VEX 설정을 읽지 않습니다.
+scan:
+  scanners:
+    - vuln
+vulnerability:
+  ignore-unfixed: true
+severity:
+  - CRITICAL
