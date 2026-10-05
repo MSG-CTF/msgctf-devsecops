@@ -50,6 +50,33 @@ jobs:
       - name: 검증 도구 설치
         run: python3 -m pip install -r .msgctf-ci/ci/requirements.txt
 
+      - name: 검증 artifact scope 생성
+        id: scope
+        run: |
+          nonce="$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
+          echo "artifact_scope=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${nonce}" >> "$GITHUB_OUTPUT"
+
+      - name: 문제 실행 설정 이름 점검
+        id: execution_audit
+        continue-on-error: true
+        env:
+          CHALLENGE_PATH: ${{ inputs.challenge_path }}
+          ARTIFACT_SCOPE: ${{ steps.scope.outputs.artifact_scope }}
+        run: |
+          python3 .msgctf-ci/scripts/audit_execution_settings.py "$CHALLENGE_PATH" \
+            --source-sha "$(git rev-parse HEAD)" \
+            --output-dir "execution-settings/${ARTIFACT_SCOPE}"
+
+      - name: 실행 설정 점검 자료 업로드
+        if: steps.execution_audit.outcome == 'success'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.scope.outputs.artifact_scope }}-execution-settings
+          path: execution-settings/${{ steps.scope.outputs.artifact_scope }}/
+          if-no-files-found: error
+          retention-days: 14
+
       - name: 저장소 Gitleaks 검사
         run: |
           gitleaks() {
@@ -70,12 +97,6 @@ jobs:
             --metadata-output branch-validation/metadata.json \
             --matrix-output branch-validation/matrix.json \
             --github-output "$GITHUB_OUTPUT"
-
-      - name: 검증 artifact scope 생성
-        id: scope
-        run: |
-          nonce="$(python3 -c 'import uuid; print(uuid.uuid4().hex)')"
-          echo "artifact_scope=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}-${nonce}" >> "$GITHUB_OUTPUT"
 
       - name: 검증된 metadata 업로드
         uses: actions/upload-artifact@v4

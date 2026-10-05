@@ -20,6 +20,14 @@ RESOURCE_FIELDS = (
 )
 
 
+def _reject_unknown_fields(raw, allowed, field):
+    if any(key not in allowed for key in raw):
+        raise ValueError(
+            f"{field} contains unsupported fields; 지원하지 않는 실행 설정은 "
+            "자동 전달되지 않습니다. 실행 설정 계약 문서를 확인하세요."
+        )
+
+
 def _required_string(value, field):
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{field} must be a non-empty string")
@@ -64,6 +72,7 @@ def _validate_ports(raw_ports, container_name):
 def _validate_container(challenge_path, raw):
     if not isinstance(raw, dict):
         raise ValueError("each deployment container must be an object")
+    _reject_unknown_fields(raw, {"name", "build", "image", "ports", "expose"}, "container")
     name = _required_string(raw.get("name"), "container.name")
     if not SAFE_NAME.fullmatch(name):
         raise ValueError("container name must be a safe lowercase identifier")
@@ -106,6 +115,7 @@ def _validate_healthcheck(raw, containers):
         return None
     if not isinstance(raw, dict):
         raise ValueError("deployment.healthcheck must be an object")
+    _reject_unknown_fields(raw, {"container", "port", "path"}, "healthcheck")
     container_name = _required_string(
         raw.get("container"),
         "healthcheck.container",
@@ -132,7 +142,10 @@ def validate_spec(challenge_path):
     info_path = challenge_path / "info.yaml"
     if not info_path.is_file():
         raise ValueError("info.yaml must exist directly under the challenge directory")
-    raw = yaml.safe_load(info_path.read_text(encoding="utf-8"))
+    try:
+        raw = yaml.safe_load(info_path.read_text(encoding="utf-8"))
+    except (yaml.YAMLError, RecursionError):
+        raise ValueError("info.yaml 문법을 확인하세요. 비밀값 보호를 위해 원문은 출력하지 않습니다.") from None
     if not isinstance(raw, dict):
         raise ValueError("info.yaml root must be an object")
 
@@ -214,6 +227,7 @@ def validate_spec(challenge_path):
     raw_profile = deployment.get("resource_profile")
     if not isinstance(raw_profile, dict):
         raise ValueError("deployment.resource_profile must be an object")
+    _reject_unknown_fields(raw_profile, set(RESOURCE_FIELDS), "resource_profile")
     resource_profile = {
         field: _positive_int(raw_profile.get(field), f"resource_profile.{field}")
         for field in RESOURCE_FIELDS
@@ -254,7 +268,12 @@ def main():
     parser.add_argument("--github-output", type=Path)
     args = parser.parse_args()
 
-    metadata = validate_spec(args.challenge_path)
+    try:
+        metadata = validate_spec(args.challenge_path)
+    except ValueError as error:
+        parser.error(str(error))
+    except (OSError, UnicodeError):
+        parser.error("문제 파일을 읽지 못했습니다. 경로와 인코딩을 확인하세요.")
     matrix = container_matrix(metadata)
     if args.metadata_output:
         args.metadata_output.parent.mkdir(parents=True, exist_ok=True)
