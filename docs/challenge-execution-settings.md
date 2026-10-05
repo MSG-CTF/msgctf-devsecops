@@ -74,7 +74,7 @@ checker 등 운영 보조 서비스이거나 이름 차이일 수 있으므로 �
 | 환경변수 | 이름, 필수/선택, 기본값 여부, 비밀 여부, 주입 담당자 |
 | FLAG | 고정/동적 구분, 환경변수/파일 주입 중 무엇인지, 누락 시 동작 |
 | 시작 명령 | 이미지 CMD/ENTRYPOINT로 충분한지, 추가 command/args가 필요한지 |
-| 내부 주소 | 접속할 서비스명·포트, 같은 Pod의 localhost 사용 가능 여부, 포트 충돌 |
+| 내부 주소 | 접속할 컨테이너·Service명·포트, Runtime이 발급하는 실제 내부 DNS와의 대응 |
 | 저장소 | 컨테이너 경로, 용량, 공유 여부, 영속성, reset 초기화 기준 |
 | healthcheck | 준비 완료를 확인하는 HTTP 경로·포트 또는 TCP/exec 필요 여부 |
 | 네트워크 | 꼭 허용할 통신과 꼭 차단할 통신, 외부 접속 필요 여부 |
@@ -114,11 +114,17 @@ internal_connections를 다시 추가하지 않습니다.
 먼저 수집합니다. 제한된 네트워크 의도 DSL의 필드·허용값·기본값·Runtime 구현을
 합의하기 전에는 network_policy 같은 임의 키를 발행하지 않습니다.
 
-같은 Pod의 컨테이너는 IP와 포트 공간을 공유하므로 Compose 서비스 DNS와 다른
-동작을 할 수 있고 같은 포트가 충돌할 수 있습니다. 표준 NetworkPolicy의 격리
-단위는 Pod입니다. 한 Pod 안의 컨테이너 사이 차단을 NetworkPolicy만으로
-구현한다고 가정하지 않습니다. 해당 문제는 Runtime과 별도 Pod 구성 또는 승인된
-격리 방식을 검토해야 합니다.
+현재 Runtime은 컨테이너별 Pod·Service 구조입니다. 다른 컨테이너에 접속할 때는
+Runtime이 생성한 해당 Service의 내부 DNS와 포트를 사용합니다. `localhost`는
+자기 Pod를 가리키므로 다른 컨테이너의 DB 주소로 안내하지 않습니다. Compose의
+서비스명이 Runtime의 실제 Service 이름과 같다고 가정하지 않으며, DNS 매핑과
+DB_HOST 같은 실행 설정의 지원 계약을 Runtime·Backend·Scheduler와 확인합니다.
+
+같은 Pod 안에 여러 컨테이너를 두는 일반 Kubernetes 구성은 별도 개념입니다.
+이 경우에만 IP와 포트 공간을 공유합니다. 현재 Runtime이 이 방식으로 실행한다고
+안내하지 않습니다. 표준 NetworkPolicy의 격리 단위는 Pod이므로 현재 구조에서는
+Pod별 정책을 적용할 수 있지만, 실제 출제 의도에 맞는 허용·차단 규칙 적용은
+Runtime 담당과 확인해야 합니다.
 [Kubernetes Pod 네트워크](https://kubernetes.io/docs/concepts/workloads/pods/),
 [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/).
 
@@ -156,6 +162,23 @@ for_user, exploit, 링크와 의존 패키지는 제외합니다. 1 MiB 초과 �
 명세와 보안 검사 실패는 기존처럼 CI를 차단합니다.
 문제 저장소 caller의 workflow와 devsecops_ref를 함께 업데이트해야 실제 문제
 Actions에도 반영됩니다. 이번 PR에서 문제 저장소는 변경하지 않습니다.
+
+## 2026-10-05 리뷰 반영과 다음 연결
+
+- 이번 PR은 점검과 미지원 입력 차단입니다. 환경변수 19개는 참조 후보이며
+  모두 실행 실패 또는 모두 필수라는 뜻이 아닙니다. 출제자가 필수 여부를 확인해야 합니다.
+- 승인·병합 후 문제 저장소의 도구 checkout, branch workflow와 devsecops_ref,
+  main workflow와 devsecops_ref 총 5곳을 동일한 새 커밋 SHA로 갱신합니다.
+  이미 적용된 Afterimage indexer 한정 예외도 같은 도구 버전에 포함해야 합니다.
+- info.yaml 원문에는 flag가 있으므로 Runtime에 파일을 통째로 전송하지 않습니다.
+  검증한 허용 필드만 bundle로 정규화하고 Backend → Scheduler → Runtime이 전달합니다.
+- 네트워크는 현재 STANDARD@v2, 내부 통신 허용, 인스턴스·팀 격리, 공개 포트만
+  외부 노출, egress NONE을 유지합니다. internal_connections나 raw NetworkPolicy를
+  다시 추가하지 않습니다. 문제별 예외 의도 DSL은 수신·보존·적용 계약 승인 전까지 미지원입니다.
+- Runtime에 확인할 내용은 필드명, 허용 값, 기본값, Service DNS 매핑, 정책 버전과
+  reset 보존 규칙입니다. Backend·Scheduler는 해당 값의 저장과 끝까지 전달을 확인합니다.
+- GCP Runtime의 무인증 HTTPS 연결 점검은 실제 생성·접속·reset·삭제 검증과 다릅니다.
+  실제 문제 배포 성공이나 전체 Linux/Docker 실행 검증으로 기록하지 않습니다.
 
 확인 기준:
 - DevSecOps main: b39f232fc4759b70928c4960e7a17bb33264bcec
