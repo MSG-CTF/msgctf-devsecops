@@ -1,5 +1,7 @@
 import copy
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -135,6 +137,41 @@ class ValidateInfoSpecTests(unittest.TestCase):
 
         with self.assertRaisesRegex(ValueError, "unsupported fields"):
             self._validate_raw(raw)
+
+    def test_rejects_unsupported_container_execution_settings_without_values(self):
+        for field in ("environment", "env", "command", "entrypoint", "volumes", "networks"):
+            with self.subTest(field=field):
+                raw = self._raw_fixture()
+                raw["deployment"]["containers"][0][field] = "sensitive-test-value"
+                with self.assertRaisesRegex(ValueError, "unsupported fields") as result:
+                    self._validate_raw(raw)
+                self.assertNotIn("sensitive-test-value", str(result.exception))
+
+    def test_rejects_unknown_healthcheck_setting(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["healthcheck"]["timeout"] = 3
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
+            self._validate_raw(raw)
+
+    def test_rejects_unknown_resource_setting(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["resource_profile"]["storage_path"] = "/data"
+        with self.assertRaisesRegex(ValueError, "unsupported fields"):
+            self._validate_raw(raw)
+
+    def test_malformed_yaml_cli_does_not_echo_secret_or_traceback(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            challenge = Path(temporary) / "web-test"
+            challenge.mkdir()
+            (challenge / "info.yaml").write_text("flag: SECRET-CONTENT: :\n", encoding="utf-8")
+            result = subprocess.run(
+                [sys.executable, str(FIXTURE.parents[2] / "scripts/validate_info_spec.py"), str(challenge)],
+                capture_output=True, text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn("SECRET-CONTENT", result.stdout + result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertIn("info.yaml", result.stderr)
 
     def test_accepts_backend_team_koth_template_contract(self):
         metadata = validate_spec(KOTH_FIXTURE)
