@@ -78,6 +78,34 @@ Backend에서는 영수증 수집·검증, Challenge/release 연결, DB metadata
 권한 검사와 다운로드 API를 추가 연결해야 합니다. 기존 Actions 수집 경로는
 해당 계약 승인과 적용 전까지 유지됩니다. 실제 GCS 업로드를 먼저 활성화하지 않습니다.
 
+## 리뷰 반영: 저장 담당 결정과 활성화 조건
+
+현재 운영 연결 기준은 **Backend가 기존 Actions ZIP을 받아 저장하는 경로**입니다.
+Backend가 새 GCS 영수증을 수집하거나 object key로 파일을 등록하는 기능은
+아직 연결되지 않았습니다. PR을 병합해도 이 경로를 자동 전환하지 않으며,
+`enable_user_files_gcs_upload:false`를 유지합니다.
+
+책임자·Backend·DevSecOps가 다음 중 하나를 선택해야 합니다.
+
+| 선택 | 저장 담당 | DevSecOps 처리 | Backend 처리 |
+|---|---|---|---|
+| 기존 방식 유지 | Backend | Actions ZIP·manifest 발행, GCS 옵션 비활성 | ZIP 수집·검증 후 저장소에 저장 |
+| CI 저장 방식으로 전환 | DevSecOps CI | 승인 후 GCS 저장 및 영수증 발행 | 영수증 수집·검증, DB 연결·다운로드, 기존 ZIP 재업로드 중지 |
+
+두 경로를 동시에 저장 담당으로 켜지 않습니다. 후자를 선택한 경우에도 아래
+확인을 모두 마친 다음 책임자 승인으로 옵션을 활성화합니다.
+
+1. object key·영수증 형식과 저장 담당 전환 계약 확정.
+2. Backend 영수증 수집, 문제·revision 연결, DB 등록 및 다운로드 구현 확인.
+3. WIF 신뢰 조건, Service Account 최소 권한, bucket IAM·공개 차단 확인.
+4. Environment required reviewers와 main 제한 설정 확인.
+5. 승인된 테스트 환경에서 실제 GCS 업로드와 참가자 다운로드를 정적·동적,
+   파일 있음·없음 4가지로 검증하고 실행·등록 결과를 기록.
+
+업로드 코드의 단위 테스트 통과는 실제 WIF 인증, GCS 저장, Backend 다운로드
+성공을 의미하지 않습니다. 현재 리뷰 보완에서도 인증·업로드와 옵션 활성화는
+수행하지 않았습니다.
+
 ## 전체 문제 수집 계획
 
 ```bash
