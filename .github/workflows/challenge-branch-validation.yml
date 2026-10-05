@@ -177,6 +177,7 @@ jobs:
           docker tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
 
       - name: Trivy 취약점 차단 검사
+        if: ${{ !(needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer') }}
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.72.0
@@ -186,6 +187,50 @@ jobs:
           severity: CRITICAL
           ignore-unfixed: true
           exit-code: "1"
+
+      - name: indexer 검사 증거 디렉터리 생성
+        if: needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer'
+        run: mkdir -p branch-results/indexer/vulnerability
+
+      - name: indexer 원본 취약점 보고서 생성
+        if: needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer'
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          version: v0.72.0
+          image-ref: ${{ steps.image.outputs.ref }}
+          format: json
+          output: ${{ runner.temp }}/indexer-trivy.json
+          trivy-config: .msgctf-ci/ci/trivy-gate.yaml
+          scanners: vuln
+          severity: CRITICAL
+          ignore-unfixed: true
+          trivyignores: .msgctf-ci/ci/empty.trivyignore
+          exit-code: "0"
+
+      - name: 승인된 indexer 취약점 예외 판정
+        if: needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer'
+        env:
+          SCANNED_IMAGE: ${{ steps.image.outputs.ref }}
+          CHALLENGE_SLUG: ${{ needs.validate.outputs.challenge_slug }}
+          CONTAINER_NAME: ${{ matrix.name }}
+        run: |
+          image_id="$(docker image inspect "$SCANNED_IMAGE" --format '{{.Id}}')"
+          python3 .msgctf-ci/scripts/vulnerability_exception_gate.py \
+            --report "$RUNNER_TEMP/indexer-trivy.json" \
+            --sanitized-report branch-results/indexer/vulnerability/trivy.json \
+            --output branch-results/indexer/vulnerability/decision.json \
+            --challenge-slug "$CHALLENGE_SLUG" --container-name "$CONTAINER_NAME" \
+            --image-id "$image_id"
+          cat branch-results/indexer/vulnerability/decision.json >> "$GITHUB_STEP_SUMMARY"
+
+      - name: indexer 취약점 판정 증거 업로드
+        if: always() && needs.validate.outputs.challenge_slug == 'web-afterimage' && matrix.name == 'indexer'
+        uses: actions/upload-artifact@v4
+        with:
+          name: indexer-vulnerability-${{ needs.validate.outputs.artifact_scope }}
+          path: branch-results/indexer/vulnerability/
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Trivy image secret 차단 검사
         uses: aquasecurity/trivy-action@v0.36.0

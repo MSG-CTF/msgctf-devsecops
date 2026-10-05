@@ -63,6 +63,10 @@ DevSecOps는 참가자 instance scheduling, target 선택, Kubernetes manifest �
 - Trivy secret scanner: High·Critical image secret 차단
 - Trivy CycloneDX: container별 SBOM 생성
 
+`web-afterimage/indexer`의 의도된 `vm2 3.10.5` 취약점 23건은 승인 목록으로만
+예외 판정합니다. 다른 취약점과 secret 검사는 그대로 차단하며 원본 보고서와
+image ID를 보관합니다. [승인 범위와 증거](../docs/intentional-vulnerability-exceptions.md)를 참고하세요.
+
 다른 출제자의 독립 branch까지 검사해 무관한 문제를 차단하지 않도록 Git 검사는
 현재 `HEAD`의 이력으로 제한합니다. Git 검사와 directory 검사를 함께 실행해 과거
 commit과 현재 파일 중 한쪽에만 남은 secret도 차단합니다.
