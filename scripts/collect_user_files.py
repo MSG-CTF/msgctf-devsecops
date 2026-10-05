@@ -65,7 +65,7 @@ def collect_user_files(source_root, output_dir, source_sha, revision):
         "with_files": sum(row["present"] for row in rows),
         "without_files": sum(not row["present"] for row in rows),
         "problems": rows,
-        "limitations": ["No Docker build or image scan was executed.", "No GCS object or Backend record was created.", "Revision is a collection plan only and is not a registered release."]
+        "limitations": ["Docker 빌드와 이미지 보안 검사는 실행하지 않았습니다.", "GCS 객체와 Backend DB 등록을 생성하지 않았습니다.", "revision은 수집 계획용이며 등록된 릴리스가 아닙니다."]
     }
     (output_dir / "collection-plan.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return report

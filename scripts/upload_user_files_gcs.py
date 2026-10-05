@@ -110,7 +110,7 @@ def prepare_upload(bundle_dir):
         objects.append((f"{key_root}/user-files.zip", archive_data, "application/zip"))
     elif details != {"present": False} or (root / "user-files.zip").exists():
         raise ValueError("absent bundle must contain no archive metadata or ZIP")
-    # The manifest is the completion marker and must be written after the ZIP.
+    # manifest는 완료 표식이므로 ZIP 저장을 확인한 뒤 마지막에 기록합니다.
     objects.append((f"{key_root}/user-files.json", manifest_data, "application/json"))
     return manifest, objects
 
