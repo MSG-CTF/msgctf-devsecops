@@ -5,6 +5,11 @@ workflow를 관리합니다.
 
 ## 파일
 
+### `ghcr-cleanup-dry-run.yml`
+
+수동 실행하는 GHCR 이미지 정리 후보 조회입니다. package 읽기 권한만 사용하고
+inventory와 보존·검토 보고서를 보관합니다. 실제 삭제와 자동 실행은 없습니다.
+
 ### `challenge-branch-validation.yml`
 
 출제자 branch와 PR에서 호출하는 최소 권한 reusable workflow입니다.
