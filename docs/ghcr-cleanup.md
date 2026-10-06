@@ -31,6 +31,12 @@ version을 줄여도 package 개수는 그대로일 수 있습니다.
 않으며 인증이 실패하면 조회 실패 보고서를 만들고 exit code 1로 종료합니다.
 조회 실패를 package가 0개인 정상 결과로 취급하지 않습니다.
 
+조회 실패 보고서에는 요청 종류, HTTP 상태와 정해진 오류 분류만 남깁니다.
+API 응답 본문, 인증 헤더와 토큰 원문은 출력하지 않습니다. `403`만으로 권한
+문제를 단정하지 않고 호출 제한 오류도 구분합니다. 상태 코드가 없는 CLI 실행
+오류나 시간 초과 역시 별도로 기록합니다. 개인 계정 조회 성공은 Actions의
+인증과 접근 범위가 동일하다는 뜻이 아닙니다.
+
 ```bash
 gh auth status
 gh auth refresh -h github.com -s read:packages
@@ -38,9 +44,22 @@ python3 scripts/ghcr_cleanup_plan.py --output-dir dist/ghcr-cleanup
 ```
 
 Actions에서는 `ghcr-cleanup-dry-run.yml`을 수동 실행합니다. 자동 삭제나 schedule은
-없으며 `contents: read`, `packages: read`만 사용합니다. 기존 package의 Actions
-읽기 접근에 이 저장소가 허용되어 있어야 합니다. `GITHUB_TOKEN` 권한만 적는다고
-조직 전체의 private package를 읽을 수 있는 것은 아닙니다.
+없으며 workflow 권한은 `contents: read`, `packages: read`로 유지합니다.
+조직 전체 목록 조회에는 저장소 Actions Secret `GHCR_READ_TOKEN`을 사용합니다.
+해당 Secret이 없으면 기본 `GITHUB_TOKEN`으로 대체하지 않고 실행을 중단합니다.
+
+패키지 읽기 권한이 있는 계정으로 전용 Classic PAT을 발급하고 `read:packages`만
+선택한 뒤 `Settings > Secrets and variables > Actions`에 등록합니다. 조직에서
+SSO나 토큰 제한을 사용하면 해당 조직의 승인도 필요합니다. `write:packages`와
+`delete:packages`는 부여하지 않습니다. 토큰을 채팅, 저장소 파일이나 로그에
+남기지 않으며 개인 CLI의 기존 광범위 토큰을 자동 복사하지 않습니다.
+
+실제 Actions 기본 인증에서는 조직 목록 API가 `HTTP 400 / API_INVALID_ARGUMENT`로
+거절됐지만 개인 CLI 인증으로 같은 요청은 성공했습니다. 이 기록만으로 모든
+GitHub App 인증이 지원되지 않는다고 단정하지 않습니다. 전용 읽기 인증을 등록한
+뒤 실제 목록 조회 성공과 보고서의 package/version 수를 다시 확인해야 합니다.
+
+[GitHub Packages REST API 인증 안내](https://docs.github.com/en/rest/packages/packages)
 
 결과:
 

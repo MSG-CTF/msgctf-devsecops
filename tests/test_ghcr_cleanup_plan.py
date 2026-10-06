@@ -1,11 +1,15 @@
 import copy
+import io
+import json
+import subprocess
 import tempfile
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import patch
 
-from scripts.ghcr_cleanup_plan import build_plan, collect_inventory, main
+from scripts.ghcr_cleanup_plan import InventoryRequestError, build_plan, collect_inventory, github_get_pages, main
 
 
 NOW = datetime(2026, 10, 5, 12, tzinfo=timezone.utc)
@@ -142,6 +146,68 @@ class GhcrCleanupPlanTests(unittest.TestCase):
             self.assertIn("INVENTORY_FAILED", data)
             self.assertNotIn("Bearer", data)
 
+    def test_api_failure_report_exposes_status_but_not_response_or_token(self):
+        secret = "sensitive-value-do-not-log"
+        error = subprocess.CalledProcessError(1, ["gh"], stderr=f"gh: Resource not accessible by integration (HTTP 403)\nBearer {secret}".encode())
+        output, errors = io.StringIO(), io.StringIO()
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("scripts.ghcr_cleanup_plan.subprocess.run", side_effect=error), redirect_stdout(output), redirect_stderr(errors):
+                self.assertEqual(main(["--output-dir", tmp]), 1)
+            data = json.loads(Path(tmp, "cleanup-plan.json").read_text())
+            self.assertEqual(data["http_status"], 403)
+            self.assertEqual(data["error_reason"], "RESOURCE_NOT_ACCESSIBLE_BY_INTEGRATION")
+            self.assertEqual(data["request_kind"], "ORGANIZATION_PACKAGES")
+            self.assertFalse(data["deletion_enabled"])
+            rendered = Path(tmp, "cleanup-plan.md").read_text()
+            for text in (json.dumps(data), output.getvalue(), errors.getvalue(), rendered):
+                self.assertNotIn(secret, text)
+                self.assertNotIn("Bearer", text)
+                self.assertNotIn("Resource not accessible by integration", text)
+
+    def test_rate_limit_is_not_misclassified_as_access_denied(self):
+        error = subprocess.CalledProcessError(1, ["gh"], stderr=b"gh: API rate limit exceeded (HTTP 403)")
+        with patch("scripts.ghcr_cleanup_plan.subprocess.run", side_effect=error):
+            with self.assertRaises(InventoryRequestError) as caught:
+                github_get_pages("orgs/MSG-CTF/packages?package_type=container")
+        self.assertEqual(caught.exception.http_status, 403)
+        self.assertEqual(caught.exception.reason, "API_RATE_LIMIT_EXCEEDED")
+
+    def test_authentication_error_preserves_safe_classification(self):
+        error = subprocess.CalledProcessError(1, ["gh"], stderr=b"gh: Bad credentials (HTTP 401)")
+        with patch("scripts.ghcr_cleanup_plan.subprocess.run", side_effect=error):
+            with self.assertRaises(InventoryRequestError) as caught:
+                github_get_pages("orgs/MSG-CTF/packages/container/web/versions?per_page=100")
+        self.assertEqual(caught.exception.http_status, 401)
+        self.assertEqual(caught.exception.request_kind, "PACKAGE_VERSIONS")
+        self.assertEqual(caught.exception.reason, "BAD_CREDENTIALS")
+
+    def test_invalid_argument_is_not_misclassified_as_access_denied(self):
+        error = subprocess.CalledProcessError(1, ["gh"], stderr=b"gh: Invalid argument. (HTTP 400)")
+        with patch("scripts.ghcr_cleanup_plan.subprocess.run", side_effect=error):
+            with self.assertRaises(InventoryRequestError) as caught:
+                github_get_pages("orgs/MSG-CTF/packages?package_type=container")
+        self.assertEqual(caught.exception.http_status, 400)
+        self.assertEqual(caught.exception.reason, "API_INVALID_ARGUMENT")
+
+    def test_cli_and_timeout_failures_do_not_invent_http_status(self):
+        for error, reason in (
+            (subprocess.CalledProcessError(1, ["gh"], stderr=b"unknown flag: --slurp"), "CLI_UNSUPPORTED_OPTION"),
+            (subprocess.TimeoutExpired(["gh"], 90), "REQUEST_TIMED_OUT"),
+            (FileNotFoundError("private-path"), "CLI_UNAVAILABLE"),
+        ):
+            with self.subTest(reason=reason), patch("scripts.ghcr_cleanup_plan.subprocess.run", side_effect=error):
+                with self.assertRaises(InventoryRequestError) as caught:
+                    github_get_pages("orgs/MSG-CTF/packages?package_type=container")
+                self.assertIsNone(caught.exception.http_status)
+                self.assertEqual(caught.exception.reason, reason)
+
+    def test_invalid_json_and_response_shape_fail_closed(self):
+        for response, reason in ((b"not-json", "INVALID_RESPONSE_JSON"), (b'{"message":"private-data"}', "INVALID_RESPONSE_SHAPE")):
+            with self.subTest(reason=reason), patch("scripts.ghcr_cleanup_plan.subprocess.run", return_value=subprocess.CompletedProcess(["gh"], 0, stdout=response)):
+                with self.assertRaises(InventoryRequestError) as caught:
+                    github_get_pages("orgs/MSG-CTF/packages?package_type=container")
+                self.assertEqual(caught.exception.reason, reason)
+
     def test_workflow_has_read_only_permissions_and_no_schedule_or_delete(self):
         import yaml
         root = Path(__file__).resolve().parents[1]
@@ -151,6 +217,20 @@ class GhcrCleanupPlanTests(unittest.TestCase):
         script = (root / "scripts/ghcr_cleanup_plan.py").read_text()
         self.assertNotIn('"DELETE"', script)
         self.assertNotIn("delete:packages", script)
+
+    def test_workflow_uses_dedicated_read_token_and_fails_if_missing(self):
+        import yaml
+        root = Path(__file__).resolve().parents[1]
+        workflow = yaml.load((root / ".github/workflows/ghcr-cleanup-dry-run.yml").read_text(), Loader=yaml.BaseLoader)
+        steps = workflow["jobs"]["inventory"]["steps"]
+        inventory = next(step for step in steps if step["name"] == "GHCR 목록과 정리 후보 계산")
+        self.assertEqual(inventory["env"]["GH_TOKEN"], "${{ secrets.GHCR_READ_TOKEN }}")
+        self.assertNotIn("github.token", inventory["env"]["GH_TOKEN"])
+        result = subprocess.run(["bash", "-e", "-c", inventory["run"]],
+                                env={"GH_TOKEN": "", "PATH": "/usr/bin:/bin"}, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("GHCR_READ_TOKEN", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
 
 
 if __name__ == "__main__":

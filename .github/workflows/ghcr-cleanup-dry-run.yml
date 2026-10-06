@@ -21,10 +21,15 @@ jobs:
           python-version: "3.12"
       - name: GHCR 목록과 정리 후보 계산
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 scripts/ghcr_cleanup_plan.py --output-dir dist/ghcr-cleanup
+          GH_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::GHCR_READ_TOKEN Secret을 등록하세요. 패키지 읽기 권한이 있는 전용 인증이 필요합니다."
+            exit 1
+          fi
+          python3 scripts/ghcr_cleanup_plan.py --output-dir dist/ghcr-cleanup
       - name: 보고서 보관
-        if: always()
+        if: always() && hashFiles('dist/ghcr-cleanup/cleanup-plan.json') != ''
         uses: actions/upload-artifact@v4
         with:
           name: ghcr-cleanup-${{ github.run_id }}-${{ github.run_attempt }}
