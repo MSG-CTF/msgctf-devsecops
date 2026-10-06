@@ -5,6 +5,16 @@
 문제 저장소와 DevSecOps 공급망을 연결할 때 필요한 예제와 운영 문서를
 관리합니다.
 
+### `gcp-runtime-smoke.md`
+
+GCP Runtime HTTPS 연결 사전 점검, 안전한 인증 전송, 배포팀 답변과 실제 생성
+시험 전에 필요한 token·이미지 정책·명세를 설명합니다.
+
+### `ghcr-cleanup.md`
+
+GHCR 이미지 버전의 보존 정책, 삭제 없는 후보 조회 방법, 실제 조회 보고서와
+삭제 전에 받아야 할 보호 digest 목록을 설명합니다.
+
 ## 파일
 
 ### `challenge-execution-settings.md`

@@ -5,6 +5,11 @@ workflow를 관리합니다.
 
 ## 파일
 
+### `ghcr-cleanup-dry-run.yml`
+
+수동 실행하는 GHCR 이미지 정리 후보 조회입니다. package 읽기 권한만 사용하고
+inventory와 보존·검토 보고서를 보관합니다. 실제 삭제와 자동 실행은 없습니다.
+
 ### `challenge-branch-validation.yml`
 
 출제자 branch와 PR에서 호출하는 최소 권한 reusable workflow입니다.
@@ -50,6 +55,9 @@ Runtime API를 거치며 Kubernetes resource를 직접 생성하지 않습니다
 ### `pipeline-self-test.yml`
 
 이 저장소의 공급망 도구를 검증하는 자체 테스트 workflow입니다.
+
+수동 실행에서 `check_gcp_runtime_connection=true`를 선택하면 별도 읽기 전용
+HTTPS 사전 점검을 실행합니다. Runtime token을 사용하거나 workload를 생성하지 않습니다.
 
 - Python 단위 테스트와 문법 검사
 - 샘플 서버 문제 image build

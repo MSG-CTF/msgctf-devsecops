@@ -7,6 +7,7 @@ on:
       - ".github/workflows/challenge-branch-validation.yml"
       - ".github/workflows/challenge-supply-chain.yml"
       - ".github/workflows/pipeline-self-test.yml"
+      - ".github/workflows/ghcr-cleanup-dry-run.yml"
       - "ci/**"
       - "scripts/**"
       - "tests/**"
@@ -16,15 +17,49 @@ on:
       - ".github/workflows/challenge-branch-validation.yml"
       - ".github/workflows/challenge-supply-chain.yml"
       - ".github/workflows/pipeline-self-test.yml"
+      - ".github/workflows/ghcr-cleanup-dry-run.yml"
       - "ci/**"
       - "scripts/**"
       - "tests/**"
   workflow_dispatch:
+    inputs:
+      check_gcp_runtime_connection:
+        description: GCP Runtime HTTPS 연결·비인증 차단 점검 (생성·삭제 없음)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
+  runtime-https-preflight:
+    name: GCP Runtime HTTPS 읽기 전용 연결 점검
+    if: github.event_name == 'workflow_dispatch' && inputs.check_gcp_runtime_connection
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - name: 공급망 도구 가져오기
+        uses: actions/checkout@v4
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: HTTPS·인증 차단 확인
+        run: |
+          python3 -m scripts.runtime_connection_probe \
+            --api-url https://34.67.93.98:443/internal/v1 \
+            --output dist/gcp-runtime-connection.json
+      - name: 연결 결과 보관
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gcp-runtime-connection-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/gcp-runtime-connection.json
+          if-no-files-found: error
+          retention-days: 90
+
   unit-test:
     name: 명세 및 artifact 단위 테스트
     runs-on: ubuntu-latest

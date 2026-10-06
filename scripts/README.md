@@ -9,6 +9,21 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `runtime_connection_probe.py`
+
+토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.
+생성·삭제·이미지 pull은 수행하지 않으며 401을 실제 배포 성공으로 기록하지 않습니다.
+
+`runtime_api_smoke_runner.py`는 loopback HTTP 또는 인증서를 검증하는 원격 HTTPS를
+지원합니다. 원격 redirect와 URL 내부 token·query를 허용하지 않습니다.
+
+### `ghcr_cleanup_plan.py`
+
+GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버전·KOTH·추가
+보호 digest를 보존하는 검토 보고서를 생성합니다. 삭제 API는 없으며 목록 조회
+실패는 오류로 기록합니다. 실제 사용 확인 전 후보를 삭제 가능한 목록으로
+취급하지 않습니다.
+
 ### `audit_execution_settings.py`
 
 문제의 Compose 실행 설정과 환경변수 참조 이름만 수집합니다. 값·FLAG·소스 내용은

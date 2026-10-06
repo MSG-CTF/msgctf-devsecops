@@ -52,6 +52,10 @@ Scheduler가 Challenge Registry의 active revision 조회
 
 CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 소유하지 않습니다. 해당 영역은 Runtime 및 격리보안팀의 책임입니다.
 
+GHCR 이미지 버전은 [삭제 없는 정리 후보 조회](docs/ghcr-cleanup.md)로 관리합니다.
+active release·실행 중 digest와 KOTH의 별도 사용 목록을 확인하기 전에는 실제
+이미지를 삭제하지 않습니다.
+
 의도된 문제 취약점은 [승인된 예외 정책](docs/intentional-vulnerability-exceptions.md)으로
 패키지·버전·취약점 ID를 한정하며, secret 검사나 다른 문제의 보안 기준은 완화하지 않습니다.
 
