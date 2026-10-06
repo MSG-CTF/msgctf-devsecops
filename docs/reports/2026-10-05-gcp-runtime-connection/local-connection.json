@@ -1,0 +1,15 @@
+{
+  "status": "TRANSPORT_AND_UNAUTHENTICATED_GATE_CONFIRMED",
+  "api_origin": "https://34.67.93.98:443",
+  "http_status": 401,
+  "error_code": null,
+  "elapsed_seconds": 0.67,
+  "certificate_verification_enabled": true,
+  "authorization_header_sent": false,
+  "authenticated_smoke_executed": false,
+  "workload_created": false,
+  "limitations": [
+    "Runtime 배포 커밋 확인 아님",
+    "인증·이미지 pull·생성·응답·삭제 확인 아님"
+  ]
+}

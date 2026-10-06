@@ -9,6 +9,14 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `runtime_connection_probe.py`
+
+토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.
+생성·삭제·이미지 pull은 수행하지 않으며 401을 실제 배포 성공으로 기록하지 않습니다.
+
+`runtime_api_smoke_runner.py`는 loopback HTTP 또는 인증서를 검증하는 원격 HTTPS를
+지원합니다. 원격 redirect와 URL 내부 token·query를 허용하지 않습니다.
+
 ### `ghcr_cleanup_plan.py`
 
 GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버전·KOTH·추가
@@ -75,3 +83,16 @@ manifest만 생성합니다. 문제 폴더부터 하위 항목까지의 심볼�
 `artifact-v2.json`을 검증한 뒤 문제 slug, revision, 컨테이너별 GHCR digest와
 공급망 소요 시간을 GitHub Actions Summary용 Markdown으로 출력합니다. tag-only
 image나 검사 실패 artifact는 요약하지 않습니다.
+
+### `collect_user_files.py`
+
+깨끗한 origin/main의 전체 문제를 대상으로 info.yaml과 참가자 파일을 검사하고
+정적·동적 문제의 ZIP, manifest와 GCS 저장 계획을 생성합니다. Docker build,
+Trivy, GCS 업로드나 Backend 등록은 실행하지 않습니다.
+
+### `upload_user_files_gcs.py`
+
+참가자 bundle의 경로·ZIP 내용·SHA-256·크기·개수를 재검사합니다. 기본은
+무인증 dry-run이며 승인된 `--apply` 실행만 GCS에 저장합니다. 객체를 덮어쓰거나
+공개하지 않으며, 완전히 저장된 경우에만 별도 완료 영수증을 발행합니다.
+[GCS 저장 계약 제안](../docs/participant-files-gcs.md)을 먼저 확인합니다.

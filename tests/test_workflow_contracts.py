@@ -108,6 +108,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "revision",
                 "devsecops_ref",
                 "publish_images",
+                "enable_user_files_gcs_upload",
                 "enable_k3s_smoke_deploy",
                 "runtime_target_id",
             },
@@ -156,7 +157,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(text.count("ref: ${{ inputs.devsecops_ref }}"), 1)
         self.assertEqual(
             text.count("ref: ${{ needs.validate.outputs.devsecops_sha }}"),
-            4,
+            5,
         )
         self.assertIn(
             'echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}"',
@@ -173,6 +174,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "build-scan-push",
                 "aggregate",
                 "package-user-files",
+                "upload-user-files-gcs",
                 "k3s-smoke-deploy",
             },
         )

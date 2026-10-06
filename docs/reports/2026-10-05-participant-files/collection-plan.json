@@ -1,0 +1,313 @@
+{
+  "source_sha": "acb8c0a4511d03c0aba22efe0c8e2a4870d0fb98",
+  "source_ref": "refs/heads/main",
+  "registry_revision": 1,
+  "mode": "DRY_RUN",
+  "upload_complete": false,
+  "problem_count": 37,
+  "with_files": 28,
+  "without_files": 9,
+  "problems": [
+    {
+      "challenge_slug": "crypto-nerves",
+      "is_server": true,
+      "present": true,
+      "file_count": 4,
+      "uncompressed_size_bytes": 68389,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "crypto-tr88",
+      "is_server": false,
+      "present": true,
+      "file_count": 19,
+      "uncompressed_size_bytes": 14776831,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "forensic-evidence",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 213,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "is_server": false,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "forensic-leftovers",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 124,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "forensic-the-last-record",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 834,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "is_server": true,
+      "present": true,
+      "file_count": 23,
+      "uncompressed_size_bytes": 7378022,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "is_server": true,
+      "present": true,
+      "file_count": 4,
+      "uncompressed_size_bytes": 26577,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "is_server": true,
+      "present": true,
+      "file_count": 34,
+      "uncompressed_size_bytes": 24566,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "koth-pixel-smuggler",
+      "is_server": true,
+      "present": true,
+      "file_count": 6,
+      "uncompressed_size_bytes": 23264,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "is_server": true,
+      "present": true,
+      "file_count": 4,
+      "uncompressed_size_bytes": 24947,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "is_server": false,
+      "present": true,
+      "file_count": 3,
+      "uncompressed_size_bytes": 1176727,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "is_server": true,
+      "present": true,
+      "file_count": 2,
+      "uncompressed_size_bytes": 416159,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "misc-snack-thief",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 25033830,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "osint-ramen-man",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 566940,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "is_server": true,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 703,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "osint-trace",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 7710195,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "is_server": true,
+      "present": true,
+      "file_count": 4,
+      "uncompressed_size_bytes": 2477038,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "pwn-msgdriver",
+      "is_server": false,
+      "present": true,
+      "file_count": 3,
+      "uncompressed_size_bytes": 22794,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "is_server": true,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 14336,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "is_server": true,
+      "present": true,
+      "file_count": 2,
+      "uncompressed_size_bytes": 18228,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "is_server": true,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 209117,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "rev-ezpz",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 96848220,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "rev-phantom-lattice",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 14472,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "rev-rework",
+      "is_server": false,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 3633387,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "is_server": true,
+      "present": true,
+      "file_count": 2,
+      "uncompressed_size_bytes": 37218,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "is_server": true,
+      "present": true,
+      "file_count": 3,
+      "uncompressed_size_bytes": 66531,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "is_server": true,
+      "present": true,
+      "file_count": 1,
+      "uncompressed_size_bytes": 1,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "is_server": true,
+      "present": false,
+      "file_count": 0,
+      "uncompressed_size_bytes": 0,
+      "upload_complete": false
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "is_server": true,
+      "present": true,
+      "file_count": 40,
+      "uncompressed_size_bytes": 3832465,
+      "upload_complete": false
+    }
+  ],
+  "limitations": [
+    "Docker 빌드와 이미지 보안 검사는 실행하지 않았습니다.",
+    "GCS 객체와 Backend DB 등록을 생성하지 않았습니다.",
+    "revision은 수집 계획용이며 등록된 릴리스가 아닙니다."
+  ]
+}

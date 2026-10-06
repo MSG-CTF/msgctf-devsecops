@@ -56,6 +56,9 @@ Runtime API를 거치며 Kubernetes resource를 직접 생성하지 않습니다
 
 이 저장소의 공급망 도구를 검증하는 자체 테스트 workflow입니다.
 
+수동 실행에서 `check_gcp_runtime_connection=true`를 선택하면 별도 읽기 전용
+HTTPS 사전 점검을 실행합니다. Runtime token을 사용하거나 workload를 생성하지 않습니다.
+
 - Python 단위 테스트와 문법 검사
 - 샘플 서버 문제 image build
 - 백엔드팀 KOTH 공식 양식과 동일한 `service` image build
