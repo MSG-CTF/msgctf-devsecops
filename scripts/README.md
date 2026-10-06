@@ -9,6 +9,14 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `runtime_connection_probe.py`
+
+토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.
+생성·삭제·이미지 pull은 수행하지 않으며 401을 실제 배포 성공으로 기록하지 않습니다.
+
+`runtime_api_smoke_runner.py`는 loopback HTTP 또는 인증서를 검증하는 원격 HTTPS를
+지원합니다. 원격 redirect와 URL 내부 token·query를 허용하지 않습니다.
+
 ### `ghcr_cleanup_plan.py`
 
 GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버전·KOTH·추가
