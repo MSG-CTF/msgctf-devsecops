@@ -40,6 +40,7 @@ def safe_api_failure(endpoint, stderr):
         ("bad credentials", "BAD_CREDENTIALS"),
         ("resource not accessible by integration", "RESOURCE_NOT_ACCESSIBLE_BY_INTEGRATION"),
         ("read:packages", "READ_PACKAGES_SCOPE_REQUIRED"),
+        ("invalid argument", "API_INVALID_ARGUMENT"),
         ("unknown flag", "CLI_UNSUPPORTED_OPTION"),
     ):
         if marker in text.lower():

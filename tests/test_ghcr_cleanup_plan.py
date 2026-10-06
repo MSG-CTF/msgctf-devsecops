@@ -181,6 +181,14 @@ class GhcrCleanupPlanTests(unittest.TestCase):
         self.assertEqual(caught.exception.request_kind, "PACKAGE_VERSIONS")
         self.assertEqual(caught.exception.reason, "BAD_CREDENTIALS")
 
+    def test_invalid_argument_is_not_misclassified_as_access_denied(self):
+        error = subprocess.CalledProcessError(1, ["gh"], stderr=b"gh: Invalid argument. (HTTP 400)")
+        with patch("scripts.ghcr_cleanup_plan.subprocess.run", side_effect=error):
+            with self.assertRaises(InventoryRequestError) as caught:
+                github_get_pages("orgs/MSG-CTF/packages?package_type=container")
+        self.assertEqual(caught.exception.http_status, 400)
+        self.assertEqual(caught.exception.reason, "API_INVALID_ARGUMENT")
+
     def test_cli_and_timeout_failures_do_not_invent_http_status(self):
         for error, reason in (
             (subprocess.CalledProcessError(1, ["gh"], stderr=b"unknown flag: --slurp"), "CLI_UNSUPPORTED_OPTION"),
