@@ -275,7 +275,7 @@ DevSecOps는 `artifact-v2.json`과 GHCR digest image를 발행하고, Backend po
 
 Backend 운영 환경의 `RELEASE_POLL_REPO`와 `RELEASE_POLL_GITHUB_TOKEN`은 Backend
 팀이 관리합니다. CI는 Backend DB, Scheduler 또는 Broker를 직접 조작하지 않으며,
-선택형 K3s smoke job만 SSM으로 Secure Provisioner API를 호출합니다.
+선택형 K3s smoke job만 SSM 또는 HTTPS로 Secure Provisioner API를 호출합니다.
 
 ## Runtime K3s Smoke
 
