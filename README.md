@@ -289,6 +289,16 @@ Operation이 성공하면 같은 API로 즉시 삭제하고, 두 결과를 Actio
 `AWS_CD_ARTIFACT_BUCKET`입니다. caller는 `runtime_target_id`도 전달해야 합니다.
 자세한 설정은 [`docs/aws-k3s-cd-smoke.md`](docs/aws-k3s-cd-smoke.md)에 있습니다.
 
+GCP Runtime HTTPS 경로는 별도 `enable_runtime_https_smoke: true`로 켭니다. caller는
+`runtime_api_url`(인증서 검증 가능한 HTTPS 주소), `runtime_ci_team_id`,
+`runtime_target_id`와 Secret `RUNTIME_API_TOKEN`을 전달합니다. 발행 bundle의
+`artifact-v2.json`을 GitHub 호스팅 runner에서 기존 smoke runner로 실행해 create와
+delete Operation 성공을 확인합니다. 토큰은 임시 파일에 넣고 종료 시 삭제합니다.
+Provisioner가 승인한 정확한 digest만 생성할 수 있으므로 새 digest는 정책 갱신 전
+실패합니다. AWS 경로는 그대로 남으며 HTTPS 경로에 문제가 생기면 caller의
+`enable_runtime_https_smoke`를 꺼서 중단합니다. 설정과 검증 절차는
+[`docs/gcp-runtime-https-smoke.md`](docs/gcp-runtime-https-smoke.md)에 있습니다.
+
 ## 보안 기준
 
 - Gitleaks는 현재 branch의 `HEAD`에 도달 가능한 전체 Git 이력과 현재 파일을 모두 검사합니다.

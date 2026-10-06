@@ -17,3 +17,5 @@
 ## 검증 범위
 
 단위 검증은 workflow 입력·secret·조건부 실행, 최소 runner 권한, HTTPS 호출, 토큰 파일 정리, AWS job 불변을 확인한다. 실제 runner 시험은 승인 digest의 create `SUCCEEDED`, HTTP 준비와 공개 응답, delete `SUCCEEDED`, K3s Namespace 제거를 확인한다. 새 digest 자동 승인, Scheduler reset, PWN/gVisor, 팀 인증 게이트웨이는 이 변경에 포함하지 않는다.
+
+2026-10-06 사전 실측에서는 기존 `runtime_api_smoke_runner.py`에 승인된 Grade Tampering digest `9ffbf476…0956d`의 artifact를 전달하고 공개 `https://34.67.93.98:443`에서 CI 토큰으로 실행했다. 생성·삭제 모두 `SUCCEEDED`였으며 K3s Namespace 조회 결과가 비어 있었다. 이는 Provisioner VM에서 공개 HTTPS 경로를 사용한 시험이다. GitHub 호스팅 runner 출발지 시험은 별도로 기록해야 한다.

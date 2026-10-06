@@ -110,6 +110,9 @@ class WorkflowContractTests(unittest.TestCase):
                 "publish_images",
                 "enable_user_files_gcs_upload",
                 "enable_k3s_smoke_deploy",
+                "enable_runtime_https_smoke",
+                "runtime_api_url",
+                "runtime_ci_team_id",
                 "runtime_target_id",
             },
         )
@@ -119,6 +122,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(inputs["publish_images"]["type"], "boolean")
         self.assertEqual(inputs["publish_images"]["default"], "true")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
+        self.assertEqual(inputs["enable_runtime_https_smoke"]["default"], "false")
         self.assertEqual(inputs["runtime_target_id"]["type"], "string")
         outputs = workflow["on"]["workflow_call"]["outputs"]
         self.assertEqual(
@@ -157,7 +161,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(text.count("ref: ${{ inputs.devsecops_ref }}"), 1)
         self.assertEqual(
             text.count("ref: ${{ needs.validate.outputs.devsecops_sha }}"),
-            5,
+            6,
         )
         self.assertIn(
             'echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}"',
@@ -176,6 +180,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "package-user-files",
                 "upload-user-files-gcs",
                 "k3s-smoke-deploy",
+                "k3s-smoke-https",
             },
         )
         for required in (
@@ -304,7 +309,7 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertIn("inputs.publish_images", step.get("if", ""))
         self.assertEqual(found_steps, protected_steps)
 
-        for job_name in ("aggregate", "k3s-smoke-deploy"):
+        for job_name in ("aggregate", "k3s-smoke-deploy", "k3s-smoke-https"):
             self.assertIn(
                 "inputs.publish_images",
                 workflow["jobs"][job_name].get("if", ""),
@@ -329,6 +334,25 @@ class WorkflowContractTests(unittest.TestCase):
             str(smoke),
         )
         self.assertEqual(smoke["permissions"], {"contents": "read", "id-token": "write"})
+
+    def test_https_smoke_uses_scoped_secret_and_preserves_aws_fallback(self):
+        workflow = load_workflow(ROOT / ".github/workflows/challenge-supply-chain.yml")
+        secrets = workflow["on"]["workflow_call"]["secrets"]
+        self.assertIn("RUNTIME_API_TOKEN", secrets)
+        https_smoke = workflow["jobs"]["k3s-smoke-https"]
+        self.assertEqual(https_smoke["permissions"], {"contents": "read"})
+        self.assertIn("inputs.enable_runtime_https_smoke", https_smoke["if"])
+        self.assertIn("github.event_name != 'pull_request'", https_smoke["if"])
+        self.assertNotIn("aws", str(https_smoke).lower())
+        steps = https_smoke["steps"]
+        runner = next(step for step in steps if step.get("name") == "GCP Runtime HTTPS smoke 실행")
+        command = runner["run"]
+        self.assertIn("runtime_api_smoke_runner.py", command)
+        self.assertIn("--api-url", command)
+        self.assertIn("--token-file", command)
+        self.assertIn("trap", command)
+        self.assertIn("RUNTIME_API_TOKEN", runner["env"])
+        self.assertIn("k3s-smoke-deploy", workflow["jobs"])
 
     def test_branch_validation_workflow_has_no_publish_or_deploy_permissions(self):
         path = ROOT / ".github/workflows/challenge-branch-validation.yml"
