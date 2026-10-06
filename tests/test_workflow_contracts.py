@@ -378,6 +378,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "challenge-branch-validation.yml",
                 "challenge-supply-chain.yml",
                 "pipeline-self-test.yml",
+                "ghcr-cleanup-dry-run.yml",
             },
         )
 

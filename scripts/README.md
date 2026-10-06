@@ -9,6 +9,13 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `ghcr_cleanup_plan.py`
+
+GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버전·KOTH·추가
+보호 digest를 보존하는 검토 보고서를 생성합니다. 삭제 API는 없으며 목록 조회
+실패는 오류로 기록합니다. 실제 사용 확인 전 후보를 삭제 가능한 목록으로
+취급하지 않습니다.
+
 ### `audit_execution_settings.py`
 
 문제의 Compose 실행 설정과 환경변수 참조 이름만 수집합니다. 값·FLAG·소스 내용은
