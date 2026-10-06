@@ -44,9 +44,22 @@ python3 scripts/ghcr_cleanup_plan.py --output-dir dist/ghcr-cleanup
 ```
 
 Actions에서는 `ghcr-cleanup-dry-run.yml`을 수동 실행합니다. 자동 삭제나 schedule은
-없으며 `contents: read`, `packages: read`만 사용합니다. 기존 package의 Actions
-읽기 접근에 이 저장소가 허용되어 있어야 합니다. `GITHUB_TOKEN` 권한만 적는다고
-조직 전체의 private package를 읽을 수 있는 것은 아닙니다.
+없으며 workflow 권한은 `contents: read`, `packages: read`로 유지합니다.
+조직 전체 목록 조회에는 저장소 Actions Secret `GHCR_READ_TOKEN`을 사용합니다.
+해당 Secret이 없으면 기본 `GITHUB_TOKEN`으로 대체하지 않고 실행을 중단합니다.
+
+패키지 읽기 권한이 있는 계정으로 전용 Classic PAT을 발급하고 `read:packages`만
+선택한 뒤 `Settings > Secrets and variables > Actions`에 등록합니다. 조직에서
+SSO나 토큰 제한을 사용하면 해당 조직의 승인도 필요합니다. `write:packages`와
+`delete:packages`는 부여하지 않습니다. 토큰을 채팅, 저장소 파일이나 로그에
+남기지 않으며 개인 CLI의 기존 광범위 토큰을 자동 복사하지 않습니다.
+
+실제 Actions 기본 인증에서는 조직 목록 API가 `HTTP 400 / API_INVALID_ARGUMENT`로
+거절됐지만 개인 CLI 인증으로 같은 요청은 성공했습니다. 이 기록만으로 모든
+GitHub App 인증이 지원되지 않는다고 단정하지 않습니다. 전용 읽기 인증을 등록한
+뒤 실제 목록 조회 성공과 보고서의 package/version 수를 다시 확인해야 합니다.
+
+[GitHub Packages REST API 인증 안내](https://docs.github.com/en/rest/packages/packages)
 
 결과:
 

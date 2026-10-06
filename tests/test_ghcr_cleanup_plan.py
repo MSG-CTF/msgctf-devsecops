@@ -218,6 +218,20 @@ class GhcrCleanupPlanTests(unittest.TestCase):
         self.assertNotIn('"DELETE"', script)
         self.assertNotIn("delete:packages", script)
 
+    def test_workflow_uses_dedicated_read_token_and_fails_if_missing(self):
+        import yaml
+        root = Path(__file__).resolve().parents[1]
+        workflow = yaml.load((root / ".github/workflows/ghcr-cleanup-dry-run.yml").read_text(), Loader=yaml.BaseLoader)
+        steps = workflow["jobs"]["inventory"]["steps"]
+        inventory = next(step for step in steps if step["name"] == "GHCR 목록과 정리 후보 계산")
+        self.assertEqual(inventory["env"]["GH_TOKEN"], "${{ secrets.GHCR_READ_TOKEN }}")
+        self.assertNotIn("github.token", inventory["env"]["GH_TOKEN"])
+        result = subprocess.run(["bash", "-e", "-c", inventory["run"]],
+                                env={"GH_TOKEN": "", "PATH": "/usr/bin:/bin"}, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("GHCR_READ_TOKEN", result.stdout)
+        self.assertNotIn("Traceback", result.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()
