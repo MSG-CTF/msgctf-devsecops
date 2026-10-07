@@ -294,6 +294,8 @@ GCP Runtime HTTPS 경로는 별도 `enable_runtime_https_smoke: true`로 켭니�
 `runtime_target_id`와 Secret `RUNTIME_API_TOKEN`을 전달합니다. 발행 bundle의
 `artifact-v2.json`을 GitHub 호스팅 runner에서 기존 smoke runner로 실행해 create와
 delete Operation 성공을 확인합니다. 토큰은 임시 파일에 넣고 종료 시 삭제합니다.
+이 성공 판정은 Runtime Operation 응답 기준이며, 반환된 문제 URL의 실제 HTTP 응답과
+K3s Namespace·Pod·Service 정리를 직접 확인하는 검사는 포함하지 않습니다.
 Provisioner가 승인한 정확한 digest만 생성할 수 있으므로 새 digest는 정책 갱신 전
 실패합니다. AWS 경로는 그대로 남으며 HTTPS 경로에 문제가 생기면 caller의
 `enable_runtime_https_smoke`를 꺼서 중단합니다. 설정과 검증 절차는
