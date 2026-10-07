@@ -21,7 +21,7 @@ Scheduler는 생성·reset 전달, Runtime은 설정 적용·격리·준비 상�
 | build / image | workload.containers[].image | GHCR digest 고정 이미지로 발행 |
 | ports / expose | workload.containers[].ports[].port/public | Runtime smoke에서는 ports/exposed_ports로 변환, expose 미전송 |
 | deployment.resource_profile | resource_profile | CPU·메모리·임시 저장 용량 합산 지원 |
-| deployment.healthcheck.container/port/path | workload.healthcheck | CI가 이미 보존함. Backend 릴리스 PR은 저장함. Scheduler 생성 요청과 Runtime 적용은 추가 연결 필요 |
+| deployment.healthcheck.container/port/path | workload.healthcheck | CI 검증·보존 및 직접 Runtime smoke 전달 지원. Backend #26·Scheduler #59·Runtime 연결의 실제 생성 검증은 별도 필요 |
 | flag | 없음 | CI output·bundle에 값 미포함. 런타임 FLAG 주입으로 자동 변환하지 않음 |
 | registry_revision | registry_revision | workflow 입력으로 지정, release 식별 및 이력 관리 |
 
@@ -93,7 +93,7 @@ checker 등 운영 보조 서비스이거나 이름 차이일 수 있으므로 �
 2. FLAG·DB 비밀번호·인증키는 원문 대신 승인된 비밀 참조를 bundle에 기록하는
    방향으로 협의합니다. 참조 발급·접근 범위·동적 값 생성·reset 처리 소유자는
    Backend/Runtime/보안팀이 정합니다. CI가 info.yaml.flag를 그대로 복사하지 않습니다.
-3. healthcheck의 기존 HTTP 구조는 끝까지 보존합니다. TCP/exec, 시간 제한,
+3. healthcheck의 기존 HTTP 구조는 아래 계약대로 끝까지 보존합니다. TCP/exec, 시간 제한,
    startup/readiness 판정이 필요하면 공통 계약을 추가합니다. Runtime에 없는 키를 먼저 보내지 않습니다.
 4. 쓰기 경로·용량은 제한된 storage 계약으로 정의합니다. hostPath나 임의 호스트
    마운트는 입력받지 않습니다. Compose volume을 그대로 복사하지 않습니다.
@@ -127,6 +127,53 @@ Pod별 정책을 적용할 수 있지만, 실제 출제 의도에 맞는 허용�
 Runtime 담당과 확인해야 합니다.
 [Kubernetes Pod 네트워크](https://kubernetes.io/docs/concepts/workloads/pods/),
 [NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/).
+
+## HTTP healthcheck 계약과 연결 현황
+
+2026-10-07 확인 기준으로 기존 HTTP 검사 구조는 다음과 같습니다. 새 info.yaml
+옵션을 추가한 것이 아니라 이미 있는 값을 검증하고 직접 smoke 요청에 보존합니다.
+
+```yaml
+deployment:
+  healthcheck:
+    container: web
+    port: 9090
+    path: /healthz
+```
+
+- container는 선언된 컨테이너 이름과 정확히 일치해야 합니다.
+- port는 해당 컨테이너가 선언한 1..65535 정수 포트이며 비공개 포트도 가능합니다.
+  healthcheck를 지정했다고 공개 포트로 바꾸지 않습니다.
+- path는 `/`로 시작하고 공백·제어 문자를 포함하지 않아야 합니다.
+  Scheduler·Runtime과 동일하게 UTF-16 코드 단위 1024개 이하로 제한합니다.
+  앞뒤 공백을 자동 삭제하지 않고 잘못된 입력으로 거절합니다.
+- 생략 또는 null이면 bundle과 smoke 요청에 별도 healthcheck를 넣지 않습니다.
+  빈 객체나 일부 필드 누락, 미지원 필드는 거절합니다.
+- TCP/exec 검사와 출제자 지정 timeout은 지원 계약에 포함하지 않습니다.
+  특히 PWN 준비 상태 기준은 별도 합의 없이 추가하지 않습니다.
+
+| 단계 | 확인된 코드 | 아직 확인할 내용 |
+|---|---|---|
+| DevSecOps | info.yaml 검증 → bundle 보존 → 직접 smoke의 workload.healthcheck 전달 | 병합 후 caller SHA 갱신 및 실제 발행 bundle 시험 |
+| Backend #26 | 릴리스 저장, 생성 요청의 healthcheck 전달 | 병합·배포, 실제 DB 왕복 및 연동 |
+| Scheduler #59 | 저장·reset 보존, Runtime 요청 전달 코드 | 병합·배포와 SCHEDULER_INSTANCE_POLICY_HEALTHCHECK_ENABLED 설정 |
+| Runtime | 컨테이너 HTTP readiness 적용, 준비 실패 시 WORKLOAD_NOT_READY와 정리 코드 | 승인된 실제 이미지로 정상·실패 생성 시험 |
+
+Runtime의 HTTP 검사 구현은 배포 기준 커밋
+[`701567f4`](https://github.com/MSG-CTF/secure-provisioner/blob/701567f410a68518bb628463c8d5480559f31efc/internal/provisioner/readiness.go),
+요청 적용은 [create 처리](https://github.com/MSG-CTF/secure-provisioner/blob/701567f410a68518bb628463c8d5480559f31efc/internal/httpapi/create.go)에서 확인했습니다.
+Backend는 [PR #26](https://github.com/MSG-CTF/msg-backend/pull/26),
+Scheduler는 [PR #59](https://github.com/MSG-CTF/instance-scheduler/pull/59) 기준입니다.
+코드가 있다는 사실과 전체 경로의 실제 성공은 구분합니다.
+
+직접 Runtime smoke는 Backend·Scheduler를 거치지 않습니다. 모의 서버 테스트는
+요청에 값이 전달되는지와 기존 삭제 처리를 확인하며, 실제 K3s probe 성공의 증거가 아닙니다.
+healthcheck를 생략해도 Runtime 이미지 정책에 기본 검사가 있을 수 있으므로,
+생략을 검사 완전 비활성이나 애플리케이션 정상 보장으로 해석하지 않습니다.
+
+실제 연동에서는 정상 HTTP 검사 성공과 실패 경로를 각각 확인합니다.
+실패한 컨테이너를 RUNNING으로 기록하지 않는지, 실패 정리가 완료되는지,
+reset 뒤 동일한 healthcheck가 유지되는지도 각 담당과 확인해야 합니다.
 
 ## 담당별 요청
 
@@ -180,7 +227,7 @@ Actions에도 반영됩니다. 이번 PR에서 문제 저장소는 변경하지 
 - GCP Runtime의 무인증 HTTPS 연결 점검은 실제 생성·접속·reset·삭제 검증과 다릅니다.
   실제 문제 배포 성공이나 전체 Linux/Docker 실행 검증으로 기록하지 않습니다.
 
-확인 기준:
+2026-10-05 당시 확인 기준 (최신 HTTP 계약은 위 2026-10-07 항목 참조):
 - DevSecOps main: b39f232fc4759b70928c4960e7a17bb33264bcec
 - Backend 릴리스 PR #26: fb9d0df3fac0ec0bb424eabdbc1e9ff75d48b883
   (apps/instances/releases.py의 healthcheck 보존 확인, PR은 확인 시 Open)

@@ -16,6 +16,11 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit, urlunsplit
 from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 
+if __package__:
+    from .healthcheck_contract import validate_healthcheck
+else:
+    from healthcheck_contract import validate_healthcheck
+
 
 DIGEST_IMAGE = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
 SERVICE_TOKEN = re.compile(r"^[A-Za-z0-9_-]{43,128}$")
@@ -179,6 +184,9 @@ def build_create_request(
         raise ValueError("PWN workload must declare exactly one exposed container")
 
     runtime_workload = {"containers": runtime_containers}
+    healthcheck = validate_healthcheck(workload.get("healthcheck"), runtime_containers)
+    if healthcheck is not None:
+        runtime_workload["healthcheck"] = healthcheck
 
     resource_profile = artifact.get("resource_profile")
     if not isinstance(resource_profile, dict):

@@ -6,6 +6,11 @@ from pathlib import Path
 
 import yaml
 
+if __package__:
+    from .healthcheck_contract import validate_healthcheck
+else:
+    from healthcheck_contract import validate_healthcheck
+
 
 SAFE_NAME = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 CATEGORY = re.compile(r"^[a-z][a-z0-9-]{0,31}$")
@@ -108,28 +113,6 @@ def _validate_container(challenge_path, raw):
                 raise ValueError(f"{name}.image must not use the latest tag")
         container["image"] = image
     return container
-
-
-def _validate_healthcheck(raw, containers):
-    if raw is None:
-        return None
-    if not isinstance(raw, dict):
-        raise ValueError("deployment.healthcheck must be an object")
-    _reject_unknown_fields(raw, {"container", "port", "path"}, "healthcheck")
-    container_name = _required_string(
-        raw.get("container"),
-        "healthcheck.container",
-    )
-    by_name = {container["name"]: container for container in containers}
-    if container_name not in by_name:
-        raise ValueError("healthcheck.container must reference a declared container")
-    port = _positive_int(raw.get("port"), "healthcheck.port")
-    if port > 65535 or port not in by_name[container_name]["ports"]:
-        raise ValueError("healthcheck.port must reference a declared container port")
-    path = _required_string(raw.get("path"), "healthcheck.path")
-    if not path.startswith("/") or any(ord(character) < 32 for character in path):
-        raise ValueError("healthcheck.path must be an absolute HTTP path")
-    return {"container": container_name, "port": port, "path": path}
 
 
 def validate_spec(challenge_path):
@@ -240,7 +223,7 @@ def validate_spec(challenge_path):
         "containers": containers,
         "resource_profile": resource_profile,
     })
-    healthcheck = _validate_healthcheck(deployment.get("healthcheck"), containers)
+    healthcheck = validate_healthcheck(deployment.get("healthcheck"), containers)
     if healthcheck:
         metadata["healthcheck"] = healthcheck
     return metadata

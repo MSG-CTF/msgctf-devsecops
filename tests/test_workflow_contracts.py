@@ -330,6 +330,19 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn("render_k3s_smoke_manifest.py", text)
         self.assertNotIn("kubectl", text)
         self.assertIn("runtime_api_smoke_runner.py", text)
+        staging = next(step for step in smoke["steps"] if step.get("name") == "S3 staging 경로 업로드")
+        execution = next(
+            step for step in smoke["steps"]
+            if step.get("name") == "SSM으로 Secure Provisioner smoke test 실행"
+        )
+        self.assertIn(
+            'aws s3 cp .msgctf-ci/scripts/healthcheck_contract.py "s3://${BUCKET}/${prefix}/healthcheck_contract.py"',
+            staging["run"],
+        )
+        self.assertIn(
+            "aws s3 cp s3://${BUCKET}/${PREFIX}/healthcheck_contract.py ${remote_dir}/healthcheck_contract.py",
+            execution["run"],
+        )
         self.assertIn("inputs.runtime_target_id", text)
         self.assertIn("GHCR_PULL_SECRET_ARN", workflow["on"]["workflow_call"]["secrets"])
         self.assertNotIn("GHCR_PULL_SECRET_ARN", str(smoke))

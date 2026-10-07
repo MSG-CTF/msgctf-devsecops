@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from scripts.generate_publish_bundle import generate_bundle
+from scripts.runtime_api_smoke_runner import build_create_request
 
 
 DIGEST_A = "sha256:" + "a" * 64
@@ -70,6 +71,22 @@ EVIDENCE_ROOT = Path(__file__).parent / "fixtures" / "publish-evidence"
 
 
 class GeneratePublishBundleTests(unittest.TestCase):
+    def test_generated_bundle_preserves_healthcheck_in_runtime_request(self):
+        bundle = generate_bundle(METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 3, EVIDENCE_ROOT)
+        artifact = json.loads(json.dumps(bundle["artifact"]))
+        request = build_create_request(
+            artifact,
+            target_id="broker-test2",
+            instance_id="00000000-0000-4000-8000-000000000001",
+            team_id="00000000-0000-4000-8000-000000000002",
+        )
+        self.assertEqual(request["workload"]["healthcheck"], METADATA["healthcheck"])
+        self.assertEqual(
+            [container["image"] for container in request["workload"]["containers"]],
+            [result["image"] for result in RESULTS],
+        )
+        self.assertNotIn("internal_connections", request["workload"])
+
     def test_generates_runtime_artifact_and_registry_publish_document(self):
         bundle = generate_bundle(
             METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 3, EVIDENCE_ROOT
