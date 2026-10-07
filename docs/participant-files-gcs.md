@@ -2,10 +2,16 @@
 
 ## 현재 범위
 
+**2026-10-07 운영 합의: Backend가 파일 저장을 담당합니다.** DevSecOps는
+ZIP과 manifest를 Actions artifact로 발행하고, Backend Poller가 검증한 뒤
+`default_storage`를 통해 저장합니다. Backend의 GCS 연결은 별도로 준비합니다.
+`enable_user_files_gcs_upload:false`를 유지하며 CI가 GCS 영수증을 보내는 경로로
+전환하지 않습니다. 아래 CI 업로드 설명은 비활성 선택 기능의 기록입니다.
+
 참가자 파일은 Docker image가 아니므로 GHCR에 넣지 않습니다. 기존 CI가
 `prob/for_user/`를 검사·ZIP 패키징하고 Actions artifact로 전달하는 기능은 유지합니다.
-이번 변경은 승인된 main 발행에서 같은 ZIP과 manifest를 GCS에도 저장하는
-선택 기능입니다. 기본값은 비활성이며 실제 GCS 저장과 Backend 다운로드 연결은
+기존 선택 기능은 승인된 main 발행에서 같은 ZIP과 manifest를 GCS에도 저장하는
+경로입니다. 기본값은 비활성이며 실제 GCS 저장과 Backend 다운로드 연결은
 아직 검증하지 않았습니다. 아래 object key와 영수증은 리뷰용 제안 계약입니다.
 
 ## 사용할 인프라
@@ -85,7 +91,7 @@ Backend가 새 GCS 영수증을 수집하거나 object key로 파일을 등록�
 아직 연결되지 않았습니다. PR을 병합해도 이 경로를 자동 전환하지 않으며,
 `enable_user_files_gcs_upload:false`를 유지합니다.
 
-책임자·Backend·DevSecOps가 다음 중 하나를 선택해야 합니다.
+현재는 아래 기존 방식을 선택했습니다. 다른 방식으로 전환하려면 별도 합의가 필요합니다.
 
 | 선택 | 저장 담당 | DevSecOps 처리 | Backend 처리 |
 |---|---|---|---|
@@ -136,11 +142,15 @@ python3 -m scripts.upload_user_files_gcs \
 
 ## 남은 확인
 
-- 책임자: object key, 영수증 형식, CI 저장 담당 전환 승인
-- 인프라: WIF 신뢰 조건, bucket IAM, 공개 차단과 보존 정책
-- Backend: 영수증 수집·DB 연결·다운로드, 중복 저장 담당 제거
-- 실제 파일 있음/없음과 정적/동적 4종 업로드·다운로드 테스트
-- 저장 도중 실패, 재시도, 같은 revision 충돌, present:false 처리 검증
+- Backend·인프라: Backend 실행 Service Account와 ADC 인증, GCS storage backend 설정
+- 인프라: `2026msg_gcs` bucket의 위치, IAM, 공개 차단과 보존 정책
+- Backend: object key와 다운로드 방식 확정, 파일 검증 후 `default_storage` 저장
+- 실제 GCS에서 정적/동적 및 파일 있음/없음 4종 저장·다운로드 시험
+- 저장 실패·재시도·revision 충돌·present:false와 활성 릴리스 관계 확인
+
+CI용 `gcs-file-upload-devops` 계정이나 WIF 설정을 Backend 인증으로 그대로
+사용한다고 가정하지 않습니다. Backend 담당이 사용할 신원을 인프라 담당과
+확정해야 합니다. 로컬 파일 저장소 시험 통과는 GCS IAM·업로드 검증이 아닙니다.
 
 참고: [GCS generation precondition](https://cloud.google.com/storage/docs/request-preconditions),
 [WIF 인증 action](https://github.com/google-github-actions/auth).
