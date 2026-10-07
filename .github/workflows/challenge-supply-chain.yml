@@ -773,7 +773,8 @@ jobs:
         run: |
           set -euo pipefail
           case "$RUNTIME_API_URL" in https://*) ;; *) echo "Runtime HTTPS URL이 필요합니다" >&2; exit 1 ;; esac
-          test -n "$RUNTIME_CI_TEAM_ID" && test -n "$RUNTIME_TARGET_ID"
+          test -n "$RUNTIME_CI_TEAM_ID" || { echo "runtime_ci_team_id가 필요합니다" >&2; exit 1; }
+          test -n "$RUNTIME_TARGET_ID" || { echo "runtime_target_id가 필요합니다" >&2; exit 1; }
           instance_id="$(python3 -c 'import os, uuid; print(uuid.uuid5(uuid.NAMESPACE_URL, os.environ["SMOKE_KEY"]))')"
           jq -n \
             --arg target_id "$RUNTIME_TARGET_ID" \

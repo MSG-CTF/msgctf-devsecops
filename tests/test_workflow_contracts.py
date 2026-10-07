@@ -1,3 +1,7 @@
+import json
+import os
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -353,6 +357,46 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertIn("trap", command)
         self.assertIn("RUNTIME_API_TOKEN", runner["env"])
         self.assertIn("k3s-smoke-deploy", workflow["jobs"])
+
+    def test_https_smoke_setup_checks_team_and_target_independently(self):
+        workflow = load_workflow(ROOT / ".github/workflows/challenge-supply-chain.yml")
+        steps = workflow["jobs"]["k3s-smoke-https"]["steps"]
+        setup = next(step for step in steps if step.get("name") == "GCP Runtime smoke 설정 생성")
+        cases = (
+            ("", "test-target", "runtime_ci_team_id"),
+            ("test-team", "", "runtime_target_id"),
+            ("", "", "runtime_ci_team_id"),
+            ("test-team", "test-target", None),
+        )
+        for team, target, missing in cases:
+            with self.subTest(team=team, target=target), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                (root / "dist").mkdir()
+                result = subprocess.run(
+                    ["bash", "-c", setup["run"]],
+                    cwd=root,
+                    env={
+                        **os.environ,
+                        "RUNTIME_API_URL": "https://runtime.example.test",
+                        "RUNTIME_CI_TEAM_ID": team,
+                        "RUNTIME_TARGET_ID": target,
+                        "SMOKE_KEY": "test-repository:1:1:web-example",
+                    },
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                config = root / "dist/runtime-smoke-config.json"
+                if missing:
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(missing, result.stderr)
+                    self.assertFalse(config.exists())
+                else:
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    data = json.loads(config.read_text(encoding="utf-8"))
+                    self.assertEqual(data["team_id"], team)
+                    self.assertEqual(data["target_id"], target)
+                    self.assertTrue(data["instance_id"])
 
     def test_branch_validation_workflow_has_no_publish_or_deploy_permissions(self):
         path = ROOT / ".github/workflows/challenge-branch-validation.yml"
