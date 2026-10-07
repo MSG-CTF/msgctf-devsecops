@@ -63,6 +63,14 @@ Backend poller는 성공한 `-publish-bundle` artifact에서 이 파일을 수�
 public/private port는 publish bundle에 포트별로 보존하고 Runtime smoke 요청에서는
 전체 `ports`와 공개할 `exposed_ports`로 변환합니다.
 
+### `healthcheck_contract.py`
+
+info.yaml 검증과 Runtime smoke에서 같은 HTTP healthcheck 검증을 사용합니다.
+컨테이너·선언 포트 일치, 공백·제어 문자 금지, UTF-16 길이 1024 제한을 확인합니다.
+별도 외부 의존성이 없으며 AWS staging에서도 runner와 함께 전달합니다.
+smoke는 bundle의 healthcheck를 Runtime 요청에 보존하되 공개 포트 목록을 바꾸지 않습니다.
+실제 HTTP probe 실행과 준비 상태 판정은 Runtime 담당입니다.
+
 ### `pipeline_timing.py`
 
 GitHub Actions의 컨테이너별 `Build/Pull`, `Scan`, `GHCR Push` 구간을 측정하고

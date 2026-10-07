@@ -267,6 +267,62 @@ class ValidateInfoSpecTests(unittest.TestCase):
     def _raw_fixture(self):
         return copy.deepcopy(yaml.safe_load((FIXTURE / "info.yaml").read_text()))
 
+    def test_rejects_healthcheck_path_whitespace_controls_and_invalid_types(self):
+        paths = [
+            " /healthz", "/healthz ", "/health check", "/health\tcheck", "/health\ncheck",
+            "/health\x7f", "/health\x85", "/health\u00a0", "relative", "", None, 123,
+        ]
+        for path in paths:
+            with self.subTest(path=path):
+                raw = self._raw_fixture()
+                raw["deployment"]["healthcheck"]["path"] = path
+                with self.assertRaisesRegex(ValueError, "healthcheck.path"):
+                    self._validate_raw(raw)
+
+    def test_healthcheck_path_limit_matches_utf16_contract(self):
+        for path in ("/" + "x" * 1023, "/" + "\U0001f600" * 511 + "x"):
+            with self.subTest(units=1024, path_length=len(path)):
+                raw = self._raw_fixture()
+                raw["deployment"]["healthcheck"]["path"] = path
+                self.assertEqual(self._validate_raw(raw)["healthcheck"]["path"], path)
+        for path in ("/" + "x" * 1024, "/" + "\U0001f600" * 512):
+            with self.subTest(units=1025, path_length=len(path)):
+                raw = self._raw_fixture()
+                raw["deployment"]["healthcheck"]["path"] = path
+                with self.assertRaisesRegex(ValueError, "1024 UTF-16"):
+                    self._validate_raw(raw)
+
+    def test_accepts_private_healthcheck_port_without_exposing_it(self):
+        raw = self._raw_fixture()
+        raw["deployment"]["healthcheck"] = {
+            "container": "helper", "port": 9091, "path": "/ready"
+        }
+        metadata = self._validate_raw(raw)
+        self.assertEqual(metadata["healthcheck"], raw["deployment"]["healthcheck"])
+        self.assertFalse(metadata["containers"][1]["expose"])
+
+    def test_rejects_incomplete_healthcheck_and_invalid_ports(self):
+        cases = [{}, [], {"container": "web", "port": 9090}]
+        cases += [
+            {"container": "web", "port": port, "path": "/healthz"}
+            for port in (True, "9090", 0, 65536, 9999)
+        ]
+        for healthcheck in cases:
+            with self.subTest(healthcheck=healthcheck):
+                raw = self._raw_fixture()
+                raw["deployment"]["healthcheck"] = healthcheck
+                with self.assertRaisesRegex(ValueError, "healthcheck"):
+                    self._validate_raw(raw)
+
+    def test_omits_absent_or_null_healthcheck(self):
+        for present in (False, True):
+            with self.subTest(present=present):
+                raw = self._raw_fixture()
+                raw["deployment"].pop("healthcheck")
+                if present:
+                    raw["deployment"]["healthcheck"] = None
+                self.assertNotIn("healthcheck", self._validate_raw(raw))
+
     def _validate_raw(self, raw, empty_build_directory=None):
         with tempfile.TemporaryDirectory() as temp_dir:
             challenge = Path(temp_dir) / "challenge"
