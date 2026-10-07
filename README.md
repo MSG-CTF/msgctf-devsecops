@@ -275,7 +275,7 @@ DevSecOps는 `artifact-v2.json`과 GHCR digest image를 발행하고, Backend po
 
 Backend 운영 환경의 `RELEASE_POLL_REPO`와 `RELEASE_POLL_GITHUB_TOKEN`은 Backend
 팀이 관리합니다. CI는 Backend DB, Scheduler 또는 Broker를 직접 조작하지 않으며,
-선택형 K3s smoke job만 SSM으로 Secure Provisioner API를 호출합니다.
+선택형 K3s smoke job만 SSM 또는 HTTPS로 Secure Provisioner API를 호출합니다.
 
 ## Runtime K3s Smoke
 
@@ -288,6 +288,18 @@ Operation이 성공하면 같은 API로 즉시 삭제하고, 두 결과를 Actio
 필요한 Secret은 `AWS_ROLE_TO_ASSUME`, `AWS_REGION`, `AWS_K3S_INSTANCE_ID`,
 `AWS_CD_ARTIFACT_BUCKET`입니다. caller는 `runtime_target_id`도 전달해야 합니다.
 자세한 설정은 [`docs/aws-k3s-cd-smoke.md`](docs/aws-k3s-cd-smoke.md)에 있습니다.
+
+GCP Runtime HTTPS 경로는 별도 `enable_runtime_https_smoke: true`로 켭니다. caller는
+`runtime_api_url`(인증서 검증 가능한 HTTPS 주소), `runtime_ci_team_id`,
+`runtime_target_id`와 Secret `RUNTIME_API_TOKEN`을 전달합니다. 발행 bundle의
+`artifact-v2.json`을 GitHub 호스팅 runner에서 기존 smoke runner로 실행해 create와
+delete Operation 성공을 확인합니다. 토큰은 임시 파일에 넣고 종료 시 삭제합니다.
+이 성공 판정은 Runtime Operation 응답 기준이며, 반환된 문제 URL의 실제 HTTP 응답과
+K3s Namespace·Pod·Service 정리를 직접 확인하는 검사는 포함하지 않습니다.
+Provisioner가 승인한 정확한 digest만 생성할 수 있으므로 새 digest는 정책 갱신 전
+실패합니다. AWS 경로는 그대로 남으며 HTTPS 경로에 문제가 생기면 caller의
+`enable_runtime_https_smoke`를 꺼서 중단합니다. 설정과 검증 절차는
+[`docs/gcp-runtime-https-smoke.md`](docs/gcp-runtime-https-smoke.md)에 있습니다.
 
 ## 보안 기준
 
