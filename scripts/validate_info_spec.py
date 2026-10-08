@@ -8,8 +8,10 @@ import yaml
 
 if __package__:
     from .healthcheck_contract import validate_healthcheck
+    from .execution_settings_contract import validate_env, validate_secret_env
 else:
     from healthcheck_contract import validate_healthcheck
+    from execution_settings_contract import validate_env, validate_secret_env
 
 
 SAFE_NAME = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
@@ -77,7 +79,7 @@ def _validate_ports(raw_ports, container_name):
 def _validate_container(challenge_path, raw):
     if not isinstance(raw, dict):
         raise ValueError("each deployment container must be an object")
-    _reject_unknown_fields(raw, {"name", "build", "image", "ports", "expose"}, "container")
+    _reject_unknown_fields(raw, {"name", "build", "image", "ports", "expose", "env", "secret_env"}, "container")
     name = _required_string(raw.get("name"), "container.name")
     if not SAFE_NAME.fullmatch(name):
         raise ValueError("container name must be a safe lowercase identifier")
@@ -95,6 +97,12 @@ def _validate_container(challenge_path, raw):
     if not isinstance(expose, bool):
         raise ValueError(f"{name}.expose must be a boolean")
     container["expose"] = expose
+    env = validate_env(raw.get("env", {}))
+    aliases = validate_secret_env(raw.get("secret_env", {}), env)
+    if env:
+        container["env"] = env
+    if aliases:
+        container["secret_env"] = aliases
 
     if has_build:
         container["build"] = _resolve_build_path(challenge_path, raw["build"])

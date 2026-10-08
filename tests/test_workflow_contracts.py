@@ -343,6 +343,14 @@ class WorkflowContractTests(unittest.TestCase):
             "aws s3 cp s3://${BUCKET}/${PREFIX}/healthcheck_contract.py ${remote_dir}/healthcheck_contract.py",
             execution["run"],
         )
+        self.assertIn(
+            'aws s3 cp .msgctf-ci/scripts/execution_settings_contract.py "s3://${BUCKET}/${prefix}/execution_settings_contract.py"',
+            staging["run"],
+        )
+        self.assertIn(
+            "aws s3 cp s3://${BUCKET}/${PREFIX}/execution_settings_contract.py ${remote_dir}/execution_settings_contract.py",
+            execution["run"],
+        )
         self.assertIn("inputs.runtime_target_id", text)
         self.assertIn("GHCR_PULL_SECRET_ARN", workflow["on"]["workflow_call"]["secrets"])
         self.assertNotIn("GHCR_PULL_SECRET_ARN", str(smoke))

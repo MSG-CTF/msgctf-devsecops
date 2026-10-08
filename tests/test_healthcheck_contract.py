@@ -31,7 +31,7 @@ class HealthcheckContractTests(unittest.TestCase):
         scripts = Path(__file__).resolve().parents[1] / "scripts"
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            for name in ("runtime_api_smoke_runner.py", "healthcheck_contract.py"):
+            for name in ("runtime_api_smoke_runner.py", "healthcheck_contract.py", "execution_settings_contract.py"):
                 shutil.copyfile(scripts / name, root / name)
             result = subprocess.run(
                 [sys.executable, "-S", str(root / "runtime_api_smoke_runner.py"), "--help"],
