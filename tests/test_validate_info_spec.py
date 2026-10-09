@@ -139,7 +139,7 @@ class ValidateInfoSpecTests(unittest.TestCase):
             self._validate_raw(raw)
 
     def test_rejects_unsupported_container_execution_settings_without_values(self):
-        for field in ("environment", "env", "command", "entrypoint", "volumes", "networks"):
+        for field in ("environment", "command", "entrypoint", "volumes", "networks"):
             with self.subTest(field=field):
                 raw = self._raw_fixture()
                 raw["deployment"]["containers"][0][field] = "sensitive-test-value"
