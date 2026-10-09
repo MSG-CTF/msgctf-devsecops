@@ -15,6 +15,23 @@ from tests.test_validate_info_spec import FIXTURE
 
 
 class ExecutionSettingsContractTests(unittest.TestCase):
+    def test_flag_secret_alias_rejects_flag_embedded_in_image_context(self):
+        with tempfile.TemporaryDirectory() as directory:
+            challenge = Path(directory) / "info-valid"
+            challenge.mkdir()
+            raw = yaml.safe_load((FIXTURE / "info.yaml").read_text(encoding="utf-8"))
+            raw["flag"] = "MSG{private-fixture-must-not-be-published}"
+            container = raw["deployment"]["containers"][0]
+            container["secret_env"] = {"FLAG": "flag"}
+            build = challenge / container["build"]
+            build.mkdir(parents=True)
+            (build / "Dockerfile").write_text("FROM scratch\nCOPY app.txt /app.txt\n", encoding="utf-8")
+            (build / "app.txt").write_text("prefix" + raw["flag"] + "suffix", encoding="utf-8")
+            (challenge / "info.yaml").write_text(yaml.safe_dump(raw), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "build context contains the challenge flag") as caught:
+                validate_spec(challenge)
+            self.assertNotIn(raw["flag"], str(caught.exception))
+
     def test_info_metadata_and_bundle_preserve_only_general_env_and_secret_names(self):
         with tempfile.TemporaryDirectory() as directory:
             challenge = Path(directory) / "info-valid"

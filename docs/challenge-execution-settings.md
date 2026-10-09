@@ -50,6 +50,26 @@ FLAG와 SECRET·TOKEN·PASSWORD·PASSWD·PRIVATE_KEY·API_KEY·CREDENTIAL 이름
 3) 문제별 비밀값을 등록하고 새 릴리스를 등록·활성화합니다
 4) 문제 저장소 caller의 도구 checkout·두 workflow·두 devsecops_ref를 같은 고정 SHA로 갱신합니다
 
+## 문제별 적용 상태
+
+`info.yaml`의 `env`에는 공개해도 되는 고정 설정만 적습니다
+플래그와 토큰은 문제별 `secret_env`에 백엔드 저장 이름만 적고, 관리자는 그 문제에 실제 값을 별도로 등록합니다
+이미지의 Dockerfile 기본값은 릴리스 API의 환경변수 목록에 나타나지 않으므로, 실행에 꼭 필요한 값은 명시적으로 선언해야 합니다
+
+이번에 `FLAG: flag`를 연결한 문제는 crypto-nerves, crypto-reused-seal, pwn-random6, rev-tinyvm, web-daily-point, web-grade-tampering, web3-infinite-pack입니다
+web-logout-please도 같은 방식으로 이미 선언되어 있습니다
+해당 이미지에서 같은 플래그가 빌드 파일에 남아 있으면 명세 검증이 실패합니다
+
+기존 GHCR digest의 이미지는 자동으로 바뀌지 않습니다
+새 소스로 이미지를 발행한 뒤 문제별 비밀값을 백엔드에 저장하고, 새 릴리스를 등록·활성화해야 주입이 적용됩니다
+기존 2.0 릴리스에는 비밀값 연결이 없으므로 그대로 재사용하지 않습니다
+
+나머지는 이름만 보고 값을 복사하지 않습니다
+misc-cashout·misc-reqr·web-afterimage는 인스턴스별 seed/키와 내부 주소를 먼저 정해야 합니다
+web-notebook은 이미지의 DB 초기화 파일에 플래그가 있고 DB 쓰기 경로도 별도 검증이 필요합니다
+web3-split-brain-oracle은 체인 개인키와 signer 설정의 생성·보관 주체를 정해야 합니다
+환경변수 참조가 발견되지 않은 문제도 이미지에 비밀값이 남아 있는지 별도로 확인해야 합니다
+
 새 env·secret_env가 있으면 artifact schema 2.1로 발행합니다
 없으면 기존 schema 2.0 형식을 유지합니다
 구형 백엔드는 2.1을 거절하며 새 백엔드도 2.0에 새 필드를 넣으면 거절합니다

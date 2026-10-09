@@ -123,6 +123,30 @@ def _validate_container(challenge_path, raw):
     return container
 
 
+def _check_flag_not_in_build(challenge_path, containers, flag):
+    marker = flag.encode("utf-8")
+    for container in containers:
+        if container.get("secret_env", {}).get("FLAG") != "flag" or "build" not in container:
+            continue
+        build_dir = challenge_path / container["build"]
+        for path in build_dir.rglob("*"):
+            if path.is_symlink() or not path.is_file():
+                continue
+            try:
+                with path.open("rb") as source:
+                    tail = b""
+                    while chunk := source.read(65536):
+                        if marker in tail + chunk:
+                            relative = path.relative_to(challenge_path)
+                            raise ValueError(
+                                f"{container['name']} build context contains the challenge flag: {relative}; "
+                                "remove it before using secret_env.FLAG"
+                            )
+                        tail = chunk[-(len(marker) - 1):] if len(marker) > 1 else b""
+            except OSError:
+                raise ValueError("cannot inspect build context for an embedded flag") from None
+
+
 def validate_spec(challenge_path):
     challenge_path = Path(challenge_path).resolve()
     if not challenge_path.is_dir():
@@ -145,7 +169,7 @@ def validate_spec(challenge_path):
     if not CATEGORY.fullmatch(category):
         raise ValueError("category must be a lowercase identifier")
     _required_string(raw.get("description"), "description")
-    _required_string(raw.get("flag"), "flag")
+    flag = _required_string(raw.get("flag"), "flag")
 
     deployment = raw.get("deployment")
     metadata = {
@@ -205,6 +229,7 @@ def validate_spec(challenge_path):
         _validate_container(challenge_path, raw_container)
         for raw_container in raw_containers
     ]
+    _check_flag_not_in_build(challenge_path, containers, flag)
     names = [container["name"] for container in containers]
     if len(names) != len(set(names)):
         raise ValueError("container name values must be unique")
