@@ -4,7 +4,9 @@
 
 **2026-10-07 운영 합의: Backend가 파일 저장을 담당합니다.** DevSecOps는
 ZIP과 manifest를 Actions artifact로 발행하고, Backend Poller가 검증한 뒤
-`default_storage`를 통해 저장합니다. Backend의 GCS 연결은 별도로 준비합니다.
+`default_storage`를 통해 저장합니다. 2026-10-10 확인 기준 Backend #80에는
+GCS storage backend와 설정·의존성이 준비돼 있습니다. PR 병합, 서버 인증과
+bucket 권한 적용, 실제 저장·다운로드는 별도 검증이 필요합니다.
 `enable_user_files_gcs_upload:false`를 유지하며 CI가 GCS 영수증을 보내는 경로로
 전환하지 않습니다. 아래 CI 업로드 설명은 비활성 선택 기능의 기록입니다.
 
@@ -23,7 +25,8 @@ ZIP과 manifest를 Actions artifact로 발행하고, Backend Poller가 검증한
 | Workload Identity Provider | projects/309055091666/locations/global/workloadIdentityPools/github-actions/providers/msg-github-actions |
 | CI Service Account | gcs-file-upload-devops@msg-broker.iam.gserviceaccount.com |
 
-이 설정은 GitHub Actions에 들어갑니다. 출제자의 info.yaml에는 Google 인증이나
+아래 설정은 비활성 CI 직접 업로드 기능용이며 Backend 서버 인증 설정이 아닙니다.
+CI 직접 업로드를 승인할 때만 GitHub Actions에 들어갑니다. 출제자의 info.yaml에는 Google 인증이나
 bucket 주소를 추가하지 않습니다. Service Account JSON key도 사용하지 않습니다.
 `google-github-actions/auth@v3`의 WIF 방식으로 짧은 수명의 인증을 받습니다.
 
@@ -142,7 +145,7 @@ python3 -m scripts.upload_user_files_gcs \
 
 ## 남은 확인
 
-- Backend·인프라: Backend 실행 Service Account와 ADC 인증, GCS storage backend 설정
+- Backend·인프라: Backend 실행 Service Account와 ADC 인증, 준비된 GCS storage 설정의 실제 배포
 - 인프라: `2026msg_gcs` bucket의 위치, IAM, 공개 차단과 보존 정책
 - Backend: object key와 다운로드 방식 확정, 파일 검증 후 `default_storage` 저장
 - 실제 GCS에서 정적/동적 및 파일 있음/없음 4종 저장·다운로드 시험
