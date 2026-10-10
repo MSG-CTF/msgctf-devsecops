@@ -1,0 +1,616 @@
+{
+  "inventory_run_id": 37563390461,
+  "inventory_run_url": "https://github.com/MSG-CTF/msgctf-devsecops/actions/runs/37563390461",
+  "inventory_collected_at": "2026-10-07T02:44:12.388568+00:00",
+  "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+  "counts": {
+    "packages": 46,
+    "versions": 161,
+    "retained_versions": 145,
+    "review_candidates": 16
+  },
+  "status": "BLOCKED_PENDING_USAGE_CONFIRMATION",
+  "deletion_enabled": false,
+  "deleted_versions": 0,
+  "published_images_checked": 37,
+  "published_images_found": 37,
+  "images": [
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "portal",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/portal@sha256:4f0409c9369f0797fed4d9b7f6da121f08b16fdedf5324db17734da553569fc6",
+      "ghcr_version_id": 1339643642,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339643642
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "core",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/core@sha256:b25f1415222bd57d0f7823959576d627fb05d0b08abc4fc252bbfead5a04fb77",
+      "ghcr_version_id": 1339643235,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339643235
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "bot",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/bot@sha256:881176049a36d0e0a7b774c100c732d8c42b27839a220007cba6fb9e17b42180",
+      "ghcr_version_id": 1339646487,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339646487
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "exporter",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/exporter@sha256:164c890cde9ced65cbd43f96b93bfde6f9eaf20301406caa550a8fb194d16f0b",
+      "ghcr_version_id": 1339639011,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339639011
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "inventory-metadata",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/inventory-metadata@sha256:2104947680985ca26b4e7324ca4482f4e95fa792f17f567e285844433f331b9a",
+      "ghcr_version_id": 1339637819,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339637819
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "indexer",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/indexer@sha256:443349ba9c571fde04f13c81750c808ccd0c8b10c356fd554b730def6c97ec6d",
+      "ghcr_version_id": 1339641524,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339641524
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "registry_revision": 440,
+      "name": "case-vault",
+      "image": "ghcr.io/msg-ctf/challenges/web-afterimage/case-vault@sha256:b4a63aa56c447d1f9eda0d884f26ddabe145acb806fdcf8c1a192f19cfaab306",
+      "ghcr_version_id": 1339639711,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339639711
+    },
+    {
+      "challenge_slug": "crypto-nerves",
+      "registry_revision": 441,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/crypto-nerves/web@sha256:942e2b250f5ae9c67a4c7f18945737ff612143b9d0fdeb8ea2a55a3d861f97fe",
+      "ghcr_version_id": 1339681337,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339681337
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "registry_revision": 442,
+      "name": "chall",
+      "image": "ghcr.io/msg-ctf/challenges/crypto-reused-seal/chall@sha256:c7ae5210cec55c74a8d1848ace9e36e412af88e9f4eeace29fc183bb42371564",
+      "ghcr_version_id": 1339712859,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339712859
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "registry_revision": 443,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/koth-card-battle-arena/service@sha256:4e15aa91db9d50940ec0106a05b52773f891fd5b7386e6b7051b6d7fb8f49915",
+      "ghcr_version_id": 1339739507,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339739507
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "registry_revision": 444,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/koth-dependency-hell/service@sha256:129e8cec446bf95aeec34b7d391c0655baa81cbddc9804f17b910ae650a86a4e",
+      "ghcr_version_id": 1339766689,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339766689
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "registry_revision": 444,
+      "name": "backend",
+      "image": "ghcr.io/msg-ctf/challenges/koth-dependency-hell/backend@sha256:3e05cd8977f814e69efc2a76a3f1d62a0e6171eacad5fe05a0c1073c4aa44f83",
+      "ghcr_version_id": 1339772163,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339772163
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "registry_revision": 444,
+      "name": "score-service",
+      "image": "ghcr.io/msg-ctf/challenges/koth-dependency-hell/score-service@sha256:c2124be02c139fb61ca5664bbd645f7e4f1e41c1f92786dbcc17361c1b4e533e",
+      "ghcr_version_id": 1339769389,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339769389
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "registry_revision": 444,
+      "name": "judge-coordinator",
+      "image": "ghcr.io/msg-ctf/challenges/koth-dependency-hell/judge-coordinator@sha256:52f5db3e9b4a1fe7f7e14ac411f391aa394570d4d086ac1d6ced602ba2cad7e9",
+      "ghcr_version_id": 1339773424,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339773424
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "registry_revision": 445,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/koth-grand-tour-duel/service@sha256:100c8507280a599d9653310807528fd93142cd56547e417e97a0485788942067",
+      "ghcr_version_id": 1339805533,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339805533
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "registry_revision": 446,
+      "name": "jenga",
+      "image": "ghcr.io/msg-ctf/challenges/koth-jenga/jenga@sha256:fb1a67d43235c7a1954801696365af499e3cf1e69f665a80ce610d52ef0d7806",
+      "ghcr_version_id": 1339835715,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339835715
+    },
+    {
+      "challenge_slug": "koth-pixel-smuggler",
+      "registry_revision": 447,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/koth-pixel-smuggler/service@sha256:295a356a009b6c07b5047315cf191fb27dd46ff1f75416bd256ecc95671d3d3a",
+      "ghcr_version_id": 1339866978,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339866978
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "registry_revision": 448,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/koth-swanopoly/service@sha256:e3a3f7ce2888855a787c1dca330ba38c061e750eefc965ba49b8ac18ac418863",
+      "ghcr_version_id": 1339893199,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339893199
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "registry_revision": 448,
+      "name": "backend",
+      "image": "ghcr.io/msg-ctf/challenges/koth-swanopoly/backend@sha256:b0325f8b2228f2dcf387f4b1ee33de164d01dba4c878da387ea7c3a48e7980c3",
+      "ghcr_version_id": 1339893837,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339893837
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "registry_revision": 448,
+      "name": "test",
+      "image": "ghcr.io/msg-ctf/challenges/koth-swanopoly/test@sha256:bbf84c945a60adcbd7658e034547967802f330a08723eca4c6e0f86cf9ffc2c0",
+      "ghcr_version_id": 1339893873,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339893873
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "registry_revision": 448,
+      "name": "submit",
+      "image": "ghcr.io/msg-ctf/challenges/koth-swanopoly/submit@sha256:5d229732e1649edf02345dd9adceda3cce720851749716867c2ba7c87413f859",
+      "ghcr_version_id": 1339897859,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339897859
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "registry_revision": 449,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/misc-cashout/web@sha256:581a4b1b8145cd3f744715b2817f37d733c89dc03020d57cdd64705f317985d9",
+      "ghcr_version_id": 1339921253,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339921253
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "registry_revision": 450,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/misc-reqr/web@sha256:810ba1868b56114ae6c4ce182fedae4c6f53480197c2234b4cdab712eeeccdc7",
+      "ghcr_version_id": 1339947316,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339947316
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "registry_revision": 451,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/osint-the-past-has-an-address/web@sha256:133195d94746fd69a14def176393e99531af3a47fda5faa03b73bd308e79a362",
+      "ghcr_version_id": 1339970276,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339970276
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "registry_revision": 452,
+      "name": "chall",
+      "image": "ghcr.io/msg-ctf/challenges/pwn-ghost-file/chall@sha256:fe5c7242ce948ea3817d2bfe8b3c146f324af5dbb0bbf617bc3fbd36ceb8046b",
+      "ghcr_version_id": 1339995724,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1339995724
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "registry_revision": 453,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/pwn-note/service@sha256:c449da75a6a3eb0560b1d43034771749338897219afc560104da5c9b6c6a5471",
+      "ghcr_version_id": 1340023851,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340023851
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "registry_revision": 454,
+      "name": "price-tag",
+      "image": "ghcr.io/msg-ctf/challenges/pwn-price-tag/price-tag@sha256:1556a19564052695fec77b15c81c70a9b9e609df0f51681eae4d00fe667b87ac",
+      "ghcr_version_id": 1340047964,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340047964
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "registry_revision": 455,
+      "name": "random6",
+      "image": "ghcr.io/msg-ctf/challenges/pwn-random6/random6@sha256:b1984430b5a4fe4761a9dcd425359fa398bc95ca5bddef6d4f3d53948f4fdd9d",
+      "ghcr_version_id": 1340071138,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340071138
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "registry_revision": 456,
+      "name": "tinyvm",
+      "image": "ghcr.io/msg-ctf/challenges/rev-tinyvm/tinyvm@sha256:45b676934b4f4f139ee9e2a1739c14e9ac8d3e8831d279f8998a1458ce0c94da",
+      "ghcr_version_id": 1340092024,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340092024
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "registry_revision": 457,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/web-daily-point/web@sha256:3b8129fe265d72dd8cc989a73dabf15c822ecc2a6e5cde95ec45119fb1397a11",
+      "ghcr_version_id": 1340118792,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340118792
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "registry_revision": 458,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/web-grade-tampering/web@sha256:c409e49cf70a58be3ca19553b2db09da9d9607fd3462eaf00bdb29b20a44e39e",
+      "ghcr_version_id": 1340143579,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340143579
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "registry_revision": 459,
+      "name": "service",
+      "image": "ghcr.io/msg-ctf/challenges/web-logout-please/service@sha256:25b64b802d632bb0e0b5790580f86d88d8a05e2fff7c19a83b4b6e5d79d88be7",
+      "ghcr_version_id": 1340165353,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340165353
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "registry_revision": 460,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/web-notebook/web@sha256:d4249f02fb0745df557dc65382911ec00da883e2fa6bde434c5b63c14cb81db3",
+      "ghcr_version_id": 1340187248,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340187248
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "registry_revision": 460,
+      "name": "db",
+      "image": "ghcr.io/msg-ctf/challenges/web-notebook/db@sha256:396878dd36296204aa326c5acfaba267e76e8dd604a940ffdd67e1122f2dc872",
+      "ghcr_version_id": 1340188388,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340188388
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "registry_revision": 461,
+      "name": "web",
+      "image": "ghcr.io/msg-ctf/challenges/web-open-house/web@sha256:ad459de4ec1b5687be9b17cf445973344cf8aaee150bc759a5f02e79435d236d",
+      "ghcr_version_id": 1340223363,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340223363
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "registry_revision": 462,
+      "name": "server",
+      "image": "ghcr.io/msg-ctf/challenges/web3-infinite-pack/server@sha256:375f463fcc994103f8dd778d2c2ade642a3f926451185d695476d4abe3169112",
+      "ghcr_version_id": 1340249046,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340249046
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "registry_revision": 463,
+      "name": "challenge",
+      "image": "ghcr.io/msg-ctf/challenges/web3-split-brain-oracle/challenge@sha256:2eb556ab51dc5214c1e4c7ae73a7a1c63d81cb35d980bf40923597456da2ffc4",
+      "ghcr_version_id": 1340275675,
+      "found_in_inventory": true,
+      "current_inventory_version_id": 1340275675
+    }
+  ],
+  "required_before_deletion": [
+    "Backend active release·rollback digest의 최신 전체 목록",
+    "Scheduler/Runtime 실행 중 인스턴스 digest의 최신 전체 목록",
+    "KOTH 별도 사용·rollback digest 목록",
+    "OCI index/manifest 참조 관계 확인과 관리자 승인"
+  ],
+  "candidates": [
+    {
+      "package": "challenges/pwn-random6/random6",
+      "package_class": "CHALLENGE",
+      "version_id": 1107824022,
+      "image": "ghcr.io/msg-ctf/challenges/pwn-random6/random6@sha256:a5418f576904d6a0fcbb60c9078f3457174444177e784745fc57fa3d9c206c37",
+      "tags": [
+        "01ae70fb509e41036a060e3c01881d4f980896ba-31161223393-1"
+      ],
+      "created_at": "2026-08-07T08:21:12+00:00",
+      "updated_at": "2026-08-07T08:21:12+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1173829039,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:2e36d81962888eb29d8a467b94eb83df29ce0af5b9c798dd2f6d031f0271d773",
+      "tags": [
+        "8cf8892588ca43fab2fd57c16d32b8791cac6b8b-32959545593-1-cec5aef86583474cb0516c72297c7b75"
+      ],
+      "created_at": "2026-08-26T10:42:58+00:00",
+      "updated_at": "2026-08-26T10:42:58+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1170973802,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:58dbaa889bbb6c77a22145d0138e98456e1bcf7d4ea766207bd66954cc0a6a04",
+      "tags": [
+        "4aea21147d4dafe214f4a4e69016361dfc1c667c-32876556248-1-74ddbfc6c4fa4d6ea3d76e366dc097b0"
+      ],
+      "created_at": "2026-08-25T17:14:29+00:00",
+      "updated_at": "2026-08-25T17:14:29+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1165345465,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:fad36dab3852951fade10ccfd8a804c632eaf5c978442c043ca6e458080edfd6",
+      "tags": [
+        "0fbfbfda9e63936392158f54fb5c1db2b3d84db4-32723330120-1-8fdaba6c0855402fa764a3ccc4501158"
+      ],
+      "created_at": "2026-08-24T11:45:24+00:00",
+      "updated_at": "2026-08-24T11:45:24+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1165326823,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:4c3df73a496cce072f065fda7d6765223894d786b68a17e31d03e14debe3db55",
+      "tags": [
+        "ebf1cce68047a5a8819bdac3f511749dffe86413-32722884352-1-95c19b7704ad4182b476e87dcb50ca44"
+      ],
+      "created_at": "2026-08-24T11:40:04+00:00",
+      "updated_at": "2026-08-24T11:40:04+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1165282103,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:23b46a231f1933d811207b7395cba2684d7becf6a1e758b6b8de51726131864f",
+      "tags": [
+        "6eae0c7f4f09072a4adeb65d79341771741908d0-32721810592-1-5124dd74736240d5a90467b3e994f238"
+      ],
+      "created_at": "2026-08-24T11:27:41+00:00",
+      "updated_at": "2026-08-24T11:27:41+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1165202164,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:ea34aadc65f2145a21ba0b95bbc2b258bf0095a0ba28fd02600f5285ca961ea4",
+      "tags": [
+        "9c0088f1ede9ccc4a9226466da21bb38c26f9d03-32719785974-1-f813a10e3d6c47d5b78377515c80fb62"
+      ],
+      "created_at": "2026-08-24T11:03:24+00:00",
+      "updated_at": "2026-08-24T11:03:24+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/koth-template/service",
+      "package_class": "SELF_TEST",
+      "version_id": 1164962537,
+      "image": "ghcr.io/msg-ctf/challenges/koth-template/service@sha256:02d0eecadba943dfaf7d8eb83d872d922378010ed8912ef7390d9105f09e1002",
+      "tags": [
+        "647149e6da79ccb8cfc840a6a510ddb1a07e1939-32713627303-1-dd1990694a5f48c58a6229551e3f40da"
+      ],
+      "created_at": "2026-08-24T09:51:23+00:00",
+      "updated_at": "2026-08-24T09:51:23+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/crypto-reused-seal/chall",
+      "package_class": "CHALLENGE",
+      "version_id": 1165581209,
+      "image": "ghcr.io/msg-ctf/challenges/crypto-reused-seal/chall@sha256:b68e31e0074c5dee3fa4eef68d636cebea046e12e9ddabe9732eec4c77152983",
+      "tags": [
+        "bb1c7377cbe17fffb6be558e51cda70a3611a0c3-32728957892-1"
+      ],
+      "created_at": "2026-08-24T12:49:10+00:00",
+      "updated_at": "2026-08-24T12:49:10+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/crypto-nerves/web",
+      "package_class": "CHALLENGE",
+      "version_id": 1184786172,
+      "image": "ghcr.io/msg-ctf/challenges/crypto-nerves/web@sha256:975feda7248cb93a6846caa88d6922ddb946a87d7de8115f606f1c8d7253239e",
+      "tags": [
+        "22b2ac69e49c7a49a12cbb35846af70a798866dd-33232137163-1-a5ac949449434324898072e4b7b63f93"
+      ],
+      "created_at": "2026-08-29T03:47:47+00:00",
+      "updated_at": "2026-08-29T03:47:47+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/crypto-nerves/web",
+      "package_class": "CHALLENGE",
+      "version_id": 1184750579,
+      "image": "ghcr.io/msg-ctf/challenges/crypto-nerves/web@sha256:bf0a3bdfd7a011c8abb08ae35c4e4e438db8df28696736ef93e57b9ec69bb9a7",
+      "tags": [
+        "b5a1722c4c873cbf5bc283f5528ab4158b21e6cb-33231008297-1-be42695a40b04c638d5f3125f7784a12"
+      ],
+      "created_at": "2026-08-29T03:21:04+00:00",
+      "updated_at": "2026-08-29T03:21:04+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/crypto-nerves/web",
+      "package_class": "CHALLENGE",
+      "version_id": 1184705517,
+      "image": "ghcr.io/msg-ctf/challenges/crypto-nerves/web@sha256:e9359476cde8716ba2d40330ba0cb537073aff06712d8561d20c15673dd6a110",
+      "tags": [
+        "428f8ba732532e4005474a97e1e66fd900a96902-33229587073-1-6ad61c0070e44c77b8c3a5072921d2d0"
+      ],
+      "created_at": "2026-08-29T02:45:17+00:00",
+      "updated_at": "2026-08-29T02:45:17+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/crypto-nerves/web",
+      "package_class": "CHALLENGE",
+      "version_id": 1183721127,
+      "image": "ghcr.io/msg-ctf/challenges/crypto-nerves/web@sha256:1751666846fa743f2c5f8db747b4895ffe2775b365507dbf1c7bb13bca82abf1",
+      "tags": [
+        "a4eb0ae83accbc10eb1c76e0738c7086ea1c20c2-33200557006-1-6840beba60b1401188c795fbcad3947a"
+      ],
+      "created_at": "2026-08-28T18:46:23+00:00",
+      "updated_at": "2026-08-28T18:46:23+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/web-logout-please/service",
+      "package_class": "CHALLENGE",
+      "version_id": 1208096698,
+      "image": "ghcr.io/msg-ctf/challenges/web-logout-please/service@sha256:638f059405546b90100831323b4067a12af58b385f854a6744566e256a84fa20",
+      "tags": [
+        "4b80d9e8a8e1f32c6668b674697788a8c37f57e6-33845870774-1-2abbc712c69c46f582c7892298277bd5"
+      ],
+      "created_at": "2026-09-04T06:51:36+00:00",
+      "updated_at": "2026-09-04T06:51:36+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/misc-reqr/web",
+      "package_class": "CHALLENGE",
+      "version_id": 1208429120,
+      "image": "ghcr.io/msg-ctf/challenges/misc-reqr/web@sha256:334dbecb6361f260bb797b8e5b10ce1c46ce168c9e7eb1d9a48a6e5bc413016d",
+      "tags": [
+        "ab9947056ea3a1fe994b74ba86901882f1a1fc92-33853864361-1-609c6495e30a42a98ef03a3173b96b25"
+      ],
+      "created_at": "2026-09-04T08:35:33+00:00",
+      "updated_at": "2026-09-04T08:35:33+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    },
+    {
+      "package": "challenges/pwn-price-tag/price-tag",
+      "package_class": "CHALLENGE",
+      "version_id": 1215700095,
+      "image": "ghcr.io/msg-ctf/challenges/pwn-price-tag/price-tag@sha256:7874a52cd032d101dbb8865772762ce3d6206954b72578389909a6ffef8906b8",
+      "tags": [
+        "a7e37653b82d816cfe3012da79abd23a181e180e-34040834919-1-224f351a5ee1436694da03921f646839"
+      ],
+      "created_at": "2026-09-06T15:01:48+00:00",
+      "updated_at": "2026-09-06T15:01:48+00:00",
+      "decision": "REVIEW_ONLY",
+      "reasons": [
+        "OLD_VERSION_REQUIRES_USAGE_CONFIRMATION"
+      ],
+      "deletion_authorized": false
+    }
+  ]
+}

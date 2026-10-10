@@ -1,6 +1,8 @@
 # 문서
 
-- [참가자 파일 GCS 저장](participant-files-gcs.md): 승인된 main 파일 저장과 Backend 영수증 연결 제안
+- [2026-10-10 독립 연동 준비](reports/2026-10-10-independent-preparation/README.md): 최신 37개 참가자 파일 검사, 문제별 네트워크 검토 후보와 Backend GCS 준비
+- [참가자 파일 GCS 저장](participant-files-gcs.md): Backend 저장 담당과 비활성 CI 업로드 경로
+- [2026-10-07 연동 준비 결과](reports/2026-10-07-integration-readiness/README.md): 실제 산출물의 로컬 Backend 소비 시험, 발행 목록과 남은 요청사항
 
 문제 저장소와 DevSecOps 공급망을 연결할 때 필요한 예제와 운영 문서를
 관리합니다.

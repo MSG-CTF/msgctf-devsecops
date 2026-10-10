@@ -66,6 +66,7 @@ Actions artifact의 90일 보관은 전달과 통합 테스트를 위한 임시 
 운영에서는 Backend poller가 ZIP을 GCS/S3 등의 Object Storage로 복사하고 DB에는
 object key, checksum, 크기와 릴리스 연결 정보만 저장하는 방식을 권장합니다.
 
-CI가 GCS에 직접 저장하는 선택 기능과 저장 담당 전환 제안은
-[참가자 파일 GCS 저장](participant-files-gcs.md)에 정리했습니다. 기본 비활성이며
-object key·IAM·Backend 수집 계약 승인 전까지 기존 전달 방식을 유지합니다.
+현재 합의는 Backend가 `default_storage`로 저장하고, 해당 저장소를 GCS에
+연결하는 방식입니다. DevSecOps는 Actions ZIP·manifest 발행까지만 담당합니다.
+CI 직접 GCS 업로드 옵션은 비활성을 유지합니다. 설정과 준비 항목은
+[참가자 파일 GCS 저장](participant-files-gcs.md)에 정리했습니다.

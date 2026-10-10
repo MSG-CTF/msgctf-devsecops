@@ -196,6 +196,17 @@ def render_markdown(reports, source_sha):
     return "\n".join(lines) + "\n"
 
 
+def discover_challenges(root):
+    root = Path(root)
+    if root.is_symlink():
+        raise ValueError("문제 경로 링크는 지원하지 않습니다")
+    # 저장소 루트의 양식용 info.yaml보다 실제 문제 폴더를 우선합니다.
+    children = sorted(path.parent for path in root.glob("*/info.yaml") if not path.parent.is_symlink())
+    if children:
+        return children
+    return [root] if (root / "info.yaml").exists() else []
+
+
 def main():
     parser = argparse.ArgumentParser(description="문제 실행 설정 이름만 점검합니다")
     parser.add_argument("path", type=Path)
@@ -205,7 +216,7 @@ def main():
     if not re.fullmatch(r"[0-9a-f]{40}", args.source_sha):
         parser.error("source-sha는 40자리 commit SHA여야 합니다")
     root = args.path
-    paths = [root] if (root / "info.yaml").exists() else sorted(path.parent for path in root.glob("*/info.yaml") if not path.parent.is_symlink())
+    paths = discover_challenges(root)
     if not paths:
         parser.error("info.yaml이 있는 문제를 찾지 못했습니다")
     reports = [audit_challenge(path) for path in paths]
