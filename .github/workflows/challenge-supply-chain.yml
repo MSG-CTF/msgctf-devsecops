@@ -31,6 +31,21 @@ on:
         required: false
         default: false
         type: boolean
+      enable_runtime_https_smoke:
+        description: GitHub runner에서 GCP Runtime HTTPS API로 임시 배포 검증 실행 여부
+        required: false
+        default: false
+        type: boolean
+      runtime_api_url:
+        description: TLS 인증서를 검증할 Runtime API HTTPS 주소
+        required: false
+        default: ""
+        type: string
+      runtime_ci_team_id:
+        description: Provisioner가 CI 토큰에 할당한 전용 팀 UUID
+        required: false
+        default: ""
+        type: string
       runtime_target_id:
         description: Secure Provisioner Registry에 등록된 K3s target_id
         required: false
@@ -54,6 +69,8 @@ on:
       AWS_K3S_INSTANCE_ID:
         required: false
       AWS_CD_ARTIFACT_BUCKET:
+        required: false
+      RUNTIME_API_TOKEN:
         required: false
       # 이전 caller 호환용입니다. Runtime smoke에서는 사용하지 않습니다.
       GHCR_PULL_SECRET_ARN:
@@ -667,6 +684,7 @@ jobs:
           aws s3 cp dist/artifact-v2.json "s3://${BUCKET}/${prefix}/artifact-v2.json"
           aws s3 cp dist/runtime-smoke-config.json "s3://${BUCKET}/${prefix}/runtime-smoke-config.json"
           aws s3 cp .msgctf-ci/scripts/runtime_api_smoke_runner.py "s3://${BUCKET}/${prefix}/runtime_api_smoke_runner.py"
+          aws s3 cp .msgctf-ci/scripts/healthcheck_contract.py "s3://${BUCKET}/${prefix}/healthcheck_contract.py"
 
       - name: SSM으로 Secure Provisioner smoke test 실행
         env:
@@ -679,7 +697,7 @@ jobs:
             --instance-ids "$INSTANCE_ID" \
             --document-name AWS-RunShellScript \
             --comment "MSGCTF Secure Provisioner runtime smoke deployment" \
-            --parameters "commands=[\"set -euo pipefail\",\"install -d -m 0700 ${remote_dir}\",\"trap 'rm -rf ${remote_dir}' EXIT\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/artifact-v2.json ${remote_dir}/artifact-v2.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/runtime-smoke-config.json ${remote_dir}/runtime-smoke-config.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/runtime_api_smoke_runner.py ${remote_dir}/runtime_api_smoke_runner.py\",\"python3 ${remote_dir}/runtime_api_smoke_runner.py --artifact ${remote_dir}/artifact-v2.json --config ${remote_dir}/runtime-smoke-config.json --timeout 180 --cleanup-timeout 180\"]" \
+            --parameters "commands=[\"set -euo pipefail\",\"install -d -m 0700 ${remote_dir}\",\"trap 'rm -rf ${remote_dir}' EXIT\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/artifact-v2.json ${remote_dir}/artifact-v2.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/runtime-smoke-config.json ${remote_dir}/runtime-smoke-config.json\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/runtime_api_smoke_runner.py ${remote_dir}/runtime_api_smoke_runner.py\",\"aws s3 cp s3://${BUCKET}/${PREFIX}/healthcheck_contract.py ${remote_dir}/healthcheck_contract.py\",\"python3 ${remote_dir}/runtime_api_smoke_runner.py --artifact ${remote_dir}/artifact-v2.json --config ${remote_dir}/runtime-smoke-config.json --timeout 180 --cleanup-timeout 180\"]" \
             --query 'Command.CommandId' --output text)"
           for _ in $(seq 1 150); do
             status="$(aws ssm get-command-invocation --command-id "$command_id" --instance-id "$INSTANCE_ID" --query Status --output text 2>/dev/null || true)"
@@ -719,3 +737,80 @@ jobs:
             "") echo "정리할 staging 경로가 없습니다" ;;
             *) echo "예상하지 못한 staging 경로입니다" >&2; exit 1 ;;
           esac
+
+  k3s-smoke-https:
+    needs:
+      - validate
+      - aggregate
+    if: >-
+      inputs.publish_images &&
+      inputs.enable_runtime_https_smoke &&
+      github.event_name != 'pull_request' &&
+      needs.aggregate.result == 'success' &&
+      needs.validate.outputs.is_server == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: DevSecOps 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: ${{ needs.validate.outputs.devsecops_sha }}
+          path: .msgctf-ci
+
+      - name: 발행 bundle 가져오기
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.aggregate.outputs.publish_bundle_name }}
+          path: dist
+
+      - name: GCP Runtime smoke 설정 생성
+        env:
+          RUNTIME_API_URL: ${{ inputs.runtime_api_url }}
+          RUNTIME_CI_TEAM_ID: ${{ inputs.runtime_ci_team_id }}
+          RUNTIME_TARGET_ID: ${{ inputs.runtime_target_id }}
+          SMOKE_KEY: ${{ github.repository_id }}:${{ github.run_id }}:${{ github.run_attempt }}:${{ needs.validate.outputs.challenge_slug }}
+        run: |
+          set -euo pipefail
+          case "$RUNTIME_API_URL" in https://*) ;; *) echo "Runtime HTTPS URL이 필요합니다" >&2; exit 1 ;; esac
+          test -n "$RUNTIME_CI_TEAM_ID" || { echo "runtime_ci_team_id가 필요합니다" >&2; exit 1; }
+          test -n "$RUNTIME_TARGET_ID" || { echo "runtime_target_id가 필요합니다" >&2; exit 1; }
+          instance_id="$(python3 -c 'import os, uuid; print(uuid.uuid5(uuid.NAMESPACE_URL, os.environ["SMOKE_KEY"]))')"
+          jq -n \
+            --arg target_id "$RUNTIME_TARGET_ID" \
+            --arg instance_id "$instance_id" \
+            --arg team_id "$RUNTIME_CI_TEAM_ID" \
+            '{target_id: $target_id, instance_id: $instance_id, team_id: $team_id}' \
+            > dist/runtime-smoke-config.json
+
+      - name: GCP Runtime HTTPS smoke 실행
+        env:
+          RUNTIME_API_URL: ${{ inputs.runtime_api_url }}
+          RUNTIME_API_TOKEN: ${{ secrets.RUNTIME_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$RUNTIME_API_TOKEN" || { echo "RUNTIME_API_TOKEN Secret이 필요합니다" >&2; exit 1; }
+          umask 077
+          token_file="$(mktemp)"
+          trap 'rm -f "$token_file"' EXIT INT TERM
+          printf '%s' "$RUNTIME_API_TOKEN" > "$token_file"
+          python3 .msgctf-ci/scripts/runtime_api_smoke_runner.py \
+            --artifact dist/artifact-v2.json \
+            --config dist/runtime-smoke-config.json \
+            --api-url "$RUNTIME_API_URL" \
+            --token-file "$token_file" \
+            --timeout 300 --cleanup-timeout 300 \
+            | tee dist/runtime-smoke-result.txt
+          result="$(sed -n 's/^MSGCTF_RUNTIME_SMOKE_RESULT=//p' dist/runtime-smoke-result.txt | tail -n 1)"
+          if [ -z "$result" ] || ! printf '%s\n' "$result" | jq -e '.create_status == "SUCCEEDED" and .delete_status == "SUCCEEDED"' >/dev/null; then
+            echo "Secure Provisioner 생성·삭제 결과를 확인할 수 없습니다" >&2
+            exit 1
+          fi
+          {
+            echo "## GCP Secure Provisioner HTTPS smoke 결과"
+            echo
+            echo '```json'
+            printf '%s\n' "$result" | jq
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

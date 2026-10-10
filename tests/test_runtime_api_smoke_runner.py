@@ -268,6 +268,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                         "run_as_user": 10001,
                     }
                 ],
+                "healthcheck": ARTIFACT["workload"]["healthcheck"],
                 "resource_limits": ARTIFACT["resource_profile"],
             },
         )
@@ -289,6 +290,9 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                 "ports": [{"port": 5432, "public": False}],
             },
         ]
+        artifact["workload"]["healthcheck"] = {
+            "container": "web", "port": 9000, "path": "/healthz"
+        }
         request = build_create_request(
             artifact,
             target_id="aws-k3s-lab",
@@ -323,6 +327,46 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
             )
         )
         self.assertNotIn("internal_connections", request["workload"])
+        self.assertEqual(request["workload"]["healthcheck"], artifact["workload"]["healthcheck"])
+        self.assertEqual(request["workload"]["containers"][0]["exposed_ports"], [8080])
+
+    def test_omits_absent_or_null_healthcheck(self):
+        for present in (False, True):
+            with self.subTest(present=present):
+                artifact = copy.deepcopy(ARTIFACT)
+                artifact["workload"].pop("healthcheck")
+                if present:
+                    artifact["workload"]["healthcheck"] = None
+                request = build_create_request(
+                    artifact, target_id="broker-test2", instance_id=INSTANCE_ID, team_id=TEAM_ID
+                )
+                self.assertNotIn("healthcheck", request["workload"])
+
+    def test_rejects_malformed_healthcheck_before_runtime_request(self):
+        cases = [
+            {}, [], "http://invalid", {"container": "missing", "port": 9090, "path": "/"},
+            {"container": "service", "port": True, "path": "/"},
+            {"container": "service", "port": 9999, "path": "/"},
+            {"container": "service", "port": 9090, "path": "/secret value"},
+            {"container": "service", "port": 9090, "path": "/" + "x" * 1024},
+            {"container": "service", "port": 9090, "path": "/", "timeout": 3},
+        ]
+        for healthcheck in cases:
+            with self.subTest(healthcheck=healthcheck):
+                artifact = copy.deepcopy(ARTIFACT)
+                artifact["workload"]["healthcheck"] = healthcheck
+                with self.assertRaisesRegex(ValueError, "healthcheck"):
+                    build_create_request(
+                        artifact, target_id="broker-test2", instance_id=INSTANCE_ID, team_id=TEAM_ID
+                    )
+
+    def test_healthcheck_forwarding_does_not_mutate_bundle(self):
+        artifact = copy.deepcopy(ARTIFACT)
+        request = build_create_request(
+            artifact, target_id="broker-test2", instance_id=INSTANCE_ID, team_id=TEAM_ID
+        )
+        request["workload"]["healthcheck"]["path"] = "/changed"
+        self.assertEqual(artifact, ARTIFACT)
 
     def test_does_not_forward_legacy_internal_connections(self):
         artifact = copy.deepcopy(ARTIFACT)
@@ -382,6 +426,10 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         for _method, _path, headers, _body in RuntimeHandler.requests:
             self.assertEqual(headers["Authorization"], f"Bearer {'A' * 43}")
         delete_body = RuntimeHandler.requests[2][3]
+        self.assertEqual(
+            RuntimeHandler.requests[0][3]["workload"]["healthcheck"],
+            ARTIFACT["workload"]["healthcheck"],
+        )
         self.assertEqual(delete_body["runtime_workload_id"], "aws-k3s-001/ctf-test/challenge")
         self.assertEqual(delete_body["delete_reason"], "ADMIN_FORCED")
 
@@ -669,6 +717,7 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
         artifact = copy.deepcopy(ARTIFACT)
         artifact["category"] = "pwn"
         artifact["isolation_profile"] = "PWN"
+        artifact["workload"].pop("healthcheck")
         artifact["workload"]["containers"][0]["ports"] = [
             {"port": 31337, "public": True}
         ]

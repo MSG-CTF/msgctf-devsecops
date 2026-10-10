@@ -1,3 +1,7 @@
+import json
+import os
+import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -110,6 +114,9 @@ class WorkflowContractTests(unittest.TestCase):
                 "publish_images",
                 "enable_user_files_gcs_upload",
                 "enable_k3s_smoke_deploy",
+                "enable_runtime_https_smoke",
+                "runtime_api_url",
+                "runtime_ci_team_id",
                 "runtime_target_id",
             },
         )
@@ -119,6 +126,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(inputs["publish_images"]["type"], "boolean")
         self.assertEqual(inputs["publish_images"]["default"], "true")
         self.assertEqual(inputs["enable_k3s_smoke_deploy"]["type"], "boolean")
+        self.assertEqual(inputs["enable_runtime_https_smoke"]["default"], "false")
         self.assertEqual(inputs["runtime_target_id"]["type"], "string")
         outputs = workflow["on"]["workflow_call"]["outputs"]
         self.assertEqual(
@@ -157,7 +165,7 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertEqual(text.count("ref: ${{ inputs.devsecops_ref }}"), 1)
         self.assertEqual(
             text.count("ref: ${{ needs.validate.outputs.devsecops_sha }}"),
-            5,
+            6,
         )
         self.assertIn(
             'echo "run_tag=${GITHUB_SHA}-${ARTIFACT_SCOPE}"',
@@ -176,6 +184,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "package-user-files",
                 "upload-user-files-gcs",
                 "k3s-smoke-deploy",
+                "k3s-smoke-https",
             },
         )
         for required in (
@@ -304,7 +313,7 @@ class WorkflowContractTests(unittest.TestCase):
                 self.assertIn("inputs.publish_images", step.get("if", ""))
         self.assertEqual(found_steps, protected_steps)
 
-        for job_name in ("aggregate", "k3s-smoke-deploy"):
+        for job_name in ("aggregate", "k3s-smoke-deploy", "k3s-smoke-https"):
             self.assertIn(
                 "inputs.publish_images",
                 workflow["jobs"][job_name].get("if", ""),
@@ -321,6 +330,19 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn("render_k3s_smoke_manifest.py", text)
         self.assertNotIn("kubectl", text)
         self.assertIn("runtime_api_smoke_runner.py", text)
+        staging = next(step for step in smoke["steps"] if step.get("name") == "S3 staging 경로 업로드")
+        execution = next(
+            step for step in smoke["steps"]
+            if step.get("name") == "SSM으로 Secure Provisioner smoke test 실행"
+        )
+        self.assertIn(
+            'aws s3 cp .msgctf-ci/scripts/healthcheck_contract.py "s3://${BUCKET}/${prefix}/healthcheck_contract.py"',
+            staging["run"],
+        )
+        self.assertIn(
+            "aws s3 cp s3://${BUCKET}/${PREFIX}/healthcheck_contract.py ${remote_dir}/healthcheck_contract.py",
+            execution["run"],
+        )
         self.assertIn("inputs.runtime_target_id", text)
         self.assertIn("GHCR_PULL_SECRET_ARN", workflow["on"]["workflow_call"]["secrets"])
         self.assertNotIn("GHCR_PULL_SECRET_ARN", str(smoke))
@@ -329,6 +351,65 @@ class WorkflowContractTests(unittest.TestCase):
             str(smoke),
         )
         self.assertEqual(smoke["permissions"], {"contents": "read", "id-token": "write"})
+
+    def test_https_smoke_uses_scoped_secret_and_preserves_aws_fallback(self):
+        workflow = load_workflow(ROOT / ".github/workflows/challenge-supply-chain.yml")
+        secrets = workflow["on"]["workflow_call"]["secrets"]
+        self.assertIn("RUNTIME_API_TOKEN", secrets)
+        https_smoke = workflow["jobs"]["k3s-smoke-https"]
+        self.assertEqual(https_smoke["permissions"], {"contents": "read"})
+        self.assertIn("inputs.enable_runtime_https_smoke", https_smoke["if"])
+        self.assertIn("github.event_name != 'pull_request'", https_smoke["if"])
+        self.assertNotIn("aws", str(https_smoke).lower())
+        steps = https_smoke["steps"]
+        runner = next(step for step in steps if step.get("name") == "GCP Runtime HTTPS smoke 실행")
+        command = runner["run"]
+        self.assertIn("runtime_api_smoke_runner.py", command)
+        self.assertIn("--api-url", command)
+        self.assertIn("--token-file", command)
+        self.assertIn("trap", command)
+        self.assertIn("RUNTIME_API_TOKEN", runner["env"])
+        self.assertIn("k3s-smoke-deploy", workflow["jobs"])
+
+    def test_https_smoke_setup_checks_team_and_target_independently(self):
+        workflow = load_workflow(ROOT / ".github/workflows/challenge-supply-chain.yml")
+        steps = workflow["jobs"]["k3s-smoke-https"]["steps"]
+        setup = next(step for step in steps if step.get("name") == "GCP Runtime smoke 설정 생성")
+        cases = (
+            ("", "test-target", "runtime_ci_team_id"),
+            ("test-team", "", "runtime_target_id"),
+            ("", "", "runtime_ci_team_id"),
+            ("test-team", "test-target", None),
+        )
+        for team, target, missing in cases:
+            with self.subTest(team=team, target=target), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                (root / "dist").mkdir()
+                result = subprocess.run(
+                    ["bash", "-c", setup["run"]],
+                    cwd=root,
+                    env={
+                        **os.environ,
+                        "RUNTIME_API_URL": "https://runtime.example.test",
+                        "RUNTIME_CI_TEAM_ID": team,
+                        "RUNTIME_TARGET_ID": target,
+                        "SMOKE_KEY": "test-repository:1:1:web-example",
+                    },
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                config = root / "dist/runtime-smoke-config.json"
+                if missing:
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn(missing, result.stderr)
+                    self.assertFalse(config.exists())
+                else:
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    data = json.loads(config.read_text(encoding="utf-8"))
+                    self.assertEqual(data["team_id"], team)
+                    self.assertEqual(data["target_id"], target)
+                    self.assertTrue(data["instance_id"])
 
     def test_branch_validation_workflow_has_no_publish_or_deploy_permissions(self):
         path = ROOT / ".github/workflows/challenge-branch-validation.yml"
