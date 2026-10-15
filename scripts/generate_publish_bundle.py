@@ -4,6 +4,11 @@ import json
 import re
 from pathlib import Path
 
+if __package__:
+    from .execution_settings_contract import validate_env, validate_secret_env
+else:
+    from execution_settings_contract import validate_env, validate_secret_env
+
 
 DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 COMMIT_SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -153,6 +158,8 @@ def generate_bundle(
     evidence_containers = []
     for container in metadata["containers"]:
         result = validated_results[container["name"]]
+        env = validate_env(container.get("env", {}))
+        aliases = validate_secret_env(container.get("secret_env", {}), env)
         workload_containers.append(
             {
                 "name": container["name"],
@@ -161,6 +168,8 @@ def generate_bundle(
                     {"port": port, "public": container["expose"]}
                     for port in container["ports"]
                 ],
+                **({"env": env} if env else {}),
+                **({"secret_env": aliases} if aliases else {}),
             }
         )
         evidence_containers.append(
@@ -180,7 +189,9 @@ def generate_bundle(
         workload["healthcheck"] = metadata["healthcheck"]
 
     artifact = {
-        "schema_version": "2.0",
+        "schema_version": "2.1" if any(
+            container.get("env") or container.get("secret_env") for container in workload_containers
+        ) else "2.0",
         "challenge_slug": metadata["challenge_slug"],
         "revision": revision,
         "registry_revision": revision,

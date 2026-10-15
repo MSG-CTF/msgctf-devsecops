@@ -18,8 +18,10 @@ from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_ope
 
 if __package__:
     from .healthcheck_contract import validate_healthcheck
+    from .execution_settings_contract import validate_env, validate_secret_env
 else:
     from healthcheck_contract import validate_healthcheck
+    from execution_settings_contract import validate_env, validate_secret_env
 
 
 DIGEST_IMAGE = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
@@ -138,6 +140,10 @@ def build_create_request(
     for container in artifact_containers:
         if not isinstance(container, dict):
             raise ValueError("artifact container must be an object")
+        env = validate_env(container.get("env", {}))
+        aliases = validate_secret_env(container.get("secret_env", {}), env)
+        if aliases or "secret_ref" in container:
+            raise ValueError("secret_env requires a Backend release; direct CI smoke cannot resolve secrets")
         name = container.get("name")
         image = container.get("image")
         if not isinstance(name, str) or not name:
@@ -175,6 +181,7 @@ def build_create_request(
                 "ports": ports,
                 "exposed_ports": exposed_ports,
                 "run_as_user": _positive_int(container.get("run_as_user", 10001), "run_as_user"),
+                **({"env": env} if env else {}),
             }
         )
 

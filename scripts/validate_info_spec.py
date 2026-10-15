@@ -8,8 +8,10 @@ import yaml
 
 if __package__:
     from .healthcheck_contract import validate_healthcheck
+    from .execution_settings_contract import validate_env, validate_secret_env
 else:
     from healthcheck_contract import validate_healthcheck
+    from execution_settings_contract import validate_env, validate_secret_env
 
 
 SAFE_NAME = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
@@ -77,7 +79,7 @@ def _validate_ports(raw_ports, container_name):
 def _validate_container(challenge_path, raw):
     if not isinstance(raw, dict):
         raise ValueError("each deployment container must be an object")
-    _reject_unknown_fields(raw, {"name", "build", "image", "ports", "expose"}, "container")
+    _reject_unknown_fields(raw, {"name", "build", "image", "ports", "expose", "env", "secret_env"}, "container")
     name = _required_string(raw.get("name"), "container.name")
     if not SAFE_NAME.fullmatch(name):
         raise ValueError("container name must be a safe lowercase identifier")
@@ -95,6 +97,12 @@ def _validate_container(challenge_path, raw):
     if not isinstance(expose, bool):
         raise ValueError(f"{name}.expose must be a boolean")
     container["expose"] = expose
+    env = validate_env(raw.get("env", {}))
+    aliases = validate_secret_env(raw.get("secret_env", {}), env)
+    if env:
+        container["env"] = env
+    if aliases:
+        container["secret_env"] = aliases
 
     if has_build:
         container["build"] = _resolve_build_path(challenge_path, raw["build"])
@@ -113,6 +121,30 @@ def _validate_container(challenge_path, raw):
                 raise ValueError(f"{name}.image must not use the latest tag")
         container["image"] = image
     return container
+
+
+def _check_flag_not_in_build(challenge_path, containers, flag):
+    marker = flag.encode("utf-8")
+    for container in containers:
+        if container.get("secret_env", {}).get("FLAG") != "flag" or "build" not in container:
+            continue
+        build_dir = challenge_path / container["build"]
+        for path in build_dir.rglob("*"):
+            if path.is_symlink() or not path.is_file():
+                continue
+            try:
+                with path.open("rb") as source:
+                    tail = b""
+                    while chunk := source.read(65536):
+                        if marker in tail + chunk:
+                            relative = path.relative_to(challenge_path)
+                            raise ValueError(
+                                f"{container['name']} build context contains the challenge flag: {relative}; "
+                                "remove it before using secret_env.FLAG"
+                            )
+                        tail = chunk[-(len(marker) - 1):] if len(marker) > 1 else b""
+            except OSError:
+                raise ValueError("cannot inspect build context for an embedded flag") from None
 
 
 def validate_spec(challenge_path):
@@ -137,7 +169,7 @@ def validate_spec(challenge_path):
     if not CATEGORY.fullmatch(category):
         raise ValueError("category must be a lowercase identifier")
     _required_string(raw.get("description"), "description")
-    _required_string(raw.get("flag"), "flag")
+    flag = _required_string(raw.get("flag"), "flag")
 
     deployment = raw.get("deployment")
     metadata = {
@@ -197,6 +229,7 @@ def validate_spec(challenge_path):
         _validate_container(challenge_path, raw_container)
         for raw_container in raw_containers
     ]
+    _check_flag_not_in_build(challenge_path, containers, flag)
     names = [container["name"] for container in containers]
     if len(names) != len(set(names)):
         raise ValueError("container name values must be unique")
