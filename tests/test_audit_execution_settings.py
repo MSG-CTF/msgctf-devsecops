@@ -5,7 +5,7 @@ from pathlib import Path
 
 import yaml
 
-from scripts.audit_execution_settings import audit_challenge, render_markdown
+from scripts.audit_execution_settings import audit_challenge, discover_challenges, render_markdown
 
 
 class ExecutionSettingsAuditTests(unittest.TestCase):
@@ -85,6 +85,26 @@ class ExecutionSettingsAuditTests(unittest.TestCase):
         report = self.report()
         self.assertEqual([item["name"] for item in report["environment_references"]], ["DB_HOST", "FLAG"])
         self.assertNotIn("SECRET-CONTENT", json.dumps(report))
+
+    def test_repository_template_does_not_hide_actual_challenges(self):
+        repository = Path(self.temp.name)
+        (repository / "info.yaml").write_text("name: template\n", encoding="utf-8")
+        second = repository / "misc-test"
+        second.mkdir()
+        (second / "info.yaml").write_text("name: static\n", encoding="utf-8")
+        self.assertEqual(discover_challenges(repository), [second, self.root])
+        self.assertEqual(len([audit_challenge(path) for path in discover_challenges(repository)]), 2)
+
+    def test_discovery_preserves_single_challenge_input(self):
+        self.assertEqual(discover_challenges(self.root), [self.root])
+
+    def test_discovery_skips_linked_challenge_and_rejects_linked_root(self):
+        repository = Path(self.temp.name)
+        link = repository / "web-link"
+        link.symlink_to(self.root, target_is_directory=True)
+        self.assertEqual(discover_challenges(repository), [self.root])
+        with self.assertRaises(ValueError):
+            discover_challenges(link)
 
 
 if __name__ == "__main__":

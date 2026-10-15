@@ -1,0 +1,421 @@
+{
+  "source_sha": "b95a1562491190ccf2bcb54beb34d8e8b76a99f7",
+  "source_ref": "refs/heads/main",
+  "test_registry_revision": 1,
+  "mode": "LOCAL_PACKAGING_ONLY",
+  "published": false,
+  "gcs_uploaded": false,
+  "backend_registered": false,
+  "repeat_bytes_identical": true,
+  "problem_count": 37,
+  "with_files": 28,
+  "without_files": 9,
+  "total_uncompressed_size_bytes": 166622309,
+  "problems": [
+    {
+      "challenge_slug": "crypto-nerves",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "a10816f5e9ebfe71d7cf4ad0cde0453b546cca8f8a3fbb53833d624f1f5b5a3c",
+        "size_bytes": 24991,
+        "file_count": 4,
+        "uncompressed_size_bytes": 68389
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "crypto-tr88",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "3e97f4ff3bb35c402a098846440beeff27537851bebd083826a03989ca2c06f7",
+        "size_bytes": 14781996,
+        "file_count": 19,
+        "uncompressed_size_bytes": 14776831
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "forensic-evidence",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "f511386665b4f2f09d178f97a17f8cdeb6d51c29cc2360eb1699521851fa4b7c",
+        "size_bytes": 332,
+        "file_count": 1,
+        "uncompressed_size_bytes": 213
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "user_files": {
+        "present": false
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "forensic-leftovers",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "6c0d93994997ee36299b625b9367b5130b31cd1d2f1e04d33696e115092faa3c",
+        "size_bytes": 245,
+        "file_count": 1,
+        "uncompressed_size_bytes": 124
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "forensic-the-last-record",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "53584b38f05bbf84fc93946dfdcd5463bb17ba87aa46aa0207ef9e3a698a0e4a",
+        "size_bytes": 737,
+        "file_count": 1,
+        "uncompressed_size_bytes": 834
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "42899db41749387f0c855b20ed8f5f9285f5940a3b2b41730b2fb327f5786968",
+        "size_bytes": 7233494,
+        "file_count": 23,
+        "uncompressed_size_bytes": 7378022
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "71691bc39aa357fd9dcc9520423f330c3dbf948a58bf0d40c8f02ac1eed56fe3",
+        "size_bytes": 8568,
+        "file_count": 4,
+        "uncompressed_size_bytes": 32559
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "3ec76320fee6df656091dad4e1e41e95a7fb01f413235d9d8386e2c2fc0fb472",
+        "size_bytes": 20089,
+        "file_count": 34,
+        "uncompressed_size_bytes": 24566
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "koth-pixel-smuggler",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "a5e1acb7aeb6f86feb00cd447203d1ebe1dbc5a343702dafc0fde0aefd53b9ea",
+        "size_bytes": 10453,
+        "file_count": 6,
+        "uncompressed_size_bytes": 23264
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "12d36897cebc8d4334fdf3f3c9438338e91968acde808e8ba3b1d30db540d2e3",
+        "size_bytes": 8765,
+        "file_count": 4,
+        "uncompressed_size_bytes": 24947
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "9fbb05a0a4f8b052145cfd0ce26a6e2afe1642e4f7807f527c9a8cc584164f6b",
+        "size_bytes": 1093803,
+        "file_count": 3,
+        "uncompressed_size_bytes": 1176727
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "0b66140a4f3e34df657737f90a2f4ab5a175fcb9bc9e4a0e3aa2b70a8de5a027",
+        "size_bytes": 416309,
+        "file_count": 2,
+        "uncompressed_size_bytes": 416159
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "misc-snack-thief",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "557ca105a9159b34cea6e77690f4404aab4445a0f8b9d57c02c496a76064656d",
+        "size_bytes": 22735145,
+        "file_count": 1,
+        "uncompressed_size_bytes": 25033830
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "osint-ramen-man",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "e2086ab5462d707944f038c515c4bdac5f85375b6da96832a904e631a5a05031",
+        "size_bytes": 563352,
+        "file_count": 1,
+        "uncompressed_size_bytes": 566940
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "70f67360f3b6199fc04b7a909a22588d90a05e2cb3188f67d38b31c1a0094ef0",
+        "size_bytes": 617,
+        "file_count": 1,
+        "uncompressed_size_bytes": 703
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "osint-trace",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "2162bc61d943194febab4db762aec973e5991cc9ededbde8254487d08a413bc3",
+        "size_bytes": 7689938,
+        "file_count": 1,
+        "uncompressed_size_bytes": 7710195
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "e8f9ae2074721dd3ca362ca9b4e86f04b25b4052d6261a3140e3a8a66f0c6fcb",
+        "size_bytes": 1073155,
+        "file_count": 4,
+        "uncompressed_size_bytes": 2477038
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "pwn-msgdriver",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "213f35b825e7c47d457edc82fbaf84826bc91d91879be2f4f164486a7dfb69ff",
+        "size_bytes": 11804,
+        "file_count": 3,
+        "uncompressed_size_bytes": 22794
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "b76f1795bff7a80a110c7fe0901d19bf35e25b416130d4ceca9b5d25064890fa",
+        "size_bytes": 2691,
+        "file_count": 1,
+        "uncompressed_size_bytes": 14336
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "f1a7428e8d3ac40c34766662e7d3536f3298494f37a44c5999b7a234f65081f4",
+        "size_bytes": 4118,
+        "file_count": 2,
+        "uncompressed_size_bytes": 18228
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "c79f362a6f2473386405ca09b79705b96cf3d03cc46f05f2e5a747de3c80baae",
+        "size_bytes": 209277,
+        "file_count": 1,
+        "uncompressed_size_bytes": 209117
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "rev-ezpz",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "972106721605feed80b0817b81dd52bbd81b7fce17f5ccaee6686f7dddad7063",
+        "size_bytes": 96870545,
+        "file_count": 1,
+        "uncompressed_size_bytes": 96848220
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "rev-phantom-lattice",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "ca3d2822a7f1dbdcd00cc65831be127a48698459c89ea9daa1e9f053b84cd897",
+        "size_bytes": 3397,
+        "file_count": 1,
+        "uncompressed_size_bytes": 14472
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "rev-rework",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "1b3f0cf7c49cb9649e5cb0d3d0c03be70969950ce2cd8ddae482a2da262c35d6",
+        "size_bytes": 3628766,
+        "file_count": 1,
+        "uncompressed_size_bytes": 3633387
+      },
+      "is_server": false
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "9647051fd32ad2060e5b9da663ebd7e795f3ce64026a82cceabddc88171e998f",
+        "size_bytes": 22234,
+        "file_count": 2,
+        "uncompressed_size_bytes": 37218
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "8178e99ff8c17a4da3c8f2d34c97522fc71f977872110cff0421f9532bed8afa",
+        "size_bytes": 1588732,
+        "file_count": 18,
+        "uncompressed_size_bytes": 2280730
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "c0a697dea72cadb3ccc0f26f6faaad981450424091ab0a73ed569d4221041336",
+        "size_bytes": 117,
+        "file_count": 1,
+        "uncompressed_size_bytes": 1
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "user_files": {
+        "present": false
+      },
+      "is_server": true
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "user_files": {
+        "present": true,
+        "archive": "user-files.zip",
+        "sha256": "ea5fbadb9665014263807bc465b576017472b0e5d049a6ecd291b245b9c4b75e",
+        "size_bytes": 1838218,
+        "file_count": 40,
+        "uncompressed_size_bytes": 3832465
+      },
+      "is_server": true
+    }
+  ],
+  "limitations": [
+    "로컬 패키징과 반복 실행의 바이트 일치만 검사했습니다.",
+    "registry_revision 1은 시험용이며 실제 발행 revision이 아닙니다.",
+    "Actions 발행, Docker 빌드, Gitleaks, Trivy, GCS 저장과 Backend 등록을 실행하지 않았습니다.",
+    "참가자에게 공개할 내용과 비밀정보 포함 여부에 대한 운영 승인을 대체하지 않습니다."
+  ]
+}

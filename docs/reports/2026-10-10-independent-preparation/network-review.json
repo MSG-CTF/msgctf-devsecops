@@ -1,0 +1,208 @@
+{
+  "source_sha": "b95a1562491190ccf2bcb54beb34d8e8b76a99f7",
+  "audit_only": true,
+  "problem_count": 37,
+  "dynamic_count": 24,
+  "static_count": 13,
+  "incomplete": [
+    {
+      "challenge_slug": "koth-jenga",
+      "unparsed_compose": [
+        {
+          "path": "docker-compose.layers.yml",
+          "error": "yaml_unparsed"
+        }
+      ]
+    }
+  ],
+  "network_segmentation_candidates": [
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "networks": [
+            "app",
+            "database",
+            "judge"
+          ],
+          "internal_networks": [
+            "database",
+            "judge"
+          ],
+          "services": [
+            {
+              "name": "backend",
+              "networks": [
+                "app",
+                "database",
+                "judge"
+              ]
+            },
+            {
+              "name": "checker",
+              "networks": [
+                "app"
+              ]
+            },
+            {
+              "name": "data-init",
+              "networks": []
+            },
+            {
+              "name": "database-migration",
+              "networks": [
+                "database"
+              ]
+            },
+            {
+              "name": "frontend",
+              "networks": [
+                "app"
+              ]
+            },
+            {
+              "name": "judge-worker",
+              "networks": [
+                "judge"
+              ]
+            },
+            {
+              "name": "postgres",
+              "networks": [
+                "database"
+              ]
+            },
+            {
+              "name": "protected-keys-init",
+              "networks": [
+                "database"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "prob/for_organizer/deploy/compose.production.yml",
+          "networks": [
+            "app",
+            "internal",
+            "outbound",
+            "public"
+          ],
+          "internal_networks": [
+            "app",
+            "internal"
+          ],
+          "services": [
+            {
+              "name": "backend",
+              "networks": [
+                "app",
+                "outbound"
+              ]
+            },
+            {
+              "name": "backend-internal",
+              "networks": [
+                "internal",
+                "outbound"
+              ]
+            },
+            {
+              "name": "data-init",
+              "networks": []
+            },
+            {
+              "name": "frontend",
+              "networks": [
+                "app",
+                "public"
+              ]
+            },
+            {
+              "name": "migrate",
+              "networks": [
+                "outbound"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "compose": [
+        {
+          "path": "prob/for_organizer/docker-compose.yml",
+          "networks": [
+            "appnet",
+            "cartridgenet",
+            "edge",
+            "exportnet",
+            "vaultnet"
+          ],
+          "internal_networks": [
+            "appnet",
+            "cartridgenet",
+            "exportnet",
+            "vaultnet"
+          ],
+          "services": [
+            {
+              "name": "bot",
+              "networks": [
+                "appnet"
+              ]
+            },
+            {
+              "name": "case-vault",
+              "networks": [
+                "vaultnet"
+              ]
+            },
+            {
+              "name": "core",
+              "networks": [
+                "appnet",
+                "vaultnet"
+              ]
+            },
+            {
+              "name": "exporter",
+              "networks": [
+                "exportnet"
+              ]
+            },
+            {
+              "name": "indexer",
+              "networks": [
+                "cartridgenet"
+              ]
+            },
+            {
+              "name": "inventory-metadata",
+              "networks": [
+                "exportnet"
+              ]
+            },
+            {
+              "name": "portal",
+              "networks": [
+                "appnet",
+                "cartridgenet",
+                "edge",
+                "exportnet"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "no_new_network_contract": true,
+  "default_policy": "STANDARD@v2",
+  "default_egress": "NONE",
+  "same_instance_communication": "ALLOW",
+  "other_instance_communication": "DENY",
+  "actual_network_test": false
+}

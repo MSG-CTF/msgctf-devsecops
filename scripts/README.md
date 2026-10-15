@@ -30,6 +30,10 @@ GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버�
 출력하지 않으며, 진단 JSON과 문제별 표를 생성합니다. 지원 계약과 사용법은
 [실행 설정 계약](../docs/challenge-execution-settings.md)을 참고합니다.
 
+저장소 루트의 양식용 info.yaml과 실제 문제 폴더가 함께 있으면 문제 폴더를
+우선 점검합니다. 단일 문제 경로도 지원합니다. 점검 완료는 실제 네트워크
+정책 적용·통신 성공을 뜻하지 않습니다.
+
 ### `discover_changed_challenges.py`
 
 Git 변경 내역에서 `info.yaml`이 있는 문제 디렉터리를 찾아 검증 대상으로

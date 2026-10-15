@@ -1,0 +1,885 @@
+{
+  "schema_version": "1.0",
+  "repository": "MSG-CTF/2026_MSG_CTF",
+  "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+  "devsecops_sha": "2d275ae083324eb83b776ace81daa3a669d2c11c",
+  "backend_registration_verified": false,
+  "runtime_deployment_verified": false,
+  "gcs_upload_verified": false,
+  "problems": [
+    {
+      "challenge_slug": "web-afterimage",
+      "runtime_required": true,
+      "registry_revision": 440,
+      "run_id": 37334074888,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37334074888",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11356360017,
+          "name": "web-afterimage-37334074888-1-38e36e37572e43a0a87ebe7709fa6598-user-files-bundle"
+        },
+        {
+          "id": 11356355981,
+          "name": "web-afterimage-37334074888-1-38e36e37572e43a0a87ebe7709fa6598-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "8178e99ff8c17a4da3c8f2d34c97522fc71f977872110cff0421f9532bed8afa",
+        "size_bytes": 1588732,
+        "file_count": 18,
+        "uncompressed_size_bytes": 2280730
+      },
+      "publish_bundle_sha256": "04ef16710cbd99bf9309402c59a459dbc55802cce79d3f0f2266119ccf4b8cbc"
+    },
+    {
+      "challenge_slug": "crypto-nerves",
+      "runtime_required": true,
+      "registry_revision": 441,
+      "run_id": 37334933862,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37334933862",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11355533744,
+          "name": "crypto-nerves-37334933862-1-b127fbd328c547afaca45305ea07f5e5-publish-bundle"
+        },
+        {
+          "id": 11355114876,
+          "name": "crypto-nerves-37334933862-1-b127fbd328c547afaca45305ea07f5e5-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "a10816f5e9ebfe71d7cf4ad0cde0453b546cca8f8a3fbb53833d624f1f5b5a3c",
+        "size_bytes": 24991,
+        "file_count": 4,
+        "uncompressed_size_bytes": 68389
+      },
+      "publish_bundle_sha256": "433ccae23b61f5ff2e3f339fb6298ca9ec8ba7d179266a072f6ef874076fc8ea"
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "runtime_required": true,
+      "registry_revision": 442,
+      "run_id": 37335859080,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37335859080",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11356427789,
+          "name": "crypto-reused-seal-37335859080-1-59fd8bcaac264188a36fc63c44b62d50-publish-bundle"
+        },
+        {
+          "id": 11356097654,
+          "name": "crypto-reused-seal-37335859080-1-59fd8bcaac264188a36fc63c44b62d50-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "0c7aad5fd54ce53a8f9d6913b57c5596e4b43c6f24ab5f897d9ab172683d4ddb"
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "runtime_required": true,
+      "registry_revision": 443,
+      "run_id": 37336642379,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37336642379",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11357075959,
+          "name": "koth-card-battle-arena-37336642379-1-89f893dde8f243d38dd0dcf45155172c-user-files-bundle"
+        },
+        {
+          "id": 11356309517,
+          "name": "koth-card-battle-arena-37336642379-1-89f893dde8f243d38dd0dcf45155172c-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "7844c08311bc3ba481f48178920f03dea3142d797267454daeffe353d85b7434"
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "runtime_required": true,
+      "registry_revision": 444,
+      "run_id": 37337432038,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37337432038",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11357620710,
+          "name": "koth-dependency-hell-37337432038-1-7406e45246cd4a848330ea866edc5e4b-publish-bundle"
+        },
+        {
+          "id": 11357321350,
+          "name": "koth-dependency-hell-37337432038-1-7406e45246cd4a848330ea866edc5e4b-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "42899db41749387f0c855b20ed8f5f9285f5940a3b2b41730b2fb327f5786968",
+        "size_bytes": 7233494,
+        "file_count": 23,
+        "uncompressed_size_bytes": 7378022
+      },
+      "publish_bundle_sha256": "2c2fe3214bb0ad576278e4e87b8bc49b0c9cbac37f4bf879776f1f88ee8f9cf8"
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "runtime_required": true,
+      "registry_revision": 445,
+      "run_id": 37338403644,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37338403644",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11356973486,
+          "name": "koth-grand-tour-duel-37338403644-1-dcc3196286eb4148906fdfa833c0f80f-user-files-bundle"
+        },
+        {
+          "id": 11356958587,
+          "name": "koth-grand-tour-duel-37338403644-1-dcc3196286eb4148906fdfa833c0f80f-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "73f0065a33b7d00e5c7cf01e2a1df19a741c637407aadb3ff3b8a8fc7c7a1088",
+        "size_bytes": 6200,
+        "file_count": 4,
+        "uncompressed_size_bytes": 26577
+      },
+      "publish_bundle_sha256": "1637a381bd8f86d53f52cc0f62d304e9c360cc42ce2de61ec37597fa351e3076"
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "runtime_required": true,
+      "registry_revision": 446,
+      "run_id": 37339180199,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37339180199",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11358295627,
+          "name": "koth-jenga-37339180199-1-f9e1094e73b94c1e8ac6b6693c98d6bf-publish-bundle"
+        },
+        {
+          "id": 11358171036,
+          "name": "koth-jenga-37339180199-1-f9e1094e73b94c1e8ac6b6693c98d6bf-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "3ec76320fee6df656091dad4e1e41e95a7fb01f413235d9d8386e2c2fc0fb472",
+        "size_bytes": 20089,
+        "file_count": 34,
+        "uncompressed_size_bytes": 24566
+      },
+      "publish_bundle_sha256": "34e9ac4928797b2ff202b7ed758dbbebc69c23d23bea622619047246882b0f59"
+    },
+    {
+      "challenge_slug": "koth-pixel-smuggler",
+      "runtime_required": true,
+      "registry_revision": 447,
+      "run_id": 37340006626,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37340006626",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11358053130,
+          "name": "koth-pixel-smuggler-37340006626-1-40065b4d9d054ca7b406adfeb29e6b87-publish-bundle"
+        },
+        {
+          "id": 11358017746,
+          "name": "koth-pixel-smuggler-37340006626-1-40065b4d9d054ca7b406adfeb29e6b87-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "a5e1acb7aeb6f86feb00cd447203d1ebe1dbc5a343702dafc0fde0aefd53b9ea",
+        "size_bytes": 10453,
+        "file_count": 6,
+        "uncompressed_size_bytes": 23264
+      },
+      "publish_bundle_sha256": "3f7a30383501cb36e7b8388185dfbb652a5a6a47105ca3f3d7c739b218b75747"
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "runtime_required": true,
+      "registry_revision": 448,
+      "run_id": 37340833660,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37340833660",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11358691552,
+          "name": "koth-swanopoly-37340833660-1-ee5babe0faa040b89b418006cf1994fe-user-files-bundle"
+        },
+        {
+          "id": 11357509549,
+          "name": "koth-swanopoly-37340833660-1-ee5babe0faa040b89b418006cf1994fe-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "12d36897cebc8d4334fdf3f3c9438338e91968acde808e8ba3b1d30db540d2e3",
+        "size_bytes": 8765,
+        "file_count": 4,
+        "uncompressed_size_bytes": 24947
+      },
+      "publish_bundle_sha256": "40abcbfe04be37b3246fa938a0c42c289e79428de4db7ea6acd96ebbcfb4527d"
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "runtime_required": true,
+      "registry_revision": 449,
+      "run_id": 37341655773,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37341655773",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11358877179,
+          "name": "misc-cashout-37341655773-1-07d1e51f85d74e4481ddafdfbb55b74c-publish-bundle"
+        },
+        {
+          "id": 11358034774,
+          "name": "misc-cashout-37341655773-1-07d1e51f85d74e4481ddafdfbb55b74c-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "0e0a3a31190c18d64dcc13a80c9aeac2b273202b43cab0f9305ed8b79329e483"
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "runtime_required": true,
+      "registry_revision": 450,
+      "run_id": 37342332259,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37342332259",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11358967776,
+          "name": "misc-reqr-37342332259-1-0c127cd242af4aa7b9b3e496fbfe4ed3-publish-bundle"
+        },
+        {
+          "id": 11358907487,
+          "name": "misc-reqr-37342332259-1-0c127cd242af4aa7b9b3e496fbfe4ed3-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "0b66140a4f3e34df657737f90a2f4ab5a175fcb9bc9e4a0e3aa2b70a8de5a027",
+        "size_bytes": 416309,
+        "file_count": 2,
+        "uncompressed_size_bytes": 416159
+      },
+      "publish_bundle_sha256": "0bb00d8b8cc5d07eb815625631f22c37ca819bf298a4f2d88fa4423e01dac74b"
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "runtime_required": true,
+      "registry_revision": 451,
+      "run_id": 37342994911,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37342994911",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11359381730,
+          "name": "osint-the-past-has-an-address-37342994911-1-2cbd17b1028d4365911d9a6ac620813d-publish-bundle"
+        },
+        {
+          "id": 11358574868,
+          "name": "osint-the-past-has-an-address-37342994911-1-2cbd17b1028d4365911d9a6ac620813d-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "70f67360f3b6199fc04b7a909a22588d90a05e2cb3188f67d38b31c1a0094ef0",
+        "size_bytes": 617,
+        "file_count": 1,
+        "uncompressed_size_bytes": 703
+      },
+      "publish_bundle_sha256": "db105dc0fd149aef524593166f30d6d16a2a9165cbad2c40f5ac3a221f7560e0"
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "runtime_required": true,
+      "registry_revision": 452,
+      "run_id": 37343605194,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37343605194",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11360260549,
+          "name": "pwn-ghost-file-37343605194-1-04667bf1688242a79e24429bbcfab3b8-publish-bundle"
+        },
+        {
+          "id": 11359148724,
+          "name": "pwn-ghost-file-37343605194-1-04667bf1688242a79e24429bbcfab3b8-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "e8f9ae2074721dd3ca362ca9b4e86f04b25b4052d6261a3140e3a8a66f0c6fcb",
+        "size_bytes": 1073155,
+        "file_count": 4,
+        "uncompressed_size_bytes": 2477038
+      },
+      "publish_bundle_sha256": "0fac0734c8e2597cf6afd6b57c9fc614f760989b2559543b4f0f6a3026b68f4a"
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "runtime_required": true,
+      "registry_revision": 453,
+      "run_id": 37344347417,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37344347417",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11359463172,
+          "name": "pwn-note-37344347417-1-98b0494aa62b4217a4feb530d21753fb-publish-bundle"
+        },
+        {
+          "id": 11358954789,
+          "name": "pwn-note-37344347417-1-98b0494aa62b4217a4feb530d21753fb-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "b76f1795bff7a80a110c7fe0901d19bf35e25b416130d4ceca9b5d25064890fa",
+        "size_bytes": 2691,
+        "file_count": 1,
+        "uncompressed_size_bytes": 14336
+      },
+      "publish_bundle_sha256": "fa9cadd9885fa35e3e222e600d613038921a33de03aa020083946f6e4309c6ca"
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "runtime_required": true,
+      "registry_revision": 454,
+      "run_id": 37345085174,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37345085174",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11360077587,
+          "name": "pwn-price-tag-37345085174-1-64edb0a0122f492d953d853af04687c4-user-files-bundle"
+        },
+        {
+          "id": 11359793345,
+          "name": "pwn-price-tag-37345085174-1-64edb0a0122f492d953d853af04687c4-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "f1a7428e8d3ac40c34766662e7d3536f3298494f37a44c5999b7a234f65081f4",
+        "size_bytes": 4118,
+        "file_count": 2,
+        "uncompressed_size_bytes": 18228
+      },
+      "publish_bundle_sha256": "58f4760a3686fa86d9f913499ef73f4bd4a742ccb8e87f60fc6e8810efb94b83"
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "runtime_required": true,
+      "registry_revision": 455,
+      "run_id": 37345781390,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37345781390",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11360925900,
+          "name": "pwn-random6-37345781390-1-097b7820c05041db8f8c9c8193a965e2-publish-bundle"
+        },
+        {
+          "id": 11359944048,
+          "name": "pwn-random6-37345781390-1-097b7820c05041db8f8c9c8193a965e2-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "c79f362a6f2473386405ca09b79705b96cf3d03cc46f05f2e5a747de3c80baae",
+        "size_bytes": 209277,
+        "file_count": 1,
+        "uncompressed_size_bytes": 209117
+      },
+      "publish_bundle_sha256": "17d1f57af167bab1ffad88e1f5351a363f9f76d333924c6e6555f5fd281b5f14"
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "runtime_required": true,
+      "registry_revision": 456,
+      "run_id": 37346389352,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37346389352",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11361330612,
+          "name": "rev-tinyvm-37346389352-1-78d06e2bd0574fea8e332b8d6331d918-publish-bundle"
+        },
+        {
+          "id": 11360198718,
+          "name": "rev-tinyvm-37346389352-1-78d06e2bd0574fea8e332b8d6331d918-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "9647051fd32ad2060e5b9da663ebd7e795f3ce64026a82cceabddc88171e998f",
+        "size_bytes": 22234,
+        "file_count": 2,
+        "uncompressed_size_bytes": 37218
+      },
+      "publish_bundle_sha256": "13ac40a3434ce654f7473af064927073fca229494a9d444869c816e6ffa9984a"
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "runtime_required": true,
+      "registry_revision": 457,
+      "run_id": 37346988116,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37346988116",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11361181297,
+          "name": "web-daily-point-37346988116-1-5b6d0b28edc140edaf3cd0a6106f8a2d-publish-bundle"
+        },
+        {
+          "id": 11360504424,
+          "name": "web-daily-point-37346988116-1-5b6d0b28edc140edaf3cd0a6106f8a2d-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "c4ab66ccae41fbbdae75baf44e31470c484450ee094eb5f147c61d7668e20d9f"
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "runtime_required": true,
+      "registry_revision": 458,
+      "run_id": 37347786917,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37347786917",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11361271586,
+          "name": "web-grade-tampering-37347786917-1-7f4bf320bf6b44059e234af19843f3a9-user-files-bundle"
+        },
+        {
+          "id": 11361197371,
+          "name": "web-grade-tampering-37347786917-1-7f4bf320bf6b44059e234af19843f3a9-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "d2d6c36f168f9fcd9c48e9330ca66c45ab5b4486da26a558399a907445b2a57c"
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "runtime_required": true,
+      "registry_revision": 459,
+      "run_id": 37348453268,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37348453268",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11361831162,
+          "name": "web-logout-please-37348453268-1-3329f32770e547119bfe494579fd0555-user-files-bundle"
+        },
+        {
+          "id": 11361751712,
+          "name": "web-logout-please-37348453268-1-3329f32770e547119bfe494579fd0555-publish-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "c0a697dea72cadb3ccc0f26f6faaad981450424091ab0a73ed569d4221041336",
+        "size_bytes": 117,
+        "file_count": 1,
+        "uncompressed_size_bytes": 1
+      },
+      "publish_bundle_sha256": "a262d60c64883666d0c4296b57bc1807dc935d411d3874f740d9b8514ed3c7f1"
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "runtime_required": true,
+      "registry_revision": 460,
+      "run_id": 37349112874,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37349112874",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11362181667,
+          "name": "web-notebook-37349112874-1-c8d20c58fe76460595db1dd7be8e435f-publish-bundle"
+        },
+        {
+          "id": 11361558723,
+          "name": "web-notebook-37349112874-1-c8d20c58fe76460595db1dd7be8e435f-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "d1101e58a58832f2224a7a76ed4cccb847eb288ee72f15421002c1b2b25d33b6"
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "runtime_required": true,
+      "registry_revision": 461,
+      "run_id": 37349840954,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37349840954",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11362441967,
+          "name": "web-open-house-37349840954-1-385dc9b02f534fc99abbe28c0d59189c-publish-bundle"
+        },
+        {
+          "id": 11361873577,
+          "name": "web-open-house-37349840954-1-385dc9b02f534fc99abbe28c0d59189c-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "88ea192dd17fea3005a050020c2fc4a386027931b2b19a9371c4f4ca0f188cea"
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "runtime_required": true,
+      "registry_revision": 462,
+      "run_id": 37350749821,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37350749821",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11362248498,
+          "name": "web3-infinite-pack-37350749821-1-9565797716c8410eb6cb297b5f58212b-publish-bundle"
+        },
+        {
+          "id": 11362043651,
+          "name": "web3-infinite-pack-37350749821-1-9565797716c8410eb6cb297b5f58212b-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": "99967fe5a842b503a2e33f1d12d0cdba7fb55a070cd4f5ce0d94b29774dab457"
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "runtime_required": true,
+      "registry_revision": 463,
+      "run_id": 37351489269,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37351489269",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363675247,
+          "name": "web3-split-brain-oracle-37351489269-1-0d3bdaa4de254bad8391ce17fc810f82-publish-bundle"
+        },
+        {
+          "id": 11362104357,
+          "name": "web3-split-brain-oracle-37351489269-1-0d3bdaa4de254bad8391ce17fc810f82-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "ea5fbadb9665014263807bc465b576017472b0e5d049a6ecd291b245b9c4b75e",
+        "size_bytes": 1838218,
+        "file_count": 40,
+        "uncompressed_size_bytes": 3832465
+      },
+      "publish_bundle_sha256": "f14dca667e1eacf4552a89832a8812a56ab6da8c5a8926d88a03f1a945479b9c"
+    },
+    {
+      "challenge_slug": "crypto-tr88",
+      "runtime_required": false,
+      "registry_revision": 464,
+      "run_id": 37352298164,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37352298164",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11362409339,
+          "name": "crypto-tr88-37352298164-1-fbd75e8ceba343c691cbb21b02b21978-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "3e97f4ff3bb35c402a098846440beeff27537851bebd083826a03989ca2c06f7",
+        "size_bytes": 14781996,
+        "file_count": 19,
+        "uncompressed_size_bytes": 14776831
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "forensic-evidence",
+      "runtime_required": false,
+      "registry_revision": 465,
+      "run_id": 37352717625,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37352717625",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363466676,
+          "name": "forensic-evidence-37352717625-1-7b34c7ef113246d688ce8bcd2f8f7eaf-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "f511386665b4f2f09d178f97a17f8cdeb6d51c29cc2360eb1699521851fa4b7c",
+        "size_bytes": 332,
+        "file_count": 1,
+        "uncompressed_size_bytes": 213
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "runtime_required": false,
+      "registry_revision": 466,
+      "run_id": 37353062378,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37353062378",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363875661,
+          "name": "forensic-is-this-job-legit-37353062378-1-e27736309b7844c28cb46be1eda58a59-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": false
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "forensic-leftovers",
+      "runtime_required": false,
+      "registry_revision": 467,
+      "run_id": 37353397731,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37353397731",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363178907,
+          "name": "forensic-leftovers-37353397731-1-876a59881c694bbea610f073c1f3c99d-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "6c0d93994997ee36299b625b9367b5130b31cd1d2f1e04d33696e115092faa3c",
+        "size_bytes": 245,
+        "file_count": 1,
+        "uncompressed_size_bytes": 124
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "forensic-the-last-record",
+      "runtime_required": false,
+      "registry_revision": 468,
+      "run_id": 37353735902,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37353735902",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363423059,
+          "name": "forensic-the-last-record-37353735902-1-12d2d7a3234f4f2491e50d0193617e58-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "d285599d8edf9bc76a661f8ee49fdd55e9fdbc515caa9a973e30ff9a07b1ddba",
+        "size_bytes": 733,
+        "file_count": 1,
+        "uncompressed_size_bytes": 834
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "runtime_required": false,
+      "registry_revision": 469,
+      "run_id": 37354078451,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37354078451",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11364086714,
+          "name": "misc-hidden-order-37354078451-1-d354e6f9e0d44abf9e5146eb046ba484-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "9fbb05a0a4f8b052145cfd0ce26a6e2afe1642e4f7807f527c9a8cc584164f6b",
+        "size_bytes": 1093803,
+        "file_count": 3,
+        "uncompressed_size_bytes": 1176727
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "misc-snack-thief",
+      "runtime_required": false,
+      "registry_revision": 470,
+      "run_id": 37354420459,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37354420459",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11364620236,
+          "name": "misc-snack-thief-37354420459-1-de60314d46604eb1818159aa427fd4e2-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "557ca105a9159b34cea6e77690f4404aab4445a0f8b9d57c02c496a76064656d",
+        "size_bytes": 22735145,
+        "file_count": 1,
+        "uncompressed_size_bytes": 25033830
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "osint-ramen-man",
+      "runtime_required": false,
+      "registry_revision": 471,
+      "run_id": 37354891450,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37354891450",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11364506285,
+          "name": "osint-ramen-man-37354891450-1-0ceb5c9674144b94b77116c2a559d8ce-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "e2086ab5462d707944f038c515c4bdac5f85375b6da96832a904e631a5a05031",
+        "size_bytes": 563352,
+        "file_count": 1,
+        "uncompressed_size_bytes": 566940
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "osint-trace",
+      "runtime_required": false,
+      "registry_revision": 472,
+      "run_id": 37355231118,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37355231118",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363848439,
+          "name": "osint-trace-37355231118-1-ce37c2252d384e838e181037fddcfac7-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "2162bc61d943194febab4db762aec973e5991cc9ededbde8254487d08a413bc3",
+        "size_bytes": 7689938,
+        "file_count": 1,
+        "uncompressed_size_bytes": 7710195
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "pwn-msgdriver",
+      "runtime_required": false,
+      "registry_revision": 473,
+      "run_id": 37355605999,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37355605999",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11364671824,
+          "name": "pwn-msgdriver-37355605999-1-1d1f185bf6964a98bc9426955e267952-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "213f35b825e7c47d457edc82fbaf84826bc91d91879be2f4f164486a7dfb69ff",
+        "size_bytes": 11804,
+        "file_count": 3,
+        "uncompressed_size_bytes": 22794
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "rev-ezpz",
+      "runtime_required": false,
+      "registry_revision": 474,
+      "run_id": 37355958294,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37355958294",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11363943766,
+          "name": "rev-ezpz-37355958294-1-68e7fb766ef845cd949d1e51228a4bba-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "972106721605feed80b0817b81dd52bbd81b7fce17f5ccaee6686f7dddad7063",
+        "size_bytes": 96870545,
+        "file_count": 1,
+        "uncompressed_size_bytes": 96848220
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "rev-phantom-lattice",
+      "runtime_required": false,
+      "registry_revision": 475,
+      "run_id": 37356673439,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37356673439",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11364782921,
+          "name": "rev-phantom-lattice-37356673439-1-65c91f047b7e49fd843c05392ba5ed4a-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "ca3d2822a7f1dbdcd00cc65831be127a48698459c89ea9daa1e9f053b84cd897",
+        "size_bytes": 3397,
+        "file_count": 1,
+        "uncompressed_size_bytes": 14472
+      },
+      "publish_bundle_sha256": null
+    },
+    {
+      "challenge_slug": "rev-rework",
+      "runtime_required": false,
+      "registry_revision": 476,
+      "run_id": 37356949017,
+      "run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37356949017",
+      "verification_status": "PASS",
+      "artifacts": [
+        {
+          "id": 11364892451,
+          "name": "rev-rework-37356949017-1-87d831b7ec86442799cd8333741e13b6-user-files-bundle"
+        }
+      ],
+      "user_files": {
+        "present": true,
+        "sha256": "1b3f0cf7c49cb9649e5cb0d3d0c03be70969950ce2cd8ddae482a2da262c35d6",
+        "size_bytes": 3628766,
+        "file_count": 1,
+        "uncompressed_size_bytes": 3633387
+      },
+      "publish_bundle_sha256": null
+    }
+  ]
+}
