@@ -86,6 +86,29 @@ FLAG 원문과 원본 ZIP·문제 소스는 이 보고서에 넣지 않습니다
 
 ## 다음 작업과 담당
 
+### 이번에 직접 실행한 Grade 기능 smoke
+
+[문제 저장소 수동 Actions 39151393362](https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/39151393362)가
+성공했습니다. 기존 main의 승인된 WEB 시험 workflow를 변경 없이 한 번 실행했습니다.
+
+- 대상: CI 전용 `younhochoi-k3s-test`, 승인 Grade digest `c409e49c…44e39e`.
+- 생성 Operation: SUCCEEDED, 60.680초. 삭제 Operation: SUCCEEDED, 45.699초.
+- 공개 endpoint의 컨테이너 이름·포트·protocol·주소 형식이 요청과 일치합니다.
+- 결과·추적 식별자와 미검증 범위는 [실행 영수증](runtime-smoke-result.json)에 보존했습니다.
+- workflow가 승인 digest로 시험용 artifact를 만드는 경로입니다. revision 1은
+  시험 입력이며 실제 Backend release revision 등록·전환을 뜻하지 않습니다.
+- 반환된 접속 주소를 runner에서 HTTP GET으로 검사하지는 않았습니다.
+  실제 노드 imageID, 캐시 없는 pull, 물리 Namespace·Pod·Service 제거 확인도
+  이번 시험에 포함되지 않습니다. 생성·삭제 시간은 GHCR pull 시간으로 사용하지 않습니다.
+- Backend Poller·Challenge Registry·Scheduler·Broker를 거치는 전체 E2E는 아닙니다.
+
+[PR #20 코드 CI](https://github.com/MSG-CTF/msgctf-devsecops/actions/runs/39151297362)와
+[수동 HTTPS 연결 점검](https://github.com/MSG-CTF/msgctf-devsecops/actions/runs/39151306208)도
+코드 커밋 `9ab898f484694e8d18644c56018547296a477536`에서 성공했습니다.
+두 실행의 main 전용 샘플·KOTH 발행 생략은 PR 브랜치의 의도된 조건입니다.
+수동 점검은 Python 기본 신뢰 저장소에서 TLS 검증과 무인증 401을 확인했습니다.
+이후 추가한 실행 영수증과 문서는 코드 변경이 아닙니다.
+
 ### GHCR 읽기 전용 정리 후보 갱신
 
 [수동 Actions 39150931566](https://github.com/MSG-CTF/msgctf-devsecops/actions/runs/39150931566)이
