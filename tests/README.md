@@ -5,6 +5,11 @@
 
 ## 테스트 구성
 
+### `test_audit_publication_state.py`
+
+정적·동적 문제의 필수 산출물, 실패·실행 중·만료된 artifact 제외, revision 우선순위,
+문제 폴더 변경과 GitHub 페이지 조회를 검증합니다. 배포 성공 판정은 하지 않습니다.
+
 ### `test_discover_changed_challenges.py`
 
 변경된 문제 탐색과 안전하지 않은 문제 경로 차단을 검증합니다.
