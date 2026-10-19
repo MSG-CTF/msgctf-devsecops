@@ -1,5 +1,7 @@
 # 문서
 
+- [KOTH·Windows 배포 연동](koth-windows-deployment.md): 공용 KOTH 배치·복구와 Windows 제출 실행의 역할 경계, 미확정 계약과 확인 순서
+- [2026-10-19 KOTH 자원·배포 사양 점검](reports/2026-10-19-koth-windows-readiness/README.md): 고정 main의 37개 info.yaml 선언값과 6개 KOTH 자원 비교
 - [2026-10-11 Runtime 후속 조건](reports/2026-10-10-independent-preparation/runtime-followup-2026-10-11.md): 새 Grade digest 미승인·이전 리소스 미확인과 Afterimage/KOTH 네트워크 처리 분리
 - [2026-10-10 독립 연동 준비](reports/2026-10-10-independent-preparation/README.md): 최신 37개 참가자 파일 검사, 문제별 네트워크 검토 후보와 Backend GCS 준비
 - [참가자 파일 GCS 저장](participant-files-gcs.md): Backend 저장 담당과 비활성 CI 업로드 경로
