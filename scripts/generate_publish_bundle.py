@@ -146,7 +146,9 @@ def generate_bundle(
     validated_results = _validated_results(metadata, results, evidence_root)
     expected_profile = "PWN" if metadata.get("category") == "pwn" else "WEB"
     isolation_profile = metadata.get("isolation_profile", expected_profile)
-    if isolation_profile != expected_profile:
+    if not isinstance(isolation_profile, str) or isolation_profile not in {"WEB", "PWN"} or (
+        metadata.get("category") == "pwn" and isolation_profile != "PWN"
+    ):
         raise ValueError("isolation_profile must match the challenge category")
 
     workload_containers = []

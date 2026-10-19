@@ -100,11 +100,13 @@ def _validate_bundle_contract(artifact: dict[str, Any]) -> tuple[int, int, str]:
     if registry_revision != revision:
         raise ValueError("artifact registry_revision must equal revision")
     expected_profile = _isolation_profile(artifact.get("category"))
-    if artifact.get("isolation_profile") != expected_profile:
+    isolation_profile = artifact.get("isolation_profile")
+    if (not isinstance(isolation_profile, str) or isolation_profile not in {"WEB", "PWN"}
+            or (expected_profile == "PWN" and isolation_profile != "PWN")):
         raise ValueError("artifact isolation_profile must match the challenge category")
     if artifact.get("scan_result") != "PASS":
         raise ValueError("artifact scan_result must be PASS")
-    return revision, registry_revision, expected_profile
+    return revision, registry_revision, isolation_profile
 
 
 def build_create_request(
