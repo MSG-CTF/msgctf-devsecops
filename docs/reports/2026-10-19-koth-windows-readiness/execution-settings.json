@@ -1,0 +1,891 @@
+{
+  "schema_version": "1.0",
+  "source_sha": "25e7c6b636ba11b16c77e09274563fe92fbb9003",
+  "audit_only": true,
+  "challenges": [
+    {
+      "challenge_slug": "crypto-nerves",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "crypto",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 1000,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 256
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "chall"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "crypto",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "crypto-tr88",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "crypto",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "forensic-evidence",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "forensics",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "forensic",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "forensic-leftovers",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "forensic",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "forensic-the-last-record",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "forensic",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "koth",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": [
+          "koth_release_mapping",
+          "koth_deployment_and_recovery_owner",
+          "koth_capacity_and_replica_plan"
+        ]
+      }
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "backend",
+        "judge-coordinator",
+        "score-service",
+        "service"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "koth",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 4,
+        "resource_profile": {
+          "cpu_millicores": 5500,
+          "memory_mib": 3072,
+          "ephemeral_storage_mib": 4096
+        },
+        "review_required": [
+          "koth_release_mapping",
+          "koth_deployment_and_recovery_owner",
+          "koth_capacity_and_replica_plan"
+        ]
+      }
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "koth",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 6000,
+          "memory_mib": 1536,
+          "ephemeral_storage_mib": 2048
+        },
+        "review_required": [
+          "koth_release_mapping",
+          "koth_deployment_and_recovery_owner",
+          "koth_capacity_and_replica_plan"
+        ]
+      }
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "jenga"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "koth",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 300,
+          "memory_mib": 256,
+          "ephemeral_storage_mib": 512
+        },
+        "review_required": [
+          "koth_release_mapping",
+          "koth_deployment_and_recovery_owner",
+          "koth_capacity_and_replica_plan"
+        ]
+      }
+    },
+    {
+      "challenge_slug": "koth-pixel-smuggler",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "koth",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 1000,
+          "memory_mib": 1024,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": [
+          "koth_release_mapping",
+          "koth_deployment_and_recovery_owner",
+          "koth_capacity_and_replica_plan"
+        ]
+      }
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "backend",
+        "service",
+        "submit",
+        "test"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "koth",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 4,
+        "resource_profile": {
+          "cpu_millicores": 6000,
+          "memory_mib": 4096,
+          "ephemeral_storage_mib": 2048
+        },
+        "review_required": [
+          "koth_release_mapping",
+          "koth_deployment_and_recovery_owner",
+          "koth_capacity_and_replica_plan"
+        ]
+      }
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "misc",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 250,
+          "memory_mib": 128,
+          "ephemeral_storage_mib": 128
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "misc",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "misc",
+        "runtime_type": "DOCKER",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 256,
+          "ephemeral_storage_mib": 256
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "misc-snack-thief",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "misc",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "osint-ramen-man",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "osint",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "osint",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "osint-trace",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "osint",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "chall"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "pwn",
+        "runtime_type": "DOCKER",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 250,
+          "memory_mib": 128,
+          "ephemeral_storage_mib": 256
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "pwn-msgdriver",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "pwn",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "pwn",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 250,
+          "memory_mib": 256,
+          "ephemeral_storage_mib": 256
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "price-tag"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "pwn",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 250,
+          "memory_mib": 128,
+          "ephemeral_storage_mib": 256
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "random6"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "pwn",
+        "runtime_type": "DOCKER",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 256,
+          "ephemeral_storage_mib": 512
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "rev-ezpz",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "rev",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "rev-phantom-lattice",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "rev",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "rev-rework",
+      "is_server": false,
+      "info_healthcheck_present": false,
+      "info_container_names": [],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "rev",
+        "runtime_type": null,
+        "architecture": null,
+        "container_count": 0,
+        "resource_profile": {},
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "tinyvm"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "rev",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "bot",
+        "case-vault",
+        "core",
+        "exporter",
+        "indexer",
+        "inventory-metadata",
+        "portal"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 7,
+        "resource_profile": {
+          "cpu_millicores": 2000,
+          "memory_mib": 4000,
+          "ephemeral_storage_mib": 2048
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 300,
+          "memory_mib": 256,
+          "ephemeral_storage_mib": 512
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "is_server": true,
+      "info_healthcheck_present": true,
+      "info_container_names": [
+        "service"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 300,
+          "memory_mib": 256,
+          "ephemeral_storage_mib": 128
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "db",
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 2,
+        "resource_profile": {
+          "cpu_millicores": 700,
+          "memory_mib": 768,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "web"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 500,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 1024
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "server"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web3",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 2000,
+          "memory_mib": 512,
+          "ephemeral_storage_mib": 128
+        },
+        "review_required": []
+      }
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "is_server": true,
+      "info_healthcheck_present": false,
+      "info_container_names": [
+        "challenge"
+      ],
+      "compose": [],
+      "environment_references": [],
+      "review_required": [],
+      "incomplete": false,
+      "audit_scope": "INFO_ONLY",
+      "deployment_requirements": {
+        "category": "web3",
+        "runtime_type": "KUBERNETES",
+        "architecture": "AMD64",
+        "container_count": 1,
+        "resource_profile": {
+          "cpu_millicores": 1000,
+          "memory_mib": 1024,
+          "ephemeral_storage_mib": 2048
+        },
+        "review_required": []
+      }
+    }
+  ]
+}
