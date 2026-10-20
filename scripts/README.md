@@ -9,6 +9,13 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `validate_runtime_smoke_source.py`
+
+독립 Runtime 시험에서 성공한 main 발행 run과 전체 artifact 페이지를 대조합니다.
+문제·시도별 bundle 하나만 선택하고 source SHA·revision·GHCR digest를 검증합니다.
+단일 WEB·KUBERNETES·AMD64 범위에서 기존 요청 변환기를 재사용하며 Runtime은 호출하지 않습니다.
+[독립 시험 운영 절차](../docs/published-runtime-smoke.md)를 참고합니다.
+
 ### `runtime_connection_probe.py`
 
 토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.

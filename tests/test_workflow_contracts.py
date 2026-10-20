@@ -462,6 +462,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "challenge-supply-chain.yml",
                 "pipeline-self-test.yml",
                 "ghcr-cleanup-dry-run.yml",
+                "published-runtime-smoke.yml",
             },
         )
 

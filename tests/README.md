@@ -5,6 +5,12 @@
 
 ## 테스트 구성
 
+### `test_validate_runtime_smoke_source.py`
+
+공식 main 성공 실행·전체 artifact pagination·시도 번호·만료·출처·SHA·revision과
+digest 검증을 확인합니다. KOTH·PWN·VM·멀티 컨테이너의 암묵적 승인과 비밀값 노출을
+차단하고, 독립 workflow가 발행·권한 확대·실패 무시를 하지 않는지 검사합니다.
+
 ### `test_audit_execution_settings.py`
 
 설정 이름만 출력하는 비밀값 보호, info.yaml 전용 점검 범위, KOTH 합산 자원 보존과
