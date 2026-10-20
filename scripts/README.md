@@ -50,6 +50,13 @@ GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버�
 우선 점검합니다. 단일 문제 경로도 지원합니다. 점검 완료는 실제 네트워크
 정책 적용·통신 성공을 뜻하지 않습니다.
 
+점검 자료에 category, runtime_type, architecture, 컨테이너 수와 문제 전체의
+CPU·메모리·임시 저장소 선언값도 포함합니다. KOTH 릴리스 연결·배포/복구 담당과
+VM 실행 계약은 확인 항목으로만 표시하며, 새 CI 차단 조건이나 자동 배포 승인이 아닙니다.
+`--deployment-only`는 info.yaml만 읽고 `audit_scope: INFO_ONLY`를 기록합니다.
+이 모드에서는 소스·Compose를 점검했다고 표시하지 않으며 Windows 여부를 추측하지 않습니다.
+[KOTH·Windows 연동 기준](../docs/koth-windows-deployment.md)을 참고합니다.
+
 ### `discover_changed_challenges.py`
 
 Git 변경 내역에서 `info.yaml`이 있는 문제 디렉터리를 찾아 검증 대상으로

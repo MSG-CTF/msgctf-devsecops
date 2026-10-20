@@ -154,6 +154,7 @@ def validate_spec(challenge_path):
     allowed_deployment_fields = {
         "runtime_type",
         "architecture",
+        "isolation_profile",
         "containers",
         "resource_profile",
         "healthcheck",
@@ -189,6 +190,13 @@ def validate_spec(challenge_path):
     architecture = deployment.get("architecture")
     if architecture not in ARCHITECTURES:
         raise ValueError("deployment.architecture is not supported")
+    isolation_profile = deployment.get(
+        "isolation_profile", "PWN" if category == "pwn" else "WEB"
+    )
+    if not isinstance(isolation_profile, str) or isolation_profile not in {"WEB", "PWN"}:
+        raise ValueError("deployment.isolation_profile must be WEB or PWN")
+    if category == "pwn" and isolation_profile != "PWN":
+        raise ValueError("PWN category requires PWN isolation_profile")
 
     raw_containers = deployment.get("containers")
     if not isinstance(raw_containers, list) or not raw_containers:
@@ -200,7 +208,7 @@ def validate_spec(challenge_path):
     names = [container["name"] for container in containers]
     if len(names) != len(set(names)):
         raise ValueError("container name values must be unique")
-    if category == "pwn":
+    if isolation_profile == "PWN":
         public_containers = [container for container in containers if container["expose"]]
         if len(public_containers) != 1:
             raise ValueError("PWN deployment requires exactly one public container")
@@ -219,7 +227,7 @@ def validate_spec(challenge_path):
     metadata.update({
         "runtime_type": runtime_type,
         "architecture": architecture,
-        "isolation_profile": "PWN" if category == "pwn" else "WEB",
+        "isolation_profile": isolation_profile,
         "containers": containers,
         "resource_profile": resource_profile,
     })
