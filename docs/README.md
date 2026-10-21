@@ -1,5 +1,6 @@
 # 문서
 
+- [2026-10-21 Backend 개발 서버 전달 자료](reports/2026-10-21-backend-handoff/README.md): 최신 37개 발행 대조와 문제별 revision·run·artifact, 배포 성공 기록 및 서버 확인 요청
 - [2026-10-20 최신 발행 대조](reports/2026-10-20-release-readiness/README.md): 37개 문제 폴더와 성공 산출물 일치, 실패한 Runtime 시험과 수집 계약 구분
 - [2026-10-19 병합 후 연동 점검](reports/2026-10-19-release-readiness/README.md): 실제 main 산출물 대조, Notebook revision 529·정책 확인과 남은 배포 검증
 - [KOTH·Windows 배포 연동](koth-windows-deployment.md): 공용 KOTH 배치·복구와 Windows 제출 실행의 역할 경계, 미확정 계약과 확인 순서
