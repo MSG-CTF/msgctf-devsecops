@@ -1,0 +1,3822 @@
+{
+  "schema_version": "1.0",
+  "organization": "MSG-CTF",
+  "collected_at": "2026-10-23T06:49:45.024846+00:00",
+  "packages": [
+    {
+      "name": "msgctf-backend",
+      "versions": [
+        {
+          "id": 1078046418,
+          "name": "sha256:d424ad271a591f6efd454252b35c645cc86fdfd71912638b4d514a74730dd817",
+          "created_at": "2026-07-29T11:11:26Z",
+          "updated_at": "2026-07-29T11:11:26Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "latest",
+                "8fba304aa3dc383aa4f62319274addfc4fcb80d1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1054852387,
+          "name": "sha256:e2e5f8afef9e91a3a33f77aedd8d23b6a44c95c4af3c4599396295cce9885174",
+          "created_at": "2026-07-22T05:57:15Z",
+          "updated_at": "2026-07-22T05:57:15Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "msgctf-scheduler",
+      "versions": [
+        {
+          "id": 1078047068,
+          "name": "sha256:06c7c882d2cd32292e990144d0b21b3b8faa49b0fa0486c856fd5d4dfe4874a6",
+          "created_at": "2026-07-29T11:11:37Z",
+          "updated_at": "2026-07-29T11:11:37Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "latest",
+                "8fba304aa3dc383aa4f62319274addfc4fcb80d1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1054852588,
+          "name": "sha256:bfae74c09dd929dd61b8bb6389bd0e7986d9ecb6c540729acd0eebf9481f0934",
+          "created_at": "2026-07-22T05:57:22Z",
+          "updated_at": "2026-07-22T05:57:22Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "web100",
+      "versions": [
+        {
+          "id": 1054852793,
+          "name": "sha256:3f9a465ff4ca0d25db1a415f384576b1b0832ca681fbf03e2b575f24859b3ef0",
+          "created_at": "2026-07-22T05:57:29Z",
+          "updated_at": "2026-07-22T05:57:29Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "latest",
+                "8fba304aa3dc383aa4f62319274addfc4fcb80d1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "msgctf-frontend",
+      "versions": [
+        {
+          "id": 1078047627,
+          "name": "sha256:96d086422c9e0e1d22dbf369d8552ba097b809ff6dcc87cb409c9359d237892f",
+          "created_at": "2026-07-29T11:11:48Z",
+          "updated_at": "2026-07-29T11:11:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "latest",
+                "8fba304aa3dc383aa4f62319274addfc4fcb80d1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1054853341,
+          "name": "sha256:9c2d9abbcf8d0f42232c6e0bfd7a678306369ce82b131ddf9856b7a5a89bc477",
+          "created_at": "2026-07-22T05:57:45Z",
+          "updated_at": "2026-07-22T05:57:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "msgctf-runtime",
+      "versions": [
+        {
+          "id": 1078046468,
+          "name": "sha256:130c752105ac4f4610e9ab564d21fefca623289a0873b20107ddb2983f12beaf",
+          "created_at": "2026-07-29T11:11:27Z",
+          "updated_at": "2026-07-29T11:11:27Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "latest",
+                "8fba304aa3dc383aa4f62319274addfc4fcb80d1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1054854738,
+          "name": "sha256:2d9624397deed7637c1088d0db1960be0a6e66f56cdaf7a275d85d0793a238cb",
+          "created_at": "2026-07-22T05:58:31Z",
+          "updated_at": "2026-07-22T05:58:31Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/info-valid/helper",
+      "versions": [
+        {
+          "id": 1078292660,
+          "name": "sha256:dcb7908ca45b38f72f3f3a41023a52ef6972be007b793dd2606b97018c017f1e",
+          "created_at": "2026-07-29T12:27:03Z",
+          "updated_at": "2026-07-29T12:27:03Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "5cd9ef6eb43f13af5ff3bb323707df2afdfdd266-39910995435-1-4a9f8887bd78444f9e7b24309ae09c1c",
+                "8e952abae79df631e26f9f11ff0893aba124e4eb-39910418013-1-198d10a8610a44ecb8ceba524a6dbc9d",
+                "9ebca724dce53a9f24533a96dd5b0d40317f7f82-39406209929-1-0d110158a83c4bf6ab9d5742a3101e3c",
+                "6f14afcf2c376939c7b71702003992acde51850a-39366914765-1-527076b36fd14d52bc2e94c3cb367ba9",
+                "e28f0fdbddc975099ad5eb542b3713b9f56f09c6-39250169255-1-15d3cd76cc384a00a129116a7998776f",
+                "4669f4ba4ccb68e2c7c63fe75c67e0377d34f63b-38682119433-1-78758196b6cd40a9b5f7e228d4043fbf",
+                "40513968fa9e4a8a624dc7c11a6e0a399aada323-37614314382-1-7893fea9adb9445592fb8bce154e66e9",
+                "cd47cb5c738ab612dae57e385368f279d26054aa-37569199045-1-198e6bab8a024678ade8616d4d4e17c7",
+                "c789b55e10d69c3ab2069d4de513e6bc8c2dc8a9-37425971670-1-c7a33dae970c4e2d8ed1628cb2486a0a",
+                "1515d2c59753745f2b02023779a633b79775b529-37403583841-1-1d27dc87f36a442dbc949cb5b6881c4f",
+                "f11bf50bda3e6cce804a66e2f4f1ee379ac16f85-37403049228-1-b9060586e9ee4246b58df0f841519321",
+                "71c9468700a845b6e8ddf88a9f2697ee9f8427c5-37398539827-1-22f650e4629940828ee4023bf99da799",
+                "2d275ae083324eb83b776ace81daa3a669d2c11c-37326168555-1-0e2aeb7c3aff4985939cf3c8a1e83eb8",
+                "45fe554b95173f90382c7020eb5d58e737faf4f3-37325351785-1-811401352d814762baef25fe28bb24aa",
+                "b39f232fc4759b70928c4960e7a17bb33264bcec-36220018682-1-12efc1e1b8074b97bb9a680e598b2a3b",
+                "617b1dfcd72efe214c935dce9176d40ece17add4-34807479352-1-b033b2b02e9f4292b9839840830e52ac",
+                "a682bd0d7098913aee52235b46ec8205b3ad73ed-34765503678-1-df48f27d369548f392ffd1d80230572a",
+                "ac5a5a8298d12220a329f5a3be5aaa1efe51a62e-34085968810-1-92743c3b9d184443bbc2fb8dbd5672fe",
+                "8cf8892588ca43fab2fd57c16d32b8791cac6b8b-32959545593-1-96109d17d15a4df6b2d1db5a4f4921be",
+                "4aea21147d4dafe214f4a4e69016361dfc1c667c-32876556248-1-8882cf0fc62143c1a5c18bf11bbf10da",
+                "0fbfbfda9e63936392158f54fb5c1db2b3d84db4-32723330120-1-b573b8eb3f214bbbb11a1df3eb7dcc2f",
+                "ebf1cce68047a5a8819bdac3f511749dffe86413-32722884352-1-3e34c925bf654187b3aee31ec420c502",
+                "6eae0c7f4f09072a4adeb65d79341771741908d0-32721810592-1-1d020df134d1496f8c30a9119232a34e",
+                "9c0088f1ede9ccc4a9226466da21bb38c26f9d03-32719785974-1-e2329c95234b41d0b3e702d5d4c81d89",
+                "647149e6da79ccb8cfc840a6a510ddb1a07e1939-32713627303-1-0a62bad99be2492fa6260cd4bfbe716b",
+                "e2f7db03cbeb2fd0a7774e0ab18fcc7c947b220f-32246919042-1",
+                "d6f51dd0584bfe2e20b1ad6c435040e091239576-32246560388-1",
+                "cda88ec59595a55828f4249a2fa67a2c562cfcbb-30981779564-1",
+                "6c6a6ac37f59e327e7fa38ed3c80a53154ef5e10-30469176156-1",
+                "65cb52a5660432c71f0adb119d547a6a13221efc-30468531536-1",
+                "57bf427e9c35d000b9bbfe0ebf821bfc78d7744f-30451570998-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/info-valid/web",
+      "versions": [
+        {
+          "id": 1078293638,
+          "name": "sha256:3f9a465ff4ca0d25db1a415f384576b1b0832ca681fbf03e2b575f24859b3ef0",
+          "created_at": "2026-07-29T12:27:20Z",
+          "updated_at": "2026-07-29T12:27:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "5cd9ef6eb43f13af5ff3bb323707df2afdfdd266-39910995435-1-4a9f8887bd78444f9e7b24309ae09c1c",
+                "8e952abae79df631e26f9f11ff0893aba124e4eb-39910418013-1-198d10a8610a44ecb8ceba524a6dbc9d",
+                "9ebca724dce53a9f24533a96dd5b0d40317f7f82-39406209929-1-0d110158a83c4bf6ab9d5742a3101e3c",
+                "6f14afcf2c376939c7b71702003992acde51850a-39366914765-1-527076b36fd14d52bc2e94c3cb367ba9",
+                "e28f0fdbddc975099ad5eb542b3713b9f56f09c6-39250169255-1-15d3cd76cc384a00a129116a7998776f",
+                "4669f4ba4ccb68e2c7c63fe75c67e0377d34f63b-38682119433-1-78758196b6cd40a9b5f7e228d4043fbf",
+                "40513968fa9e4a8a624dc7c11a6e0a399aada323-37614314382-1-7893fea9adb9445592fb8bce154e66e9",
+                "cd47cb5c738ab612dae57e385368f279d26054aa-37569199045-1-198e6bab8a024678ade8616d4d4e17c7",
+                "c789b55e10d69c3ab2069d4de513e6bc8c2dc8a9-37425971670-1-c7a33dae970c4e2d8ed1628cb2486a0a",
+                "1515d2c59753745f2b02023779a633b79775b529-37403583841-1-1d27dc87f36a442dbc949cb5b6881c4f",
+                "f11bf50bda3e6cce804a66e2f4f1ee379ac16f85-37403049228-1-b9060586e9ee4246b58df0f841519321",
+                "71c9468700a845b6e8ddf88a9f2697ee9f8427c5-37398539827-1-22f650e4629940828ee4023bf99da799",
+                "2d275ae083324eb83b776ace81daa3a669d2c11c-37326168555-1-0e2aeb7c3aff4985939cf3c8a1e83eb8",
+                "45fe554b95173f90382c7020eb5d58e737faf4f3-37325351785-1-811401352d814762baef25fe28bb24aa",
+                "b39f232fc4759b70928c4960e7a17bb33264bcec-36220018682-1-12efc1e1b8074b97bb9a680e598b2a3b",
+                "617b1dfcd72efe214c935dce9176d40ece17add4-34807479352-1-b033b2b02e9f4292b9839840830e52ac",
+                "a682bd0d7098913aee52235b46ec8205b3ad73ed-34765503678-1-df48f27d369548f392ffd1d80230572a",
+                "ac5a5a8298d12220a329f5a3be5aaa1efe51a62e-34085968810-1-92743c3b9d184443bbc2fb8dbd5672fe",
+                "8cf8892588ca43fab2fd57c16d32b8791cac6b8b-32959545593-1-96109d17d15a4df6b2d1db5a4f4921be",
+                "4aea21147d4dafe214f4a4e69016361dfc1c667c-32876556248-1-8882cf0fc62143c1a5c18bf11bbf10da",
+                "0fbfbfda9e63936392158f54fb5c1db2b3d84db4-32723330120-1-b573b8eb3f214bbbb11a1df3eb7dcc2f",
+                "ebf1cce68047a5a8819bdac3f511749dffe86413-32722884352-1-3e34c925bf654187b3aee31ec420c502",
+                "6eae0c7f4f09072a4adeb65d79341771741908d0-32721810592-1-1d020df134d1496f8c30a9119232a34e",
+                "9c0088f1ede9ccc4a9226466da21bb38c26f9d03-32719785974-1-e2329c95234b41d0b3e702d5d4c81d89",
+                "647149e6da79ccb8cfc840a6a510ddb1a07e1939-32713627303-1-0a62bad99be2492fa6260cd4bfbe716b",
+                "e2f7db03cbeb2fd0a7774e0ab18fcc7c947b220f-32246919042-1",
+                "d6f51dd0584bfe2e20b1ad6c435040e091239576-32246560388-1",
+                "cda88ec59595a55828f4249a2fa67a2c562cfcbb-30981779564-1",
+                "6c6a6ac37f59e327e7fa38ed3c80a53154ef5e10-30469176156-1",
+                "65cb52a5660432c71f0adb119d547a6a13221efc-30468531536-1",
+                "57bf427e9c35d000b9bbfe0ebf821bfc78d7744f-30451570998-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/pwn-random6/random6",
+      "versions": [
+        {
+          "id": 1413139223,
+          "name": "sha256:8005b9a77163b476a4638d06905f8a18b5770311fa033e163fc706000d3b834a",
+          "created_at": "2026-10-20T04:10:38Z",
+          "updated_at": "2026-10-20T04:10:38Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-431b6ff618c74f74a16dd4fc7126f6d8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409232236,
+          "name": "sha256:1752090d82049cc3088800f6b073018556170296c6f1fb75c52ce33cc48a40da",
+          "created_at": "2026-10-19T12:17:11Z",
+          "updated_at": "2026-10-19T12:17:11Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6ce18f09982848e7b3757e6b3d16c28b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340071138,
+          "name": "sha256:b1984430b5a4fe4761a9dcd425359fa398bc95ca5bddef6d4f3d53948f4fdd9d",
+          "created_at": "2026-10-05T17:09:14Z",
+          "updated_at": "2026-10-05T17:09:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37345781390-1-097b7820c05041db8f8c9c8193a965e2"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1308988607,
+          "name": "sha256:1089ed042ad863d721df6e5fa6d17353a6c3ccbb463a42a82770a872ba877390",
+          "created_at": "2026-09-29T06:53:42Z",
+          "updated_at": "2026-09-29T06:53:42Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "efb2fa39f5e935224fc4be1d24bea6db5930c57a-36533199226-1-36b32d708abb4893af6ca06527aebc58"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1303627281,
+          "name": "sha256:9cd0f3288dc06097ea9e5c3ca74a9674ea2c6829693c8041f5b4eded275c5bd6",
+          "created_at": "2026-09-28T06:52:50Z",
+          "updated_at": "2026-09-28T06:52:50Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36388354543-1-edd24b94528e48c8add09b3088c34837"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1272050473,
+          "name": "sha256:d5ca985b87b922d0bd8fc79995f989cb34227010dd831d385fc086734d3c1c08",
+          "created_at": "2026-09-20T20:41:08Z",
+          "updated_at": "2026-09-20T20:41:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "318efad191ad13a6a311daa929c3a7033ccb4b91-35536123879-1-dc0c1d9440774263918934c35e40f99d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1254787862,
+          "name": "sha256:95eb474117d157a5d228410b21c60850edfc9d181dc81812b25b85a9bd76bd84",
+          "created_at": "2026-09-16T06:53:10Z",
+          "updated_at": "2026-09-16T06:53:10Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "f0336620b1364c949b28522d0505d8b33aebacb6-35065518126-1-aa1dd215e7504ab7b240780b2f1ba727"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1107824022,
+          "name": "sha256:a5418f576904d6a0fcbb60c9078f3457174444177e784745fc57fa3d9c206c37",
+          "created_at": "2026-08-07T08:21:12Z",
+          "updated_at": "2026-08-07T08:21:12Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "01ae70fb509e41036a060e3c01881d4f980896ba-31161223393-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-notebook/web",
+      "versions": [
+        {
+          "id": 1413139617,
+          "name": "sha256:8dafbe74d389f3b90797ff157d75484637ef7a3154485b4da17ebf9a22873800",
+          "created_at": "2026-10-20T04:10:46Z",
+          "updated_at": "2026-10-20T04:10:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-b21c5160087946588d2e3c689e48338e"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409260946,
+          "name": "sha256:d52095beaeaa69459a751c9872587bb6248bb30494f754bd1bb554b8a6ceb6f5",
+          "created_at": "2026-10-19T12:22:31Z",
+          "updated_at": "2026-10-19T12:22:31Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-d7cb63b24a6245c494db4ddb58fd7b0d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1405440967,
+          "name": "sha256:61cebc237880b45ec1157b60d892429bfa6b237fbee83f339cd4e73d659b4a8b",
+          "created_at": "2026-10-18T16:17:23Z",
+          "updated_at": "2026-10-18T16:17:23Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "25e7c6b636ba11b16c77e09274563fe92fbb9003-39143988846-1-b730c37ae26045e7acab290a5328dfb3"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340187248,
+          "name": "sha256:d4249f02fb0745df557dc65382911ec00da883e2fa6bde434c5b63c14cb81db3",
+          "created_at": "2026-10-05T17:36:06Z",
+          "updated_at": "2026-10-05T17:36:06Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37349112874-1-c8d20c58fe76460595db1dd7be8e435f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1249406198,
+          "name": "sha256:0a9297f98efc2502b9df85fcde8954190a6f2d132bb98bf49bc12efb6f45cde3",
+          "created_at": "2026-09-15T02:43:14Z",
+          "updated_at": "2026-09-15T02:43:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "0829f3f00043883ef45e870179b69910f4eff380-34922010196-1-0b8a12648f3840d895663d3d56ac8d20"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1107825771,
+          "name": "sha256:2eaa7e0f2a8fe5708874e54621d3e82c487d172a9d6181b6fe26f632938c20dc",
+          "created_at": "2026-08-07T08:21:50Z",
+          "updated_at": "2026-08-07T08:21:50Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "01ae70fb509e41036a060e3c01881d4f980896ba-31161223393-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-template/service",
+      "versions": [
+        {
+          "id": 1432893670,
+          "name": "sha256:85df3032462e171829679774568c30bdbe40954d7f16eb0fc5258b9179d45aeb",
+          "created_at": "2026-10-23T06:23:15Z",
+          "updated_at": "2026-10-23T06:23:15Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "5cd9ef6eb43f13af5ff3bb323707df2afdfdd266-39910995435-1-220d0120bf2241fc8ed21c17f21e2168"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1432874915,
+          "name": "sha256:32b35e579bc1932ddc846621025a2eb6c8ef0794102acb40ff827ae5f022cf38",
+          "created_at": "2026-10-23T06:17:34Z",
+          "updated_at": "2026-10-23T06:17:34Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "8e952abae79df631e26f9f11ff0893aba124e4eb-39910418013-1-0876c6e55f9a4503aeadf2cf8a81e90e"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1414617037,
+          "name": "sha256:05976bdec42493c56704d4c977d19e6a0f3b5a765ae633e317fd9807a233f223",
+          "created_at": "2026-10-20T10:13:27Z",
+          "updated_at": "2026-10-20T10:13:27Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "9ebca724dce53a9f24533a96dd5b0d40317f7f82-39406209929-1-9809481ccaf44393b57eb029fce9da45"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413109020,
+          "name": "sha256:b8890d432454ca4153209098a8f876552265fe5159a02d8f73e2277559295e16",
+          "created_at": "2026-10-20T03:58:11Z",
+          "updated_at": "2026-10-20T03:58:11Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "6f14afcf2c376939c7b71702003992acde51850a-39366914765-1-1f5e58402bf14d7fa3d1e7d98dd6825d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409212836,
+          "name": "sha256:6d393d5a3a871d00eaca35ebe135be04a6b5dbc6ce431c2aead1ab6e8b8e62e1",
+          "created_at": "2026-10-19T12:13:35Z",
+          "updated_at": "2026-10-19T12:13:35Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e28f0fdbddc975099ad5eb542b3713b9f56f09c6-39250169255-1-dc9b6a9478a54e86928b1862b09f9e9a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1389117259,
+          "name": "sha256:15c8ef6a9f3073f92c815c23be9fbc73c2a374e8a59d0651aa5270e6ee7d83d8",
+          "created_at": "2026-10-15T04:35:25Z",
+          "updated_at": "2026-10-15T04:35:25Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4669f4ba4ccb68e2c7c63fe75c67e0377d34f63b-38682119433-1-b199905288f1445f8dcab66bd299c8f4"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1349821751,
+          "name": "sha256:2bcb5b45cea60d8fd2339b746ea752a5bc87af12090b5f6dd13cc641372f9fdd",
+          "created_at": "2026-10-07T11:30:14Z",
+          "updated_at": "2026-10-07T11:30:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "40513968fa9e4a8a624dc7c11a6e0a399aada323-37614314382-1-5486d912ff6440c881c23815ec36708c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1348026599,
+          "name": "sha256:26a8454cead1f6c665c1e7c5a306749279bfecb08d31459ef8c973c79016a796",
+          "created_at": "2026-10-07T03:59:58Z",
+          "updated_at": "2026-10-07T03:59:58Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "cd47cb5c738ab612dae57e385368f279d26054aa-37569199045-1-550324237c55494681de31e554482841"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1342553623,
+          "name": "sha256:6310e3b570dec6bee802d5908b438ffd5866694a835159643405e9319efdfd2a",
+          "created_at": "2026-10-06T06:51:35Z",
+          "updated_at": "2026-10-06T06:51:35Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "c789b55e10d69c3ab2069d4de513e6bc8c2dc8a9-37425971670-1-5dd68a3ced5f49678ca9ba0b31889cf1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1341824314,
+          "name": "sha256:dff30cdced8021fb492854d7b803e51063a69e01a774702f5437d30cd97b5a29",
+          "created_at": "2026-10-06T02:21:08Z",
+          "updated_at": "2026-10-06T02:21:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1515d2c59753745f2b02023779a633b79775b529-37403583841-1-1f5a526726b9453cb40c32f767d6e067"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1341806796,
+          "name": "sha256:87f6da44179c38de4eb1d47bfad9c89fdb0c5fc9c7a939ef059de19e3955d5e3",
+          "created_at": "2026-10-06T02:14:32Z",
+          "updated_at": "2026-10-06T02:14:32Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "f11bf50bda3e6cce804a66e2f4f1ee379ac16f85-37403049228-1-4ccead718d8044cda5b8206edca78cd3"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1341667348,
+          "name": "sha256:b732e92c35c3867a3b820f82cef1b18b1e8d861f3550bc874c6d44be6cc4970f",
+          "created_at": "2026-10-06T01:21:00Z",
+          "updated_at": "2026-10-06T01:21:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "71c9468700a845b6e8ddf88a9f2697ee9f8427c5-37398539827-1-3ed714a5fac64d439233f5a12e66e3f2"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339311298,
+          "name": "sha256:316922339bce9d4960f0075e4806363104a50e9413e0cc57e93591c58c017abd",
+          "created_at": "2026-10-05T14:39:24Z",
+          "updated_at": "2026-10-05T14:39:24Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2d275ae083324eb83b776ace81daa3a669d2c11c-37326168555-1-3b33d7ce3a3d4b8ebf1e17e48b267c19"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339272911,
+          "name": "sha256:940d1fe8b2f01dc10673d1503f026d280a458866d2eb4e30c8f7aa81c1841a81",
+          "created_at": "2026-10-05T14:32:43Z",
+          "updated_at": "2026-10-05T14:32:43Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "45fe554b95173f90382c7020eb5d58e737faf4f3-37325351785-1-beed02ad2912435b8d8c6db6b376d562"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1297524324,
+          "name": "sha256:963bd5d058d4364478576bad91cf1e97f090e398d54aa5403c38266b3b38334c",
+          "created_at": "2026-09-26T05:12:10Z",
+          "updated_at": "2026-09-26T05:12:10Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "b39f232fc4759b70928c4960e7a17bb33264bcec-36220018682-1-0d3421c4caf8447f8ce32c0bae2c039b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1244875095,
+          "name": "sha256:ac9599dddf8dd05adc1f706318f593decd55dd016c2af9e8ee45b805f0d89616",
+          "created_at": "2026-09-14T04:51:45Z",
+          "updated_at": "2026-09-14T04:51:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "617b1dfcd72efe214c935dce9176d40ece17add4-34807479352-1-aeefd7f205e145e6ae081875bb95845a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1243376050,
+          "name": "sha256:9fefb61d728174beb5d91f7f7c4fc5042657c41ce0d13f00ef26d48dc22029e4",
+          "created_at": "2026-09-13T15:25:47Z",
+          "updated_at": "2026-09-13T15:25:47Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "a682bd0d7098913aee52235b46ec8205b3ad73ed-34765503678-1-51e44db5b532471e8bed91cbb2e26cb8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1217294666,
+          "name": "sha256:71d6b8cd0118be4f1697f407df573895805c377db8a49ab1db24102daf8cd826",
+          "created_at": "2026-09-07T05:15:17Z",
+          "updated_at": "2026-09-07T05:15:17Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ac5a5a8298d12220a329f5a3be5aaa1efe51a62e-34085968810-1-713df4e79ba3418ca729b48c085c5007"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1173829039,
+          "name": "sha256:2e36d81962888eb29d8a467b94eb83df29ce0af5b9c798dd2f6d031f0271d773",
+          "created_at": "2026-08-26T10:42:58Z",
+          "updated_at": "2026-08-26T10:42:58Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "8cf8892588ca43fab2fd57c16d32b8791cac6b8b-32959545593-1-cec5aef86583474cb0516c72297c7b75"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1170973802,
+          "name": "sha256:58dbaa889bbb6c77a22145d0138e98456e1bcf7d4ea766207bd66954cc0a6a04",
+          "created_at": "2026-08-25T17:14:29Z",
+          "updated_at": "2026-08-25T17:14:29Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4aea21147d4dafe214f4a4e69016361dfc1c667c-32876556248-1-74ddbfc6c4fa4d6ea3d76e366dc097b0"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1165345465,
+          "name": "sha256:fad36dab3852951fade10ccfd8a804c632eaf5c978442c043ca6e458080edfd6",
+          "created_at": "2026-08-24T11:45:24Z",
+          "updated_at": "2026-08-24T11:45:24Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "0fbfbfda9e63936392158f54fb5c1db2b3d84db4-32723330120-1-8fdaba6c0855402fa764a3ccc4501158"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1165326823,
+          "name": "sha256:4c3df73a496cce072f065fda7d6765223894d786b68a17e31d03e14debe3db55",
+          "created_at": "2026-08-24T11:40:04Z",
+          "updated_at": "2026-08-24T11:40:04Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ebf1cce68047a5a8819bdac3f511749dffe86413-32722884352-1-95c19b7704ad4182b476e87dcb50ca44"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1165282103,
+          "name": "sha256:23b46a231f1933d811207b7395cba2684d7becf6a1e758b6b8de51726131864f",
+          "created_at": "2026-08-24T11:27:41Z",
+          "updated_at": "2026-08-24T11:27:41Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "6eae0c7f4f09072a4adeb65d79341771741908d0-32721810592-1-5124dd74736240d5a90467b3e994f238"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1165202164,
+          "name": "sha256:ea34aadc65f2145a21ba0b95bbc2b258bf0095a0ba28fd02600f5285ca961ea4",
+          "created_at": "2026-08-24T11:03:24Z",
+          "updated_at": "2026-08-24T11:03:24Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "9c0088f1ede9ccc4a9226466da21bb38c26f9d03-32719785974-1-f813a10e3d6c47d5b78377515c80fb62"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1164962537,
+          "name": "sha256:02d0eecadba943dfaf7d8eb83d872d922378010ed8912ef7390d9105f09e1002",
+          "created_at": "2026-08-24T09:51:23Z",
+          "updated_at": "2026-08-24T09:51:23Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "647149e6da79ccb8cfc840a6a510ddb1a07e1939-32713627303-1-dd1990694a5f48c58a6229551e3f40da"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/crypto-reused-seal/chall",
+      "versions": [
+        {
+          "id": 1409257305,
+          "name": "sha256:9a6b14660f113ffc98e8efd81c3c9cfe8cab081b994708688b179ba0ca749878",
+          "created_at": "2026-10-19T12:21:51Z",
+          "updated_at": "2026-10-19T12:21:51Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-8ac8deaa37254fc48ebe9044aff57449"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1371509232,
+          "name": "sha256:ac142a1d23fc645823d5de28adc05e980133620638bf784ebaff4e78b68ab1b7",
+          "created_at": "2026-10-12T05:44:13Z",
+          "updated_at": "2026-10-12T05:44:13Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2d4f072061c9dc7ea215b4397f1684a145491ce6-38208821029-1-cba7a2754aa049a5be846317e9def4a1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1371127835,
+          "name": "sha256:b8be5def3f25c557288706da5caf16c31950267b42593b8c428e13591a78c85c",
+          "created_at": "2026-10-12T03:00:17Z",
+          "updated_at": "2026-10-12T03:00:17Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "0f36e5c19833ec7bfcec677ab62647a071f85805-38197638552-1-24a6e69101774fef87c5a8058d45b7ac"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339712859,
+          "name": "sha256:c7ae5210cec55c74a8d1848ace9e36e412af88e9f4eeace29fc183bb42371564",
+          "created_at": "2026-10-05T15:54:09Z",
+          "updated_at": "2026-10-05T15:54:09Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37335859080-1-59fd8bcaac264188a36fc63c44b62d50"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1298591364,
+          "name": "sha256:7c317b7645f411bc14d471ec68f3b1a9b554a3886d591bbca920f21f7ee13eca",
+          "created_at": "2026-09-26T14:08:48Z",
+          "updated_at": "2026-09-26T14:08:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e6a8b8e112b73fb313c688b40f311c9ce9910132-36247221711-1-d8fc86773cca40c3b7df95c6193aaa00"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1165597438,
+          "name": "sha256:f97b7b1fab2230eb245a2b03cce53db9e3986a0464f3baee6dab027d471177d9",
+          "created_at": "2026-08-24T12:53:21Z",
+          "updated_at": "2026-08-24T12:53:21Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "bae69fd98c38dc4a407ecbf01c2a33fcd41c8503-32729357177-1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1165581209,
+          "name": "sha256:b68e31e0074c5dee3fa4eef68d636cebea046e12e9ddabe9732eec4c77152983",
+          "created_at": "2026-08-24T12:49:10Z",
+          "updated_at": "2026-08-24T12:49:10Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "bb1c7377cbe17fffb6be558e51cda70a3611a0c3-32728957892-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-dependency-hell/service",
+      "versions": [
+        {
+          "id": 1409230483,
+          "name": "sha256:c86e1f05fa0c7967a7928cbe0bc0d6fe4c890c2bf44767cd30bcef316b8256b4",
+          "created_at": "2026-10-19T12:16:51Z",
+          "updated_at": "2026-10-19T12:16:51Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-30454cb20046422a94b7397687d5d2b8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339766689,
+          "name": "sha256:129e8cec446bf95aeec34b7d391c0655baa81cbddc9804f17b910ae650a86a4e",
+          "created_at": "2026-10-05T16:05:07Z",
+          "updated_at": "2026-10-05T16:05:07Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37337432038-1-7406e45246cd4a848330ea866edc5e4b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1336714278,
+          "name": "sha256:48587b017cc6aa23ac29a0dc4e04a48cb54d287d03c170ec893a8690b7bb1d71",
+          "created_at": "2026-10-05T05:37:09Z",
+          "updated_at": "2026-10-05T05:37:09Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "17c2653872fa5b439882ccea0bea3fed4f29b63d-37268312013-1-a25331b55bf54349bc0f5dcf0a215715"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304211289,
+          "name": "sha256:fe0c0506efc37d02c1c00537e30d8584fbe5affe9ef1618ebe34ff53dc2c9a0a",
+          "created_at": "2026-09-28T09:17:49Z",
+          "updated_at": "2026-09-28T09:17:49Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36402065258-1-1b2c90176f15492188d02bcb1e8d0b46"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1249310019,
+          "name": "sha256:2f70a0e2f078cdf9717bd9f00217aa40ae88e5df9b72bfa7544ee68ea99854f9",
+          "created_at": "2026-09-15T01:59:23Z",
+          "updated_at": "2026-09-15T01:59:23Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "bb68de62e7e962dcb9ba19fd5c7a92e8bc51c174-34919115414-1-a8ceb54472cb4c8095300928873579d9"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1173117513,
+          "name": "sha256:d3f4bb2c586e7ad0a6964c7d61af58864a5520e4d1551f60be6e722689856fe9",
+          "created_at": "2026-08-26T07:19:13Z",
+          "updated_at": "2026-08-26T07:19:13Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-2-71913523945a4f0bbc83f43e0e755ac1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1168630566,
+          "name": "sha256:66f2beb90b50d2712bf68d011c10beb31cf2ff4ec05057cde6e2ebc54f238743",
+          "created_at": "2026-08-25T06:34:45Z",
+          "updated_at": "2026-08-25T06:34:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-dependency-hell/backend",
+      "versions": [
+        {
+          "id": 1409233608,
+          "name": "sha256:6a48fb1ab651931be34601bf8870e85c562d106ee76ff58b3aa2e195de24137a",
+          "created_at": "2026-10-19T12:17:26Z",
+          "updated_at": "2026-10-19T12:17:26Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-30454cb20046422a94b7397687d5d2b8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339772163,
+          "name": "sha256:3e05cd8977f814e69efc2a76a3f1d62a0e6171eacad5fe05a0c1073c4aa44f83",
+          "created_at": "2026-10-05T16:06:10Z",
+          "updated_at": "2026-10-05T16:06:10Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37337432038-1-7406e45246cd4a848330ea866edc5e4b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1336718022,
+          "name": "sha256:bc9596d37c9565d1441e2be8a125cde11727d152b7c2690177bcee46d0d7d3f1",
+          "created_at": "2026-10-05T05:38:39Z",
+          "updated_at": "2026-10-05T05:38:39Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "17c2653872fa5b439882ccea0bea3fed4f29b63d-37268312013-1-a25331b55bf54349bc0f5dcf0a215715"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304209764,
+          "name": "sha256:468834315a5517fc1e5c29ddd976391d542b7787b0cea24ff9eeddf72b765caa",
+          "created_at": "2026-09-28T09:17:25Z",
+          "updated_at": "2026-09-28T09:17:25Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36402065258-1-1b2c90176f15492188d02bcb1e8d0b46"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1249310202,
+          "name": "sha256:989b120cb88ee6557750ff3021acd92c4d62640cf79526e185c27dc5bd5c5735",
+          "created_at": "2026-09-15T01:59:29Z",
+          "updated_at": "2026-09-15T01:59:29Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "bb68de62e7e962dcb9ba19fd5c7a92e8bc51c174-34919115414-1-a8ceb54472cb4c8095300928873579d9"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1173119347,
+          "name": "sha256:7cf8b48cf6b55b49178f52ede7aee2bcd57ba524908c876509c77ae7c1394732",
+          "created_at": "2026-08-26T07:19:45Z",
+          "updated_at": "2026-08-26T07:19:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-2-71913523945a4f0bbc83f43e0e755ac1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1168631232,
+          "name": "sha256:e686278f9e13f570833a9954860ebc1003ed94059283d1c3d53c85745f65cf4f",
+          "created_at": "2026-08-25T06:35:03Z",
+          "updated_at": "2026-08-25T06:35:03Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-dependency-hell/score-service",
+      "versions": [
+        {
+          "id": 1409238926,
+          "name": "sha256:630d071c01ef0bdbd5086fd81351d11586ee695899d656078afdcf25f4b05e9a",
+          "created_at": "2026-10-19T12:18:27Z",
+          "updated_at": "2026-10-19T12:18:27Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-30454cb20046422a94b7397687d5d2b8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339769389,
+          "name": "sha256:c2124be02c139fb61ca5664bbd645f7e4f1e41c1f92786dbcc17361c1b4e533e",
+          "created_at": "2026-10-05T16:05:38Z",
+          "updated_at": "2026-10-05T16:05:38Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37337432038-1-7406e45246cd4a848330ea866edc5e4b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1336715553,
+          "name": "sha256:b7574314866ca0020ec5ad7ad73421c04bf8c883e9a333f90279d0dcbffffe4d",
+          "created_at": "2026-10-05T05:37:36Z",
+          "updated_at": "2026-10-05T05:37:36Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "17c2653872fa5b439882ccea0bea3fed4f29b63d-37268312013-1-a25331b55bf54349bc0f5dcf0a215715"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304208942,
+          "name": "sha256:ebe0d643b7725dd464f1321966dac73dca080b44de732ec573db0340dde0cd12",
+          "created_at": "2026-09-28T09:17:13Z",
+          "updated_at": "2026-09-28T09:17:13Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36402065258-1-1b2c90176f15492188d02bcb1e8d0b46"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1249308047,
+          "name": "sha256:b978c68fedb9dcfde6daccbf828cf68750c6b4cc45a314ae0dc9e95d7e70da60",
+          "created_at": "2026-09-15T01:58:16Z",
+          "updated_at": "2026-09-15T01:58:16Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "bb68de62e7e962dcb9ba19fd5c7a92e8bc51c174-34919115414-1-a8ceb54472cb4c8095300928873579d9"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1173120450,
+          "name": "sha256:a2a3bf96fcdf3902af217a6fe58a40187174c32722b115a84038b93e704a764a",
+          "created_at": "2026-08-26T07:20:08Z",
+          "updated_at": "2026-08-26T07:20:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-2-71913523945a4f0bbc83f43e0e755ac1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1168632543,
+          "name": "sha256:0c544ec476a27121ac533760ad82f1d2a5e39696edd61ca1e85451d443001c49",
+          "created_at": "2026-08-25T06:35:31Z",
+          "updated_at": "2026-08-25T06:35:31Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-dependency-hell/judge-coordinator",
+      "versions": [
+        {
+          "id": 1409240064,
+          "name": "sha256:600d49f2139816346331703490759eadd1fd4e1274d82e18112bd1213ce41ab8",
+          "created_at": "2026-10-19T12:18:39Z",
+          "updated_at": "2026-10-19T12:18:39Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-30454cb20046422a94b7397687d5d2b8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339773424,
+          "name": "sha256:52f5db3e9b4a1fe7f7e14ac411f391aa394570d4d086ac1d6ced602ba2cad7e9",
+          "created_at": "2026-10-05T16:06:23Z",
+          "updated_at": "2026-10-05T16:06:23Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37337432038-1-7406e45246cd4a848330ea866edc5e4b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1336719963,
+          "name": "sha256:b5d04bf54467f00463c7e03e2b9b3acb38096ff868748a637495200b47a65c91",
+          "created_at": "2026-10-05T05:39:20Z",
+          "updated_at": "2026-10-05T05:39:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "17c2653872fa5b439882ccea0bea3fed4f29b63d-37268312013-1-a25331b55bf54349bc0f5dcf0a215715"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304212226,
+          "name": "sha256:3cc075830db2ff0ec1952c79d212c1cdf25de5ce094b8163d4b35519be003a9d",
+          "created_at": "2026-09-28T09:18:03Z",
+          "updated_at": "2026-09-28T09:18:03Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36402065258-1-1b2c90176f15492188d02bcb1e8d0b46"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1249310844,
+          "name": "sha256:e10b607c6d58fbc9a99edb21129bf8ab297de70f0c739c0261912f36d6ffe681",
+          "created_at": "2026-09-15T01:59:50Z",
+          "updated_at": "2026-09-15T01:59:50Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "bb68de62e7e962dcb9ba19fd5c7a92e8bc51c174-34919115414-1-a8ceb54472cb4c8095300928873579d9"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1173122521,
+          "name": "sha256:cb806398675b8942e801352e1ecd7bb2f627400a0f8324d0b679bf0a7bc789f8",
+          "created_at": "2026-08-26T07:20:48Z",
+          "updated_at": "2026-08-26T07:20:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-2-71913523945a4f0bbc83f43e0e755ac1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1168633901,
+          "name": "sha256:677613b4905e2cfbac046db8d919a7624cdc1c10495d3c791d9d1eb09954f101",
+          "created_at": "2026-08-25T06:36:00Z",
+          "updated_at": "2026-08-25T06:36:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "facde535857d76d6e28f1bb81f18141b9a51e0fa-32817459938-1"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/rev-tinyvm/tinyvm",
+      "versions": [
+        {
+          "id": 1413138887,
+          "name": "sha256:5abc2be5407e74b513404da172a04fac15360edc2323b016025afb790b69add7",
+          "created_at": "2026-10-20T04:10:32Z",
+          "updated_at": "2026-10-20T04:10:32Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-1f2002bb4e1e4595aff1a84517c4327b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409251591,
+          "name": "sha256:f0ade75ca94100b3b384c7b2d2040e12c757ff7d12df97a7fba814f19178cfa3",
+          "created_at": "2026-10-19T12:20:48Z",
+          "updated_at": "2026-10-19T12:20:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-0ee7a4cec9da40aa862bef4e178bd94c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340092024,
+          "name": "sha256:45b676934b4f4f139ee9e2a1739c14e9ac8d3e8831d279f8998a1458ce0c94da",
+          "created_at": "2026-10-05T17:14:08Z",
+          "updated_at": "2026-10-05T17:14:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37346389352-1-78d06e2bd0574fea8e332b8d6331d918"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1303063417,
+          "name": "sha256:fe5b4bd485e65d53ce65d9d7afba5e66d4ed2ef15091edb47ff5a398986252f0",
+          "created_at": "2026-09-28T02:55:30Z",
+          "updated_at": "2026-09-28T02:55:30Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36371435742-1-298398918f3b48cdb826430c636ba4eb"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1183664657,
+          "name": "sha256:dc0b2654b6678652d39fc7fdb8e04b942ebb78af56dc1d5dfc9e5a73d427dd5a",
+          "created_at": "2026-08-28T18:26:21Z",
+          "updated_at": "2026-08-28T18:26:21Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "9f901c8db110e48bdd6acbd8e736693c475714f0-33199118717-1-f859770265a04e01afb490144b999a9f"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/crypto-nerves/web",
+      "versions": [
+        {
+          "id": 1413140755,
+          "name": "sha256:1f2a669681bd3de70abae41de7adebb581510dbfb4fed9462ce8a23757927eb8",
+          "created_at": "2026-10-20T04:11:11Z",
+          "updated_at": "2026-10-20T04:11:11Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-3d23d4e9a0064a12bcedbde09e0afa3e"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409241197,
+          "name": "sha256:bc6d444cfa5bbe7397b97120b1110aa76eb1e66d37d29a4933a80ee25d577cab",
+          "created_at": "2026-10-19T12:18:51Z",
+          "updated_at": "2026-10-19T12:18:51Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-bb461474aefa49ccaa19ced17b3ec18d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339681337,
+          "name": "sha256:942e2b250f5ae9c67a4c7f18945737ff612143b9d0fdeb8ea2a55a3d861f97fe",
+          "created_at": "2026-10-05T15:48:05Z",
+          "updated_at": "2026-10-05T15:48:05Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334933862-1-b127fbd328c547afaca45305ea07f5e5"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304187176,
+          "name": "sha256:2539743c5137b1c1ca8045ee37b1cf69d18ee816090b7cf2056bbb21bae80883",
+          "created_at": "2026-09-28T09:12:09Z",
+          "updated_at": "2026-09-28T09:12:09Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36401385856-1-b9c633bffd274128ab2edee84d6325eb"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1193890004,
+          "name": "sha256:ad79cbb967d8f9f695657033cc5a0dee92a97b2400c4d0e6ff6f415553ba5720",
+          "created_at": "2026-09-01T04:09:07Z",
+          "updated_at": "2026-09-01T04:09:07Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ddf63b96b295f202d19daa71a20481868b93f6a1-33468543052-1-5ffb859875204fc2a7fd9ab8aebf03b7"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1184786172,
+          "name": "sha256:975feda7248cb93a6846caa88d6922ddb946a87d7de8115f606f1c8d7253239e",
+          "created_at": "2026-08-29T03:47:47Z",
+          "updated_at": "2026-08-29T03:47:47Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "22b2ac69e49c7a49a12cbb35846af70a798866dd-33232137163-1-a5ac949449434324898072e4b7b63f93"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1184750579,
+          "name": "sha256:bf0a3bdfd7a011c8abb08ae35c4e4e438db8df28696736ef93e57b9ec69bb9a7",
+          "created_at": "2026-08-29T03:21:04Z",
+          "updated_at": "2026-08-29T03:21:04Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "b5a1722c4c873cbf5bc283f5528ab4158b21e6cb-33231008297-1-be42695a40b04c638d5f3125f7784a12"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1184705517,
+          "name": "sha256:e9359476cde8716ba2d40330ba0cb537073aff06712d8561d20c15673dd6a110",
+          "created_at": "2026-08-29T02:45:17Z",
+          "updated_at": "2026-08-29T02:45:17Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "428f8ba732532e4005474a97e1e66fd900a96902-33229587073-1-6ad61c0070e44c77b8c3a5072921d2d0"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1183721127,
+          "name": "sha256:1751666846fa743f2c5f8db747b4895ffe2775b365507dbf1c7bb13bca82abf1",
+          "created_at": "2026-08-28T18:46:23Z",
+          "updated_at": "2026-08-28T18:46:23Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "a4eb0ae83accbc10eb1c76e0738c7086ea1c20c2-33200557006-1-6840beba60b1401188c795fbcad3947a"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-daily-point/web",
+      "versions": [
+        {
+          "id": 1413136357,
+          "name": "sha256:fc7c762ba95b154c2b00154ed89aedd1ba5f86020408a5300d06a9f8d92a4816",
+          "created_at": "2026-10-20T04:09:42Z",
+          "updated_at": "2026-10-20T04:09:42Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-e619d520c535438d9475a3f3b7fecc83"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409254927,
+          "name": "sha256:9b42dd1bb3149e930a105bd4a6e844ecdc129de4ca3340dc15f2eade099c71d0",
+          "created_at": "2026-10-19T12:21:24Z",
+          "updated_at": "2026-10-19T12:21:24Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-4dad9475a22e4767a8e32e05018e6590"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1359836938,
+          "name": "sha256:6640cad2d5e9c83cc6ba6bb86f38ccd7ce6317a9eaeab715e2dea74773994489",
+          "created_at": "2026-10-09T05:36:25Z",
+          "updated_at": "2026-10-09T05:36:25Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "b95a1562491190ccf2bcb54beb34d8e8b76a99f7-37888914252-1-9b0afd9907bc449f84347d30fc67039d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340118792,
+          "name": "sha256:3b8129fe265d72dd8cc989a73dabf15c822ecc2a6e5cde95ec45119fb1397a11",
+          "created_at": "2026-10-05T17:20:12Z",
+          "updated_at": "2026-10-05T17:20:12Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37346988116-1-5b6d0b28edc140edaf3cd0a6106f8a2d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304613601,
+          "name": "sha256:98c98088662fd5ff538ae9e163fb4a68ad73580e0f4f703624b0650d4a2b499a",
+          "created_at": "2026-09-28T10:49:42Z",
+          "updated_at": "2026-09-28T10:49:42Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36411634239-1-8815816da52a43ba8f7d84af53fed8dc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1199002400,
+          "name": "sha256:3451083227cd883d3bb3a06c9f44aae96694611c7869ecca5afbc8ad0954ec6d",
+          "created_at": "2026-09-02T07:16:16Z",
+          "updated_at": "2026-09-02T07:16:16Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "9559bb9c6d87e0db935f5adbe386aa9ca129fa34-33602507449-1-e286f69d7c184aa7b0a2b55cee09446d"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-logout-please/service",
+      "versions": [
+        {
+          "id": 1413142199,
+          "name": "sha256:9633ecab3c1afed2713d0da210a637f0dfe5d89c7e4f8a6fc1b53510e0b9aefc",
+          "created_at": "2026-10-20T04:11:41Z",
+          "updated_at": "2026-10-20T04:11:41Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-d25f8f69e57c4104b88e5f858cd01c0a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409234077,
+          "name": "sha256:5e5c1c0ea5e72e21d6154520dcd79aa9fb894fbf8a05d0d2e1a59d74afe393e5",
+          "created_at": "2026-10-19T12:17:31Z",
+          "updated_at": "2026-10-19T12:17:31Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-258e68ab50a247f6b6ff7b3b3bf2fecd"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340165353,
+          "name": "sha256:25b64b802d632bb0e0b5790580f86d88d8a05e2fff7c19a83b4b6e5d79d88be7",
+          "created_at": "2026-10-05T17:31:00Z",
+          "updated_at": "2026-10-05T17:31:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37348453268-1-3329f32770e547119bfe494579fd0555"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1333503867,
+          "name": "sha256:c1736999c957b408c09dda518d49eecbfcb37ffae0d9227e6a378a666f931909",
+          "created_at": "2026-10-04T07:53:07Z",
+          "updated_at": "2026-10-04T07:53:07Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "f146e2011c0f602771a01749c944847671ddd20a-37186941790-1-d4d9ec6f0add4e409cc0e4b87f7408a4"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304714654,
+          "name": "sha256:c4407d4218a5f4261152e60c45813af2d1fa4e16917b4aea2e7241600a8ab702",
+          "created_at": "2026-09-28T11:08:55Z",
+          "updated_at": "2026-09-28T11:08:55Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36413543355-1-15143e1bbe42424988b901ed4c54359d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1208096698,
+          "name": "sha256:638f059405546b90100831323b4067a12af58b385f854a6744566e256a84fa20",
+          "created_at": "2026-09-04T06:51:36Z",
+          "updated_at": "2026-09-04T06:51:36Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4b80d9e8a8e1f32c6668b674697788a8c37f57e6-33845870774-1-2abbc712c69c46f582c7892298277bd5"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-nonce-upon-a-time/service",
+      "versions": [
+        {
+          "id": 1304255633,
+          "name": "sha256:5682576b750a1e9773b3609ae2c9ad71f6b3756de3fec8a151d2be2113d39065",
+          "created_at": "2026-09-28T09:28:00Z",
+          "updated_at": "2026-09-28T09:28:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36403141245-1-114e5a23e8934b02987c0be411f5d87b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1208111333,
+          "name": "sha256:13f2e3513744507eb77f3c8aeb42193aee7d2e321bda09a6b501afb032750182",
+          "created_at": "2026-09-04T06:56:59Z",
+          "updated_at": "2026-09-04T06:56:59Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "0d41a30d9d8572bf5520a04d8602a2976b027721-33846338855-1-4fbcf2bd7c904bc0b4cbf8a2a0bc66c2"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/misc-reqr/web",
+      "versions": [
+        {
+          "id": 1413138047,
+          "name": "sha256:31b54e982cb94292f745e02854585d31ecc43fb46e35ecdbd91aa4bcc2e6189d",
+          "created_at": "2026-10-20T04:10:16Z",
+          "updated_at": "2026-10-20T04:10:16Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-9f618e7111114cca915ef1c74ccb985a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409251848,
+          "name": "sha256:ef7f8ecf8d5cb50df2c9660b36372f2e1a797d87abec5ab0e42194c702c492fa",
+          "created_at": "2026-10-19T12:20:51Z",
+          "updated_at": "2026-10-19T12:20:51Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-d1515a52fee646a7bdc7355d9c110d26"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339947316,
+          "name": "sha256:810ba1868b56114ae6c4ce182fedae4c6f53480197c2234b4cdab712eeeccdc7",
+          "created_at": "2026-10-05T16:42:27Z",
+          "updated_at": "2026-10-05T16:42:27Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37342332259-1-0c127cd242af4aa7b9b3e496fbfe4ed3"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1331688937,
+          "name": "sha256:e9866a6226e83b058b130163e515f3fcd4f3c56e0fc104ea09a7f57b186ed1db",
+          "created_at": "2026-10-03T16:33:36Z",
+          "updated_at": "2026-10-03T16:33:36Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "24c8341090f06267badacd3d21e3656fe921ca04-37137084778-1-bb999bafce4c41b59ad2eb48bdd8a060"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304353205,
+          "name": "sha256:725b33c8a79c721cbebc671c27c86d809bef441c90417c3eeb1344e1c943caac",
+          "created_at": "2026-09-28T09:49:32Z",
+          "updated_at": "2026-09-28T09:49:32Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36405495691-1-1802657e2d1b4fa8b6faebd9c6bdcc63"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1208429120,
+          "name": "sha256:334dbecb6361f260bb797b8e5b10ce1c46ce168c9e7eb1d9a48a6e5bc413016d",
+          "created_at": "2026-09-04T08:35:33Z",
+          "updated_at": "2026-09-04T08:35:33Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ab9947056ea3a1fe994b74ba86901882f1a1fc92-33853864361-1-609c6495e30a42a98ef03a3173b96b25"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-grade-tampering/web",
+      "versions": [
+        {
+          "id": 1413140071,
+          "name": "sha256:3a3de9c6c3670eed8e4e771ae4d4ad981825144796b80f1d523fba2403652fdb",
+          "created_at": "2026-10-20T04:10:57Z",
+          "updated_at": "2026-10-20T04:10:57Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-1c46a10b91c64a4487fb80ae35d166c7"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409235769,
+          "name": "sha256:60f0e3a0b6623de81377e9ccef009e93d69c6bce0d52fbc0769003ba90437954",
+          "created_at": "2026-10-19T12:17:52Z",
+          "updated_at": "2026-10-19T12:17:52Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-5dbe8a2649534aa9b3afa9632606d89f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340143579,
+          "name": "sha256:c409e49cf70a58be3ca19553b2db09da9d9607fd3462eaf00bdb29b20a44e39e",
+          "created_at": "2026-10-05T17:25:58Z",
+          "updated_at": "2026-10-05T17:25:58Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37347786917-1-7f4bf320bf6b44059e234af19843f3a9"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1302861342,
+          "name": "sha256:c44d17e57fec075f2912229a34363be65c6d8c6322289092fc363101362ddfcd",
+          "created_at": "2026-09-28T01:13:14Z",
+          "updated_at": "2026-09-28T01:13:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4d788a9aa0fd49f7b247fcd2d3092a445c7329e6-36364901143-1-434bc7478bd541cfa43981dfb74175bc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215455106,
+          "name": "sha256:9ffbf4761b09e0d182e444bb8793343cdc9633b72692aa516b777cf9c750956d",
+          "created_at": "2026-09-06T13:09:40Z",
+          "updated_at": "2026-09-06T13:09:40Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "273c86767717d2ec2424889a9b0c529b6ded8bae-34035108521-1-195f5cf2084b4620b2abec1ca5369efb"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-jenga/jenga",
+      "versions": [
+        {
+          "id": 1409264115,
+          "name": "sha256:826808e01a3e74d5e5b66cbe1378263df9693428d3b16b8c9a326460f02497d6",
+          "created_at": "2026-10-19T12:23:05Z",
+          "updated_at": "2026-10-19T12:23:05Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-e0b7051ee5be45c79162e860a19367d7"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339835715,
+          "name": "sha256:fb1a67d43235c7a1954801696365af499e3cf1e69f665a80ce610d52ef0d7806",
+          "created_at": "2026-10-05T16:19:14Z",
+          "updated_at": "2026-10-05T16:19:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37339180199-1-f9e1094e73b94c1e8ac6b6693c98d6bf"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304231367,
+          "name": "sha256:33a0168c8072c5cc7f7fb3ee357d7c87f879b9455670e8b44b094a420603810e",
+          "created_at": "2026-09-28T09:22:34Z",
+          "updated_at": "2026-09-28T09:22:34Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36402678989-1-48039456d08d4b4d83a4bea8660120aa"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215527881,
+          "name": "sha256:eb46954ee58fd8f284598757e77fcc33642c37bdd4826d7135b3cd23c6539971",
+          "created_at": "2026-09-06T13:42:41Z",
+          "updated_at": "2026-09-06T13:42:41Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "a3ca737219448f44e27d08bdf5891a6f21403406-34036780304-1-99d96d6664d44d259c11469818215ea7"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/pwn-price-tag/price-tag",
+      "versions": [
+        {
+          "id": 1417115150,
+          "name": "sha256:c92f888b7e01c931815409fb61e7224b5ab56d2603fc15edbc3568127aad7169",
+          "created_at": "2026-10-20T17:56:32Z",
+          "updated_at": "2026-10-20T17:56:32Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "3fb34b45724650b9abe0abdbb94d6aada9c47a85-39469605794-1-f36babdab0b94433af0ae7b3f7cb0040"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409247014,
+          "name": "sha256:fb15aab14664eafbcccfa94edec0597e81f6d78c575b8b562547bc8955dee751",
+          "created_at": "2026-10-19T12:19:57Z",
+          "updated_at": "2026-10-19T12:19:57Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6f99f5d730ef46bd92a4c46af585d255"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340047964,
+          "name": "sha256:1556a19564052695fec77b15c81c70a9b9e609df0f51681eae4d00fe667b87ac",
+          "created_at": "2026-10-05T17:04:07Z",
+          "updated_at": "2026-10-05T17:04:07Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37345085174-1-64edb0a0122f492d953d853af04687c4"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1331437042,
+          "name": "sha256:aee32505ab9002c4d3f96f29a47c7faf62d3c4c1ba1e6b2044cc2a300d229f25",
+          "created_at": "2026-10-03T14:48:25Z",
+          "updated_at": "2026-10-03T14:48:25Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "b11ab541d4b47788d09fb93d8a6f7a0727df13ce-37130710379-1-fbbdd39113b84172925809e8cca0a3a9"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1308415465,
+          "name": "sha256:01fa7fbab58329af7a2aaeae28a662ef0b347b7cc7a9982c68966d4b190a2541",
+          "created_at": "2026-09-29T03:05:17Z",
+          "updated_at": "2026-09-29T03:05:17Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "efb2fa39f5e935224fc4be1d24bea6db5930c57a-36515177798-1-9cd62e64ac264874ad0c876407deb61c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304592480,
+          "name": "sha256:96b36da1a7cc46b8aeac0d298acbfcec039be56732c0a423d05639ca48931e1c",
+          "created_at": "2026-09-28T10:45:08Z",
+          "updated_at": "2026-09-28T10:45:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36411117209-1-8d64861335c64ebdab5a1bab3944e02f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215700095,
+          "name": "sha256:7874a52cd032d101dbb8865772762ce3d6206954b72578389909a6ffef8906b8",
+          "created_at": "2026-09-06T15:01:48Z",
+          "updated_at": "2026-09-06T15:01:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "a7e37653b82d816cfe3012da79abd23a181e180e-34040834919-1-224f351a5ee1436694da03921f646839"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-swanopoly/service",
+      "versions": [
+        {
+          "id": 1409255620,
+          "name": "sha256:27d0956d23fef1139b5e327d95b9c4cb820b504c01924209697092a4458a038a",
+          "created_at": "2026-10-19T12:21:32Z",
+          "updated_at": "2026-10-19T12:21:32Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-caab5c7b5ebd4ff3bdfd85f62fd51b33"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339893199,
+          "name": "sha256:e3a3f7ce2888855a787c1dca330ba38c061e750eefc965ba49b8ac18ac418863",
+          "created_at": "2026-10-05T16:30:45Z",
+          "updated_at": "2026-10-05T16:30:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37340833660-1-ee5babe0faa040b89b418006cf1994fe"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1334577609,
+          "name": "sha256:93dfc628eed2c27e24d3dde7caa9aad58387573c8dd4e2d870770394dabd02da",
+          "created_at": "2026-10-04T14:36:49Z",
+          "updated_at": "2026-10-04T14:36:49Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4b6e4090109b24119ec6ec0405fad8d68f92338e-37209689367-1-5f253e2695e1455b8f803ed72d49911d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304326462,
+          "name": "sha256:e2418bfdfcd44e4aef386d72f95e0237b50281c44e18a28d4b83c8d9a0ec6189",
+          "created_at": "2026-09-28T09:43:39Z",
+          "updated_at": "2026-09-28T09:43:39Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36404972962-1-24d4c25c342248f7bdd5afa86224eb9a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215754837,
+          "name": "sha256:8ee616c4de7844cc7708229a5a8676128bd6eb02e72197efb257cc436ddca17a",
+          "created_at": "2026-09-06T15:28:00Z",
+          "updated_at": "2026-09-06T15:28:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ab58489cb8549f697fd9a07ab623c24422568588-34042278915-1-b8dd2385cf3b4efd968770f41e975e70"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-swanopoly/submit",
+      "versions": [
+        {
+          "id": 1409256432,
+          "name": "sha256:9ea9c6ba6c95c4404c9741855d80e5eaed6f56e1a38ed434e7ab61a42632b776",
+          "created_at": "2026-10-19T12:21:41Z",
+          "updated_at": "2026-10-19T12:21:41Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-caab5c7b5ebd4ff3bdfd85f62fd51b33"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339897859,
+          "name": "sha256:5d229732e1649edf02345dd9adceda3cce720851749716867c2ba7c87413f859",
+          "created_at": "2026-10-05T16:31:45Z",
+          "updated_at": "2026-10-05T16:31:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37340833660-1-ee5babe0faa040b89b418006cf1994fe"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1334579587,
+          "name": "sha256:6a82ce91e165785e2df1cea89a0e4a5b0c6bc46dd6ef870a1ff43c5fa06a4fcc",
+          "created_at": "2026-10-04T14:37:36Z",
+          "updated_at": "2026-10-04T14:37:36Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4b6e4090109b24119ec6ec0405fad8d68f92338e-37209689367-1-5f253e2695e1455b8f803ed72d49911d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304331206,
+          "name": "sha256:72a3b966a3691314ecd55547f2d9c159897cdc940df0715ff7546425da527cc5",
+          "created_at": "2026-09-28T09:44:44Z",
+          "updated_at": "2026-09-28T09:44:44Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36404972962-1-24d4c25c342248f7bdd5afa86224eb9a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215754966,
+          "name": "sha256:035a8eb311e7973b40fa8575c3249d1e21db399f903679e0c5abca7ce095a452",
+          "created_at": "2026-09-06T15:28:04Z",
+          "updated_at": "2026-09-06T15:28:04Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ab58489cb8549f697fd9a07ab623c24422568588-34042278915-1-b8dd2385cf3b4efd968770f41e975e70"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-swanopoly/test",
+      "versions": [
+        {
+          "id": 1409257131,
+          "name": "sha256:3382e199d1ffa019e43a4522ab9e3fcae22c4457f108f1ba802677dd4a74260d",
+          "created_at": "2026-10-19T12:21:49Z",
+          "updated_at": "2026-10-19T12:21:49Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-caab5c7b5ebd4ff3bdfd85f62fd51b33"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339893873,
+          "name": "sha256:bbf84c945a60adcbd7658e034547967802f330a08723eca4c6e0f86cf9ffc2c0",
+          "created_at": "2026-10-05T16:30:55Z",
+          "updated_at": "2026-10-05T16:30:55Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37340833660-1-ee5babe0faa040b89b418006cf1994fe"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1334577986,
+          "name": "sha256:f336014fde468cd9f692e3e4150e2f221ed007008246e0990811947683785c33",
+          "created_at": "2026-10-04T14:36:58Z",
+          "updated_at": "2026-10-04T14:36:58Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4b6e4090109b24119ec6ec0405fad8d68f92338e-37209689367-1-5f253e2695e1455b8f803ed72d49911d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304331880,
+          "name": "sha256:fbdebceb032cb7955a89987f8062b8a08c8e50c1c64d9a1cd37ac40bea25303a",
+          "created_at": "2026-09-28T09:44:51Z",
+          "updated_at": "2026-09-28T09:44:51Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36404972962-1-24d4c25c342248f7bdd5afa86224eb9a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215756676,
+          "name": "sha256:7964d5c136b712338483a7918ec8c6e72f36a4c3669af612452e6ffc84cf27ce",
+          "created_at": "2026-09-06T15:28:53Z",
+          "updated_at": "2026-09-06T15:28:53Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ab58489cb8549f697fd9a07ab623c24422568588-34042278915-1-b8dd2385cf3b4efd968770f41e975e70"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-swanopoly/backend",
+      "versions": [
+        {
+          "id": 1409256152,
+          "name": "sha256:603fc6cdb26a989fad930369b7a6d8787d4b019ff2bb89a5d6f7e4ab7d1f9b3d",
+          "created_at": "2026-10-19T12:21:38Z",
+          "updated_at": "2026-10-19T12:21:38Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-caab5c7b5ebd4ff3bdfd85f62fd51b33"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339893837,
+          "name": "sha256:b0325f8b2228f2dcf387f4b1ee33de164d01dba4c878da387ea7c3a48e7980c3",
+          "created_at": "2026-10-05T16:30:54Z",
+          "updated_at": "2026-10-05T16:30:54Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37340833660-1-ee5babe0faa040b89b418006cf1994fe"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1334578565,
+          "name": "sha256:710e19e076e04f51dd9f7c470fdd6358948427318fa31a1c22dca2d59b560fe5",
+          "created_at": "2026-10-04T14:37:11Z",
+          "updated_at": "2026-10-04T14:37:11Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4b6e4090109b24119ec6ec0405fad8d68f92338e-37209689367-1-5f253e2695e1455b8f803ed72d49911d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304328874,
+          "name": "sha256:3a6932f6ea9ab946b2f254524f8a945bc560da936f50ac5707ee9615b8aa4786",
+          "created_at": "2026-09-28T09:44:16Z",
+          "updated_at": "2026-09-28T09:44:16Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36404972962-1-24d4c25c342248f7bdd5afa86224eb9a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215757226,
+          "name": "sha256:b49a67d0d261d2a77f3ac42953ac2bc6eed970716eb7fc0a5734a584c24689fd",
+          "created_at": "2026-09-06T15:29:09Z",
+          "updated_at": "2026-09-06T15:29:09Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "ab58489cb8549f697fd9a07ab623c24422568588-34042278915-1-b8dd2385cf3b4efd968770f41e975e70"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-card-battle-arena/service",
+      "versions": [
+        {
+          "id": 1409249892,
+          "name": "sha256:9ea6c06d7817752b36e97667002e411030a860803f96c2b1fef5dabf738e0791",
+          "created_at": "2026-10-19T12:20:29Z",
+          "updated_at": "2026-10-19T12:20:29Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-062b38da0bfe42c59735b794e5a9d847"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339739507,
+          "name": "sha256:4e15aa91db9d50940ec0106a05b52773f891fd5b7386e6b7051b6d7fb8f49915",
+          "created_at": "2026-10-05T15:59:25Z",
+          "updated_at": "2026-10-05T15:59:25Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37336642379-1-89f893dde8f243d38dd0dcf45155172c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1338974346,
+          "name": "sha256:2679662fc3b892f56cb66471eb3bfb09b1b6b94a765aad230fb139625fc8ed40",
+          "created_at": "2026-10-05T13:41:19Z",
+          "updated_at": "2026-10-05T13:41:19Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "3aa62f0d2687fdc1873b8fe523029fcfedc7b90c-37318178534-1-7bdd337b47ad4a4db7afeaf0c1b86093"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1335154021,
+          "name": "sha256:6b07a2231d05c86ae80022824c29c1304fce806d19ab21cd321ce09ffc1830d7",
+          "created_at": "2026-10-04T18:15:39Z",
+          "updated_at": "2026-10-04T18:15:39Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "aedb08ac62d5a43f1e59c55f3b168e402d2bc21f-37223488125-1-c62b21c3a3ba4d98a9c4cf1ead226434"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304295465,
+          "name": "sha256:d3313a7f9e7346807755f78ee99c44ac92f0775a8a5f9733676fce115060e670",
+          "created_at": "2026-09-28T09:36:47Z",
+          "updated_at": "2026-09-28T09:36:47Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36404137096-1-a3df355c1f014bceb5a8bb225e2a2213"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1215998823,
+          "name": "sha256:ef2529236aa82015301c160260f651954781940ce8619ca974b865b58ecd4382",
+          "created_at": "2026-09-06T17:21:46Z",
+          "updated_at": "2026-09-06T17:21:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "285f8dd1197116f84e7dc367460fb02c983a5c76-34048227827-1-f071aa9f30c44e4ca64c3ceb8fc41d7b"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-grand-tour-duel/service",
+      "versions": [
+        {
+          "id": 1409245465,
+          "name": "sha256:40507edc760724a88603c9038f4ce0fefe3da6430fb7b5967f66c50d236744be",
+          "created_at": "2026-10-19T12:19:38Z",
+          "updated_at": "2026-10-19T12:19:38Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-c235ea8e54c743b9a33a5864f796bf9f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1347971798,
+          "name": "sha256:a0ce38f166765c78e7d8fba2f5401ae67293d541ac31b8374071e4b1e3f62d8f",
+          "created_at": "2026-10-07T03:36:06Z",
+          "updated_at": "2026-10-07T03:36:06Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "955027d92d4c0e69202d9709f4a2ea5cf9e96e3d-37567080512-1-194894078c054510bd4861515be996eb"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339805533,
+          "name": "sha256:100c8507280a599d9653310807528fd93142cd56547e417e97a0485788942067",
+          "created_at": "2026-10-05T16:12:50Z",
+          "updated_at": "2026-10-05T16:12:50Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37338403644-1-dcc3196286eb4148906fdfa833c0f80f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1257459890,
+          "name": "sha256:1b5e695bf66dac279dac78959d739d3b7e8677ba8b82827e352bab464b9ba978",
+          "created_at": "2026-09-16T17:29:08Z",
+          "updated_at": "2026-09-16T17:29:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "17b54551535690fa18b26360bf4ef1f245d53035-35128097440-1-1996b8ec684d4efdbf1364fca6fb103f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1217777871,
+          "name": "sha256:dc104f0d30baf33f6ad2270df66adc6274400334016f19afd23b546e2164f703",
+          "created_at": "2026-09-07T08:04:57Z",
+          "updated_at": "2026-09-07T08:04:57Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "933f61c90d534e738943004a8a8830576696a31d-34098450850-1-e76116f5506b484e9468d1111b1c1829"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web3-split-brain-oracle/challenge",
+      "versions": [
+        {
+          "id": 1413146478,
+          "name": "sha256:63474d9dccc37a434a73a6c38e0ad2e07bbad8c17819f8a5421c111748251019",
+          "created_at": "2026-10-20T04:13:17Z",
+          "updated_at": "2026-10-20T04:13:17Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-28b9c2fcaa2744dcbbeadf693b7e60f4"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409260842,
+          "name": "sha256:63c411478225c6ae3bb9aa17f34795f4ea0f64875ce76738436803967fa9888c",
+          "created_at": "2026-10-19T12:22:30Z",
+          "updated_at": "2026-10-19T12:22:30Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6363ad8ed08f4a18803b85d2f98d1472"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340275675,
+          "name": "sha256:2eb556ab51dc5214c1e4c7ae73a7a1c63d81cb35d980bf40923597456da2ffc4",
+          "created_at": "2026-10-05T17:56:24Z",
+          "updated_at": "2026-10-05T17:56:24Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37351489269-1-0d3bdaa4de254bad8391ce17fc810f82"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304812544,
+          "name": "sha256:985e3051d0857ab7c62df57881f49f62b74ad0d9b204cd7573b48e6fc2a55976",
+          "created_at": "2026-09-28T11:28:08Z",
+          "updated_at": "2026-09-28T11:28:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36415360754-1-216d3759befc460dae2dc7bf61e0b07c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1221165650,
+          "name": "sha256:79016bdf1756fa0ebc99afec415dd1412fa533e64b55112a08455637c0385043",
+          "created_at": "2026-09-08T02:01:54Z",
+          "updated_at": "2026-09-08T02:01:54Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "894410f249146b1e1ec87ee7e1708dbc9e015fc8-34178419993-1-54dbaec4cd424de183ddcfa84530f284"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-open-house/web",
+      "versions": [
+        {
+          "id": 1413153958,
+          "name": "sha256:8d8492c1746836790691930c3ae937f01705f9a824ebc821fd939da80b3b5ea7",
+          "created_at": "2026-10-20T04:15:50Z",
+          "updated_at": "2026-10-20T04:15:50Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-0d959d2e7537426094d7efc5057e2371"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409265705,
+          "name": "sha256:2d0feca9a4e231a77ddca1a23ef64dd2364f5fd85ff631715b9ba40aa9d59b62",
+          "created_at": "2026-10-19T12:23:23Z",
+          "updated_at": "2026-10-19T12:23:23Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-d6ca7efe4b924ffd96e65f9934f66e96"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340223363,
+          "name": "sha256:ad459de4ec1b5687be9b17cf445973344cf8aaee150bc759a5f02e79435d236d",
+          "created_at": "2026-10-05T17:44:08Z",
+          "updated_at": "2026-10-05T17:44:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37349840954-1-385dc9b02f534fc99abbe28c0d59189c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1331847057,
+          "name": "sha256:250739d1cedaa3f6b05ac2bf2767233adc27ff9037e7a47fe678ed0c1286ac48",
+          "created_at": "2026-10-03T17:38:06Z",
+          "updated_at": "2026-10-03T17:38:06Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1baa5b3575291b57cd0b5bf4b771197cc07cec94-37140938038-1-bebc447b236243b0bbc43363f68deb2b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304756068,
+          "name": "sha256:6a3ab6373bdee16229dfda362d41dd10bd59ede5b05249557d332a3d5d22b8bd",
+          "created_at": "2026-09-28T11:16:19Z",
+          "updated_at": "2026-09-28T11:16:19Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36414157642-1-e2afa7783a0b4fe190c5b06ea6031915"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1242648169,
+          "name": "sha256:e4f26fddac7b03ccc0bdd018bf7cfc025472a89e6b8dab0d0a76c9d9e1cd93b2",
+          "created_at": "2026-09-13T09:21:45Z",
+          "updated_at": "2026-09-13T09:21:45Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "eee53e15bc67874d7fcf9dd04874833a8444e9d2-34749232581-1-17f7ff0637c5402f92db902ca6aa183b"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-notebook/db",
+      "versions": [
+        {
+          "id": 1413143153,
+          "name": "sha256:bead6cb57933a8444f1ec433059a08d8ebb75f8288835d88ae800d719c379fa6",
+          "created_at": "2026-10-20T04:12:04Z",
+          "updated_at": "2026-10-20T04:12:04Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-b21c5160087946588d2e3c689e48338e"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409261592,
+          "name": "sha256:45776bfe986df8daaa33b6bbd475a29b95fb5326044826fd4d98b7e818ee653e",
+          "created_at": "2026-10-19T12:22:38Z",
+          "updated_at": "2026-10-19T12:22:38Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-d7cb63b24a6245c494db4ddb58fd7b0d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1405443160,
+          "name": "sha256:2bcb74bbea090364d812459b3039d6a79ce0521a24a4d3fee7ff8a4f6d32bf3d",
+          "created_at": "2026-10-18T16:18:10Z",
+          "updated_at": "2026-10-18T16:18:10Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "25e7c6b636ba11b16c77e09274563fe92fbb9003-39143988846-1-b730c37ae26045e7acab290a5328dfb3"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340188388,
+          "name": "sha256:396878dd36296204aa326c5acfaba267e76e8dd604a940ffdd67e1122f2dc872",
+          "created_at": "2026-10-05T17:36:22Z",
+          "updated_at": "2026-10-05T17:36:22Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37349112874-1-c8d20c58fe76460595db1dd7be8e435f"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1249406353,
+          "name": "sha256:7a40ab203a9f16d06269a4506f1f99b770e2991bb0d5c4ee072fddaea722cea0",
+          "created_at": "2026-09-15T02:43:18Z",
+          "updated_at": "2026-09-15T02:43:18Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "0829f3f00043883ef45e870179b69910f4eff380-34922010196-1-0b8a12648f3840d895663d3d56ac8d20"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/misc-cashout/web",
+      "versions": [
+        {
+          "id": 1414820564,
+          "name": "sha256:5ba579e0b8636abc93cf7afe6defbe2a85076fd1bb2725418157aa23f7f9b185",
+          "created_at": "2026-10-20T10:52:22Z",
+          "updated_at": "2026-10-20T10:52:22Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "27b60a032cf2e378de0ad1c4eff8a20c951d4fee-39410435029-1-6c084dd3928146b1b65d42865b237d02"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413139100,
+          "name": "sha256:a8857f996a40949779ffdef47205acce86cf4f1ad6ae588fad76dc93faf2f30c",
+          "created_at": "2026-10-20T04:10:36Z",
+          "updated_at": "2026-10-20T04:10:36Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-bcffcd75c38e4166a99d541abaec693d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409246182,
+          "name": "sha256:2fcadeec6407576658700a5b952a7df19aec9b1e7d50ea4c98d51b8532fc6ba5",
+          "created_at": "2026-10-19T12:19:47Z",
+          "updated_at": "2026-10-19T12:19:47Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-c238ef75c86e4737aef5f3e4641a164c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339921253,
+          "name": "sha256:581a4b1b8145cd3f744715b2817f37d733c89dc03020d57cdd64705f317985d9",
+          "created_at": "2026-10-05T16:37:06Z",
+          "updated_at": "2026-10-05T16:37:06Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37341655773-1-07d1e51f85d74e4481ddafdfbb55b74c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1334807991,
+          "name": "sha256:54a71945e05fa4912d5f2f1dc4e5b011ffbc1202fad52de4f41426c6bdc20250",
+          "created_at": "2026-10-04T16:02:40Z",
+          "updated_at": "2026-10-04T16:02:40Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "c08f9230b9fbce67318ee804c358ce462f6937a4-37215021769-1-ef2a27420d30498095cc590079248942"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1303644815,
+          "name": "sha256:88d071d3d3c0e1e43500cc1b3a5350f813818a336372311a1920a1125f9b8921",
+          "created_at": "2026-09-28T06:58:20Z",
+          "updated_at": "2026-09-28T06:58:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36388731688-1-b2b8ef5930fd406b925341f27c28ec1f"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/pwn-ghost-file/chall",
+      "versions": [
+        {
+          "id": 1409241317,
+          "name": "sha256:59bdd9111ad77a9a682f0e862eade12193b62d9fd6fd77b9ee810cd7e06460bc",
+          "created_at": "2026-10-19T12:18:52Z",
+          "updated_at": "2026-10-19T12:18:52Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-2318b3a77349407d883020b0cced02c5"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339995724,
+          "name": "sha256:fe5c7242ce948ea3817d2bfe8b3c146f324af5dbb0bbf617bc3fbd36ceb8046b",
+          "created_at": "2026-10-05T16:53:14Z",
+          "updated_at": "2026-10-05T16:53:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37343605194-1-04667bf1688242a79e24429bbcfab3b8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1330562535,
+          "name": "sha256:eb03b8e0222fcb7c42ac79b5ffa4dea613b5a219368c3e6d1e3950d67122f919",
+          "created_at": "2026-10-03T08:38:24Z",
+          "updated_at": "2026-10-03T08:38:24Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "c2383ccc9499b733ac9b3b972e0b9bd06b41f9be-37110111918-1-517e866434e541a598bbe38ef87763db"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304118890,
+          "name": "sha256:6a02cdb52657ebcad149917b788fbf923b738e5c5eaeac6b556c3c44cd12abf2",
+          "created_at": "2026-09-28T08:55:54Z",
+          "updated_at": "2026-09-28T08:55:54Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36399871574-1-f9493b77cb4542bfb319d6fa59a19585"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/pwn-note/service",
+      "versions": [
+        {
+          "id": 1409249758,
+          "name": "sha256:3c1dcb4478d82564ad298b1cddee770f5d786a6d1052b1f842a538f91439868e",
+          "created_at": "2026-10-19T12:20:28Z",
+          "updated_at": "2026-10-19T12:20:28Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-8457532011674537abb57ca53a9f5a89"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340023851,
+          "name": "sha256:c449da75a6a3eb0560b1d43034771749338897219afc560104da5c9b6c6a5471",
+          "created_at": "2026-10-05T16:59:01Z",
+          "updated_at": "2026-10-05T16:59:01Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37344347417-1-98b0494aa62b4217a4feb530d21753fb"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1334096638,
+          "name": "sha256:9d9172b718f44def409173514159ddbaadc6d0985d4975c935f5dc0346d26ac5",
+          "created_at": "2026-10-04T11:39:00Z",
+          "updated_at": "2026-10-04T11:39:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "575346e7cf2f2300f8a116d4cca8635c34dbbf28-37199203622-1-6cce2b990db6423b8b5adcdaf8e1fe2a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304137358,
+          "name": "sha256:c5ad27de5c7123efcf7c71c4880d6088b52abfc6a727e6a97e2f6296d9f5e000",
+          "created_at": "2026-09-28T09:00:20Z",
+          "updated_at": "2026-09-28T09:00:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36400395630-1-997b6b5cd2b14eae9f9edf11117b4ee6"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web3-infinite-pack/server",
+      "versions": [
+        {
+          "id": 1417748979,
+          "name": "sha256:43cc32512af5ce6a06d5a1541be1f9ca2397a1dab744d37580d4bfc4a04b437b",
+          "created_at": "2026-10-20T20:06:54Z",
+          "updated_at": "2026-10-20T20:06:54Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "84742c511bb126a5e94d9d21c85ddf9b0611b923-39488191021-1-b0580a46591c4cdda362b6613bf395ba"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413141934,
+          "name": "sha256:cf4bdb216c3d6124764a89d7c7966c6ec2a4238f87ad4aa13ec8ae08747a0980",
+          "created_at": "2026-10-20T04:11:35Z",
+          "updated_at": "2026-10-20T04:11:35Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-c20c2b57368749c7b7d7d3dd38ab710e"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409262461,
+          "name": "sha256:dff78aa8013b2d41852719990eedf6384292015c5a1fd48ad709da2f54735f2b",
+          "created_at": "2026-10-19T12:22:48Z",
+          "updated_at": "2026-10-19T12:22:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-0db5385fa69d419da21eaf3a060e0ba2"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1340249046,
+          "name": "sha256:375f463fcc994103f8dd778d2c2ade642a3f926451185d695476d4abe3169112",
+          "created_at": "2026-10-05T17:50:08Z",
+          "updated_at": "2026-10-05T17:50:08Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37350749821-1-9565797716c8410eb6cb297b5f58212b"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1304158349,
+          "name": "sha256:6ee9186bb149f4f0f327358fa22d77aa1073bc51a26ca7f84d8cd3545370e0cd",
+          "created_at": "2026-09-28T09:05:13Z",
+          "updated_at": "2026-09-28T09:05:13Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e225529e55b9250117e93af36b28f4e82265f1a7-36400838561-1-f83362f9e2cc4445a452c96b0f8be717"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/koth-pixel-smuggler/service",
+      "versions": [
+        {
+          "id": 1409261994,
+          "name": "sha256:2ace6793288a7cbdd4ab26515d086951151e94c438bd76c6b6de781836d3e167",
+          "created_at": "2026-10-19T12:22:43Z",
+          "updated_at": "2026-10-19T12:22:43Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-a0ede18b1c7a49de935bc37e32412da8"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339866978,
+          "name": "sha256:295a356a009b6c07b5047315cf191fb27dd46ff1f75416bd256ecc95671d3d3a",
+          "created_at": "2026-10-05T16:25:13Z",
+          "updated_at": "2026-10-05T16:25:13Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37340006626-1-40065b4d9d054ca7b406adfeb29e6b87"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1333491906,
+          "name": "sha256:9e13beda2922760bd98c5f5209bc83c08200b4c34e2813e3669997392884fc06",
+          "created_at": "2026-10-04T07:47:31Z",
+          "updated_at": "2026-10-04T07:47:31Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "f510a9c8188d427ad9f5d2f0811669505620fc27-37186636390-1-92c0b7455a334faca360ec9c8d5e1ae0"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/osint-the-past-has-an-address/web",
+      "versions": [
+        {
+          "id": 1416988137,
+          "name": "sha256:0a605f7c337e544a6f869daedb5f835c7a6e944d811cdae46aa1358fe66c5bfb",
+          "created_at": "2026-10-20T17:30:20Z",
+          "updated_at": "2026-10-20T17:30:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "200cded9d0b688b69190b9bc14deed43b2da1e9a-39465966818-1-a9e1fb3269cc4251bea4668ca1f468f6"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1416861932,
+          "name": "sha256:00d20b7e720b2c47c3e1f9a2a3b318b9e21e9055e5a56f84ec814ac7bfb3ba77",
+          "created_at": "2026-10-20T17:03:55Z",
+          "updated_at": "2026-10-20T17:03:55Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "4c4b930e73e805814ea22fdd314aa86d9425ce09-39462155316-1-b7c335d2a6a14db4ab01e3e69f13d818"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413137372,
+          "name": "sha256:3c130f515b1c32ddca9bb58f457d31669b55dfffa62ce5183ac5d90c49c6f59a",
+          "created_at": "2026-10-20T04:10:03Z",
+          "updated_at": "2026-10-20T04:10:03Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-552e2f17342642a094e7bfd1b648dc6a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409265253,
+          "name": "sha256:c9f1bc6d6489c9f8ded461b4a5a5c57b7cd5c29e4aa6e0c010286c35afc84629",
+          "created_at": "2026-10-19T12:23:18Z",
+          "updated_at": "2026-10-19T12:23:18Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-a87c60d04a5d418dba9bd68757127d4a"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339970276,
+          "name": "sha256:133195d94746fd69a14def176393e99531af3a47fda5faa03b73bd308e79a362",
+          "created_at": "2026-10-05T16:47:29Z",
+          "updated_at": "2026-10-05T16:47:29Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37342994911-1-2cbd17b1028d4365911d9a6ac620813d"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1333550198,
+          "name": "sha256:3cba431360ab9368e99c8c597f31f3a36739bc09b365b859ee6f78e3b7fc1901",
+          "created_at": "2026-10-04T08:12:41Z",
+          "updated_at": "2026-10-04T08:12:41Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2b4129ab162f89b078836743bc8a55252f7b76f7-37187952895-1-eab75d8b969c4d198b316c7dbed1eaed"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/exporter",
+      "versions": [
+        {
+          "id": 1413216863,
+          "name": "sha256:02da90eb73db1fbecad291655086410615ddb8db723447c73f845f6828f4c098",
+          "created_at": "2026-10-20T04:39:13Z",
+          "updated_at": "2026-10-20T04:39:13Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413181699,
+          "name": "sha256:f31f7836b2f5ec4749114cff197c745588ab67387aac16be28415b89fdb7724a",
+          "created_at": "2026-10-20T04:25:46Z",
+          "updated_at": "2026-10-20T04:25:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413141484,
+          "name": "sha256:a13b3a57b7d80785cd12d7a445e98ae5efc8f85758ddc18254b57f6f7ae7465a",
+          "created_at": "2026-10-20T04:11:27Z",
+          "updated_at": "2026-10-20T04:11:27Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409237735,
+          "name": "sha256:de3817538e3b260baaf3317a28fb48fefe1f1b91a48181aadc4de5a8b264e644",
+          "created_at": "2026-10-19T12:18:14Z",
+          "updated_at": "2026-10-19T12:18:14Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339639011,
+          "name": "sha256:164c890cde9ced65cbd43f96b93bfde6f9eaf20301406caa550a8fb194d16f0b",
+          "created_at": "2026-10-05T15:39:47Z",
+          "updated_at": "2026-10-05T15:39:47Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339311867,
+          "name": "sha256:c9c8e4af27853200e67c021a283ee47aa50b00a6403df8c07363910d64980d38",
+          "created_at": "2026-10-05T14:39:30Z",
+          "updated_at": "2026-10-05T14:39:30Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/inventory-metadata",
+      "versions": [
+        {
+          "id": 1413213355,
+          "name": "sha256:dc452c26c081bc351964013e2246061a57c288a3fd5497065dcfecee5e3a5eb1",
+          "created_at": "2026-10-20T04:37:53Z",
+          "updated_at": "2026-10-20T04:37:53Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413180430,
+          "name": "sha256:3d219fd21f09445bd9957d47eeabdd8f07a1aa6d16779430469fb10c8ddfeef3",
+          "created_at": "2026-10-20T04:25:19Z",
+          "updated_at": "2026-10-20T04:25:19Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413139272,
+          "name": "sha256:5c2125c977a3c62be5e2135f5be34b140a1c3e415713258952fd9cbb863aaa5b",
+          "created_at": "2026-10-20T04:10:39Z",
+          "updated_at": "2026-10-20T04:10:39Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409236424,
+          "name": "sha256:6cdd10781cb2cc8e4466af5c56c330d718aadc3c36ffa7c71931cbfba5a9ea1e",
+          "created_at": "2026-10-19T12:17:59Z",
+          "updated_at": "2026-10-19T12:17:59Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339637819,
+          "name": "sha256:2104947680985ca26b4e7324ca4482f4e95fa792f17f567e285844433f331b9a",
+          "created_at": "2026-10-05T15:39:33Z",
+          "updated_at": "2026-10-05T15:39:33Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339312265,
+          "name": "sha256:581e6b2f34411e8f8ed3ab3f1ae451a8e15e4ac59454c68f06606eee57cdf6ab",
+          "created_at": "2026-10-05T14:39:34Z",
+          "updated_at": "2026-10-05T14:39:34Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/indexer",
+      "versions": [
+        {
+          "id": 1413214800,
+          "name": "sha256:2b22f2d3617c7b1286382d2771e60a52ee1d3e5a0aad71c82bf09c2d7defcd1e",
+          "created_at": "2026-10-20T04:38:26Z",
+          "updated_at": "2026-10-20T04:38:26Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413181798,
+          "name": "sha256:82e53991950aeb76f0b141295fb79f3d08d7a4b58247fc41a7d6f1e7f7961b67",
+          "created_at": "2026-10-20T04:25:48Z",
+          "updated_at": "2026-10-20T04:25:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413140153,
+          "name": "sha256:1dfa67eeac7282678310fd4ebae48b0cc9af695fb1097ccce3c6e2a8106e5c91",
+          "created_at": "2026-10-20T04:10:58Z",
+          "updated_at": "2026-10-20T04:10:58Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409243600,
+          "name": "sha256:801d1e3b246d560d22c6922006a5c14a2e6af4c48cc454013a49c5bf4cd394c7",
+          "created_at": "2026-10-19T12:19:18Z",
+          "updated_at": "2026-10-19T12:19:18Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339641524,
+          "name": "sha256:443349ba9c571fde04f13c81750c808ccd0c8b10c356fd554b730def6c97ec6d",
+          "created_at": "2026-10-05T15:40:20Z",
+          "updated_at": "2026-10-05T15:40:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339313939,
+          "name": "sha256:1d26b612278ae8a3df54e2f7d525274de3562cd6e7bf6984ecdcc5cb600babbc",
+          "created_at": "2026-10-05T14:39:53Z",
+          "updated_at": "2026-10-05T14:39:53Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/case-vault",
+      "versions": [
+        {
+          "id": 1413214155,
+          "name": "sha256:3b083576ed6e04877b0707797d307a9d7f22c4bbb9268744ab4f935a4f84df28",
+          "created_at": "2026-10-20T04:38:12Z",
+          "updated_at": "2026-10-20T04:38:12Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413181361,
+          "name": "sha256:a96f1029f8ad8e26ab39affeb2e7f32ab492ef6a6381dcbc12c54c5069cbfacc",
+          "created_at": "2026-10-20T04:25:38Z",
+          "updated_at": "2026-10-20T04:25:38Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413140428,
+          "name": "sha256:3f2d5ac6136b83f18ff0cfb1409604b805ad9d00b1435df77f37e47cafdf10b2",
+          "created_at": "2026-10-20T04:11:04Z",
+          "updated_at": "2026-10-20T04:11:04Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409236769,
+          "name": "sha256:4c903017f4815bb2a41931a39e8fbff86429e54d54d54f397adfd578da23ca26",
+          "created_at": "2026-10-19T12:18:03Z",
+          "updated_at": "2026-10-19T12:18:03Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339639711,
+          "name": "sha256:b4a63aa56c447d1f9eda0d884f26ddabe145acb806fdcf8c1a192f19cfaab306",
+          "created_at": "2026-10-05T15:39:57Z",
+          "updated_at": "2026-10-05T15:39:57Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339314350,
+          "name": "sha256:ba27c0048dfa334942b848bf60b59cf8491287bc41c647a03f456177368bef6c",
+          "created_at": "2026-10-05T14:39:58Z",
+          "updated_at": "2026-10-05T14:39:58Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/portal",
+      "versions": [
+        {
+          "id": 1413215561,
+          "name": "sha256:d6afb41a588fea8218f8889e1c99e666ab33b65f5f46446cd7a57305af595674",
+          "created_at": "2026-10-20T04:38:46Z",
+          "updated_at": "2026-10-20T04:38:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413180434,
+          "name": "sha256:7fc48f4183b4030da91c7b394ddb8995427257bec93a94367212387e9f3b043d",
+          "created_at": "2026-10-20T04:25:19Z",
+          "updated_at": "2026-10-20T04:25:19Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413136771,
+          "name": "sha256:b9fec4a16e5aeee95e456b48455e8f57d1b9032cc2680b3faa52795832678a25",
+          "created_at": "2026-10-20T04:09:51Z",
+          "updated_at": "2026-10-20T04:09:51Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409237382,
+          "name": "sha256:37550ab0362e2686079fbc9c5bf8502474a77fdb2e632dd03466c2d1358dd890",
+          "created_at": "2026-10-19T12:18:10Z",
+          "updated_at": "2026-10-19T12:18:10Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339643642,
+          "name": "sha256:4f0409c9369f0797fed4d9b7f6da121f08b16fdedf5324db17734da553569fc6",
+          "created_at": "2026-10-05T15:40:46Z",
+          "updated_at": "2026-10-05T15:40:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339318029,
+          "name": "sha256:fb38d0a92cdaca795ae30209d6600045ab7cb74c145bf6cb88be0e951deb9274",
+          "created_at": "2026-10-05T14:40:37Z",
+          "updated_at": "2026-10-05T14:40:37Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/core",
+      "versions": [
+        {
+          "id": 1413216235,
+          "name": "sha256:94783ad7da386efe96ecb1191883373ea61e8495c02fba47da09f6b7e3724026",
+          "created_at": "2026-10-20T04:39:00Z",
+          "updated_at": "2026-10-20T04:39:00Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413183726,
+          "name": "sha256:565b58a3269c353b41379f948715ec5687f784968a34c6dde6d91fb2ac15e62b",
+          "created_at": "2026-10-20T04:26:25Z",
+          "updated_at": "2026-10-20T04:26:25Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413138259,
+          "name": "sha256:21cea17e423eb68ca95489fcca99e753acb4d2ee2017e70f75130780de6a00cd",
+          "created_at": "2026-10-20T04:10:20Z",
+          "updated_at": "2026-10-20T04:10:20Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409235269,
+          "name": "sha256:ea50d2b8202a144e64365dfbab23755d5a47901c05d18378afc1ebd68006c554",
+          "created_at": "2026-10-19T12:17:46Z",
+          "updated_at": "2026-10-19T12:17:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339643235,
+          "name": "sha256:b25f1415222bd57d0f7823959576d627fb05d0b08abc4fc252bbfead5a04fb77",
+          "created_at": "2026-10-05T15:40:41Z",
+          "updated_at": "2026-10-05T15:40:41Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339318793,
+          "name": "sha256:b5e72dc0ae4f93729fd8794b286b2cbb943950d9938d3f3ce31bdb12ef626d40",
+          "created_at": "2026-10-05T14:40:46Z",
+          "updated_at": "2026-10-05T14:40:46Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "challenges/web-afterimage/bot",
+      "versions": [
+        {
+          "id": 1413220573,
+          "name": "sha256:23df4e201846c3f12f03a10c36b9ff8a23ac54a0732dfd209f238bf053234f5b",
+          "created_at": "2026-10-20T04:40:28Z",
+          "updated_at": "2026-10-20T04:40:28Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "e2199fdf0ce1f05652518246001af8cd3e4c8490-39370165254-1-475b5cc9400541f4b5347b75891ffca1"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413186360,
+          "name": "sha256:55e2ffe5927f4454e3b0cb454456c6257910b38983c3329cea2edd788249b328",
+          "created_at": "2026-10-20T04:27:19Z",
+          "updated_at": "2026-10-20T04:27:19Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39369095907-1-498c0a70ae43486b853581a259793e4c"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1413142476,
+          "name": "sha256:2ec08720bf06a2041306ffb6d9cd401f65aaa8b9bc4e3b5177643a02c9fd1b83",
+          "created_at": "2026-10-20T04:11:48Z",
+          "updated_at": "2026-10-20T04:11:48Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "2330d6dc7e330f8141530cc89b2a97a807016453-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1409242221,
+          "name": "sha256:f2aa3098e4e1c5dcc324209080aa856b981b418b5768d52ea9f96f9b99237dce",
+          "created_at": "2026-10-19T12:19:02Z",
+          "updated_at": "2026-10-19T12:19:02Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7e852818f66755a8d858c973189098ceb00b300d-39250207559-1-6eda3c6fb33442c5a7dbdc977385efcc"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339646487,
+          "name": "sha256:881176049a36d0e0a7b774c100c732d8c42b27839a220007cba6fb9e17b42180",
+          "created_at": "2026-10-05T15:41:21Z",
+          "updated_at": "2026-10-05T15:41:21Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "1dea73b652f9eeb98204c1fda7f66b9afb89505d-37334074888-1-38e36e37572e43a0a87ebe7709fa6598"
+              ]
+            }
+          }
+        },
+        {
+          "id": 1339327445,
+          "name": "sha256:cb64fca05e0a019420b60b36e048c8dc6f52ab14104afacc622256f62275da44",
+          "created_at": "2026-10-05T14:42:17Z",
+          "updated_at": "2026-10-05T14:42:17Z",
+          "metadata": {
+            "package_type": "container",
+            "container": {
+              "tags": [
+                "7fdee1d9f68a9808f4333bd53b930b393420ae1a-37325947823-1-a0b7a56a47724820ac88273b232d6001"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

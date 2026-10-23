@@ -1,0 +1,1127 @@
+{
+  "checked_at": "2026-10-23T06:45:15.212921+00:00",
+  "repository": "MSG-CTF/2026_MSG_CTF",
+  "source_sha": "84742c511bb126a5e94d9d21c85ddf9b0611b923",
+  "source_ref": "refs/heads/main",
+  "first_publication_included": "2026-10-05T00:00:00Z",
+  "counts": {
+    "total": 37,
+    "dynamic": 24,
+    "static": 13,
+    "statuses": {
+      "ARTIFACTS_MATCH_PROBLEM_TREE": 37
+    }
+  },
+  "limitations": [
+    "지정된 기준일 이전 전체 이력은 조회 범위가 아님",
+    "문제 폴더 밖 공통 설정 변경은 별도 확인 필요",
+    "ZIP 본문·bundle 내용·GHCR 실체·현재 취약점 DB는 미검사",
+    "Backend 등록·Runtime 배포 완료를 의미하지 않음"
+  ],
+  "problems": [
+    {
+      "challenge_slug": "crypto-nerves",
+      "runtime_required": true,
+      "current_problem_tree": "ad03c18972165e147e691a11ce40ffbd250ae9aa",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239719498,
+          "name": "crypto-nerves-39367715071-1-3d23d4e9a0064a12bcedbde09e0afa3e-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:11:46Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240620450,
+          "name": "crypto-nerves-39367715071-1-3d23d4e9a0064a12bcedbde09e0afa3e-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:58Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "crypto-reused-seal",
+      "runtime_required": true,
+      "current_problem_tree": "1e51a447c076d2502bee45f3c96479a7d53c0e2d",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12186031436,
+          "name": "crypto-reused-seal-39250207559-1-8ac8deaa37254fc48ebe9044aff57449-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:22:11Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12184973178,
+          "name": "crypto-reused-seal-39250207559-1-8ac8deaa37254fc48ebe9044aff57449-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:19:06Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "crypto-tr88",
+      "runtime_required": false,
+      "current_problem_tree": "ca98de62b19c63851816492670524db76c605970",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11362409339,
+          "name": "crypto-tr88-37352298164-1-fbd75e8ceba343c691cbb21b02b21978-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T17:59:39Z",
+          "run_id": 37352298164,
+          "registry_revision": 464,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "forensic-evidence",
+      "runtime_required": false,
+      "current_problem_tree": "755ae04ce942687bc9ae322dd948d254ae79b7de",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11363466676,
+          "name": "forensic-evidence-37352717625-1-7b34c7ef113246d688ce8bcd2f8f7eaf-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:02:50Z",
+          "run_id": 37352717625,
+          "registry_revision": 465,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "runtime_required": false,
+      "current_problem_tree": "22fad28c20d781fa7a1efab7ed40b17f0d0d0465",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 12294501078,
+          "name": "forensic-is-this-job-legit-39486897238-1-277d9f658c564bc899ea5a195a66e38b-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T19:53:39Z",
+          "run_id": 39486897238,
+          "registry_revision": 605,
+          "source_sha": "84742c511bb126a5e94d9d21c85ddf9b0611b923",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "forensic-leftovers",
+      "runtime_required": false,
+      "current_problem_tree": "2f491651ad8e5ba45f36bf7815da2ac8fcf23ecc",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 12287329150,
+          "name": "forensic-leftovers-39473908984-1-ff254723aec047928dbc5d7ebc55874a-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T18:23:07Z",
+          "run_id": 39473908984,
+          "registry_revision": 599,
+          "source_sha": "c8838ab31366052c1f833c5df45cce20f7addf95",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "forensic-the-last-record",
+      "runtime_required": false,
+      "current_problem_tree": "90ec7bff90c55f98b95322fd3ccd9c77f2fa65ce",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11558855059,
+          "name": "forensic-the-last-record-37795458532-1-bc46216109944394a5fae2f8b73dba55-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-08T14:50:01Z",
+          "run_id": 37795458532,
+          "registry_revision": 499,
+          "source_sha": "9b6f5b301fb76bfe0239c5dddf934df384ed6c20",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "koth-card-battle-arena",
+      "runtime_required": true,
+      "current_problem_tree": "d21525add080bf69a132e21edc85bbb7c1e977df",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12186011245,
+          "name": "koth-card-battle-arena-39250207559-1-062b38da0bfe42c59735b794e5a9d847-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:21:03Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12185337215,
+          "name": "koth-card-battle-arena-39250207559-1-062b38da0bfe42c59735b794e5a9d847-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:16:41Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "koth-dependency-hell",
+      "runtime_required": true,
+      "current_problem_tree": "f5e407fd0fef8696bf31eee868fbdcd4ff5ab741",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12185492586,
+          "name": "koth-dependency-hell-39250207559-1-30454cb20046422a94b7397687d5d2b8-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:20:44Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12185132356,
+          "name": "koth-dependency-hell-39250207559-1-30454cb20046422a94b7397687d5d2b8-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:15:20Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "koth-grand-tour-duel",
+      "runtime_required": true,
+      "current_problem_tree": "18520cb096e6f256c43c431e738bb24a387aa3c3",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12186016197,
+          "name": "koth-grand-tour-duel-39250207559-1-c235ea8e54c743b9a33a5864f796bf9f-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:20:50Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12185526631,
+          "name": "koth-grand-tour-duel-39250207559-1-c235ea8e54c743b9a33a5864f796bf9f-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:16:18Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "koth-jenga",
+      "runtime_required": true,
+      "current_problem_tree": "f9a17dcb7d36400cf366a4ea85f8f33d6bbda71a",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12184953879,
+          "name": "koth-jenga-39250207559-1-e0b7051ee5be45c79162e860a19367d7-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:23:22Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12184978411,
+          "name": "koth-jenga-39250207559-1-e0b7051ee5be45c79162e860a19367d7-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:20:05Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "koth-pixel-smuggler",
+      "runtime_required": true,
+      "current_problem_tree": "7aef87901ecf91c67846663d75a77b28b9d8122f",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12185867315,
+          "name": "koth-pixel-smuggler-39250207559-1-a0ede18b1c7a49de935bc37e32412da8-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:23:06Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12186225595,
+          "name": "koth-pixel-smuggler-39250207559-1-a0ede18b1c7a49de935bc37e32412da8-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:19:42Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "koth-swanopoly",
+      "runtime_required": true,
+      "current_problem_tree": "4538bf8d22d85701039a9f1ba5b49f4dbc2eaa4e",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12185018549,
+          "name": "koth-swanopoly-39250207559-1-caab5c7b5ebd4ff3bdfd85f62fd51b33-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:22:07Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12186090604,
+          "name": "koth-swanopoly-39250207559-1-caab5c7b5ebd4ff3bdfd85f62fd51b33-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:18:45Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "misc-cashout",
+      "runtime_required": true,
+      "current_problem_tree": "bafbe09983a5dfd5b142c5491019ff37441c5e7c",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12258244514,
+          "name": "misc-cashout-39410435029-1-6c084dd3928146b1b65d42865b237d02-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T10:52:41Z",
+          "run_id": 39410435029,
+          "registry_revision": 584,
+          "source_sha": "27b60a032cf2e378de0ad1c4eff8a20c951d4fee",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12258703705,
+          "name": "misc-cashout-39410435029-1-6c084dd3928146b1b65d42865b237d02-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T10:50:15Z",
+          "run_id": 39410435029,
+          "registry_revision": 584,
+          "source_sha": "27b60a032cf2e378de0ad1c4eff8a20c951d4fee",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "runtime_required": false,
+      "current_problem_tree": "b44ce312851b953b5a8b38b3d5b3de4cecf89e06",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 12259865172,
+          "name": "misc-hidden-order-39411269454-1-30668547b0ad4fa7a78edc7ddb71e72d-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T10:57:11Z",
+          "run_id": 39411269454,
+          "registry_revision": 585,
+          "source_sha": "27b60a032cf2e378de0ad1c4eff8a20c951d4fee",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "misc-reqr",
+      "runtime_required": true,
+      "current_problem_tree": "71a103a30aed00f4564135dd505fd72427e98e72",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239899200,
+          "name": "misc-reqr-39367715071-1-9f618e7111114cca915ef1c74ccb985a-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:11:29Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240550170,
+          "name": "misc-reqr-39367715071-1-9f618e7111114cca915ef1c74ccb985a-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:25Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "misc-snack-thief",
+      "runtime_required": false,
+      "current_problem_tree": "7aa4ba95e1383db33c4ef403ed1d81e818e97def",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11364620236,
+          "name": "misc-snack-thief-37354420459-1-de60314d46604eb1818159aa427fd4e2-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:16:38Z",
+          "run_id": 37354420459,
+          "registry_revision": 470,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "osint-ramen-man",
+      "runtime_required": false,
+      "current_problem_tree": "0d6aaa331a914e9b61658110aa7933a84e9ed260",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11364506285,
+          "name": "osint-ramen-man-37354891450-1-0ceb5c9674144b94b77116c2a559d8ce-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:20:14Z",
+          "run_id": 37354891450,
+          "registry_revision": 471,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "osint-the-past-has-an-address",
+      "runtime_required": true,
+      "current_problem_tree": "4607d1addc2ee90b8a0c875fc3e9d81b34e1edc9",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12286170605,
+          "name": "osint-the-past-has-an-address-39465966818-1-a9e1fb3269cc4251bea4668ca1f468f6-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T17:30:37Z",
+          "run_id": 39465966818,
+          "registry_revision": 593,
+          "source_sha": "200cded9d0b688b69190b9bc14deed43b2da1e9a",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12285750231,
+          "name": "osint-the-past-has-an-address-39465966818-1-a9e1fb3269cc4251bea4668ca1f468f6-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T17:28:22Z",
+          "run_id": 39465966818,
+          "registry_revision": 593,
+          "source_sha": "200cded9d0b688b69190b9bc14deed43b2da1e9a",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "osint-trace",
+      "runtime_required": false,
+      "current_problem_tree": "2c13c470463a6d5214e2754728221f4624c446d1",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11363848439,
+          "name": "osint-trace-37355231118-1-ce37c2252d384e838e181037fddcfac7-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:22:50Z",
+          "run_id": 37355231118,
+          "registry_revision": 472,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "pwn-ghost-file",
+      "runtime_required": true,
+      "current_problem_tree": "7bbd505b68822d0a58d19fb3aa82aa0dd8f5e23d",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12185682081,
+          "name": "pwn-ghost-file-39250207559-1-2318b3a77349407d883020b0cced02c5-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:20:36Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12186075260,
+          "name": "pwn-ghost-file-39250207559-1-2318b3a77349407d883020b0cced02c5-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:16:42Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "pwn-msgdriver",
+      "runtime_required": false,
+      "current_problem_tree": "393d8737b0b82aac60115405441a7224937fc357",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11364671824,
+          "name": "pwn-msgdriver-37355605999-1-1d1f185bf6964a98bc9426955e267952-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:26:00Z",
+          "run_id": 37355605999,
+          "registry_revision": 473,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "pwn-note",
+      "runtime_required": true,
+      "current_problem_tree": "32c8f99abfd4dd2c8b0fce0dd3a5d7c9d47269ea",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12186096073,
+          "name": "pwn-note-39250207559-1-8457532011674537abb57ca53a9f5a89-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:21:00Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12185507082,
+          "name": "pwn-note-39250207559-1-8457532011674537abb57ca53a9f5a89-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-19T12:18:19Z",
+          "run_id": 39250207559,
+          "registry_revision": 552,
+          "source_sha": "7e852818f66755a8d858c973189098ceb00b300d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "pwn-price-tag",
+      "runtime_required": true,
+      "current_problem_tree": "f303a968d80372e0bf662e961bc284584bbf3ee9",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12286851992,
+          "name": "pwn-price-tag-39469605794-1-f36babdab0b94433af0ae7b3f7cb0040-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T17:56:54Z",
+          "run_id": 39469605794,
+          "registry_revision": 596,
+          "source_sha": "3fb34b45724650b9abe0abdbb94d6aada9c47a85",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12286786481,
+          "name": "pwn-price-tag-39469605794-1-f36babdab0b94433af0ae7b3f7cb0040-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T17:53:17Z",
+          "run_id": 39469605794,
+          "registry_revision": 596,
+          "source_sha": "3fb34b45724650b9abe0abdbb94d6aada9c47a85",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "runtime_required": true,
+      "current_problem_tree": "f6ffab90f0f20d2860219e3311efde28a9efa213",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239544718,
+          "name": "pwn-random6-39367715071-1-431b6ff618c74f74a16dd4fc7126f6d8-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:11:31Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240162906,
+          "name": "pwn-random6-39367715071-1-431b6ff618c74f74a16dd4fc7126f6d8-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:24Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": [
+        {
+          "artifact_id": 11740609822,
+          "run_id": 38238229618,
+          "expired": false,
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "challenge_slug": "rev-ezpz",
+      "runtime_required": false,
+      "current_problem_tree": "b0dea94edeec73eeb272f81d2bd0f6b4ef54ab60",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11738158227,
+          "name": "rev-ezpz-38230220050-1-c2eea6e09bb54702b75cc1cf811398ce-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-12T09:31:45Z",
+          "run_id": 38230220050,
+          "registry_revision": 511,
+          "source_sha": "e04d185238d4e25293eea026656b64817050361f",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "rev-phantom-lattice",
+      "runtime_required": false,
+      "current_problem_tree": "b6294842af947dac0acb5c39019079ad9da059e0",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11364782921,
+          "name": "rev-phantom-lattice-37356673439-1-65c91f047b7e49fd843c05392ba5ed4a-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:33:55Z",
+          "run_id": 37356673439,
+          "registry_revision": 475,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "rev-rework",
+      "runtime_required": false,
+      "current_problem_tree": "5c183f218a6b2c58544e43398c44e3ed3357589c",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "user-files": {
+          "id": 11364892451,
+          "name": "rev-rework-37356949017-1-87d831b7ec86442799cd8333741e13b6-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-05T18:36:40Z",
+          "run_id": 37356949017,
+          "registry_revision": 476,
+          "source_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "rev-tinyvm",
+      "runtime_required": true,
+      "current_problem_tree": "6d4c78594d6de5738531db458d58d382783324d3",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12240581290,
+          "name": "rev-tinyvm-39367715071-1-1f2002bb4e1e4595aff1a84517c4327b-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:11:31Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12239609094,
+          "name": "rev-tinyvm-39367715071-1-1f2002bb4e1e4595aff1a84517c4327b-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:58Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "web-afterimage",
+      "runtime_required": true,
+      "current_problem_tree": "6c9cec287e2b0d21414f9a490d0137f48929c16e",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12240615599,
+          "name": "web-afterimage-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:12:31Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12239609031,
+          "name": "web-afterimage-39367715071-1-2b02b7fa0ed74127b5bf97bf2ce8ea66-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:30Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": [
+        {
+          "artifact_id": 12241266703,
+          "run_id": 39370165254,
+          "expired": false,
+          "conclusion": "failure"
+        },
+        {
+          "artifact_id": 12240364000,
+          "run_id": 39370165254,
+          "expired": false,
+          "conclusion": "failure"
+        },
+        {
+          "artifact_id": 12240313220,
+          "run_id": 39369095907,
+          "expired": false,
+          "conclusion": "failure"
+        },
+        {
+          "artifact_id": 12240647894,
+          "run_id": 39369095907,
+          "expired": false,
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "challenge_slug": "web-daily-point",
+      "runtime_required": true,
+      "current_problem_tree": "2ddcb7388ef66d0d80f1a32ca2c487b969b4c8c7",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239792858,
+          "name": "web-daily-point-39367715071-1-e619d520c535438d9475a3f3b7fecc83-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:10:59Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240650202,
+          "name": "web-daily-point-39367715071-1-e619d520c535438d9475a3f3b7fecc83-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:29Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "web-grade-tampering",
+      "runtime_required": true,
+      "current_problem_tree": "20a59dfdd21b922df5e461057cfd7a5fb9233bc7",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239714660,
+          "name": "web-grade-tampering-39367715071-1-1c46a10b91c64a4487fb80ae35d166c7-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:11:46Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240271259,
+          "name": "web-grade-tampering-39367715071-1-1c46a10b91c64a4487fb80ae35d166c7-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:07:23Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "web-logout-please",
+      "runtime_required": true,
+      "current_problem_tree": "09cc12fcfdda71f6e8cbd09556a9b7d1c1a58201",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239284851,
+          "name": "web-logout-please-39367715071-1-d25f8f69e57c4104b88e5f858cd01c0a-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:12:12Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240321030,
+          "name": "web-logout-please-39367715071-1-d25f8f69e57c4104b88e5f858cd01c0a-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:08:18Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "web-notebook",
+      "runtime_required": true,
+      "current_problem_tree": "f09e2e37ffc46314eec7ae880bdcda97fb54f36c",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239664854,
+          "name": "web-notebook-39367715071-1-b21c5160087946588d2e3c689e48338e-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:12:39Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240560761,
+          "name": "web-notebook-39367715071-1-b21c5160087946588d2e3c689e48338e-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:08:05Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "web-open-house",
+      "runtime_required": true,
+      "current_problem_tree": "268029d3507f7cc383bd1f25d59254873648801e",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12239944783,
+          "name": "web-open-house-39367715071-1-0d959d2e7537426094d7efc5057e2371-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:16:11Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12239917705,
+          "name": "web-open-house-39367715071-1-0d959d2e7537426094d7efc5057e2371-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:10:50Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    },
+    {
+      "challenge_slug": "web3-infinite-pack",
+      "runtime_required": true,
+      "current_problem_tree": "7d0be773b2d3f82e5efbbb51e46c5023b29a39f6",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12293469689,
+          "name": "web3-infinite-pack-39488191021-1-b0580a46591c4cdda362b6613bf395ba-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T20:07:15Z",
+          "run_id": 39488191021,
+          "registry_revision": 606,
+          "source_sha": "84742c511bb126a5e94d9d21c85ddf9b0611b923",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12294985889,
+          "name": "web3-infinite-pack-39488191021-1-b0580a46591c4cdda362b6613bf395ba-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T20:02:35Z",
+          "run_id": 39488191021,
+          "registry_revision": 606,
+          "source_sha": "84742c511bb126a5e94d9d21c85ddf9b0611b923",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": [
+        {
+          "artifact_id": 12294650116,
+          "run_id": 39486377513,
+          "expired": false,
+          "conclusion": "cancelled"
+        }
+      ]
+    },
+    {
+      "challenge_slug": "web3-split-brain-oracle",
+      "runtime_required": true,
+      "current_problem_tree": "9d7d33559d7fe985479ba6644b3eab7c64baebb6",
+      "status": "ARTIFACTS_MATCH_PROBLEM_TREE",
+      "artifacts": {
+        "publish": {
+          "id": 12240138887,
+          "name": "web3-split-brain-oracle-39367715071-1-28b9c2fcaa2744dcbbeadf693b7e60f4-publish-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:13:36Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        },
+        "user-files": {
+          "id": 12240163104,
+          "name": "web3-split-brain-oracle-39367715071-1-28b9c2fcaa2744dcbbeadf693b7e60f4-user-files-bundle",
+          "expired": false,
+          "created_at": "2026-10-20T04:08:44Z",
+          "run_id": 39367715071,
+          "registry_revision": 573,
+          "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+          "run_status": "completed",
+          "run_conclusion": "success",
+          "problem_tree_matches": true
+        }
+      },
+      "rejected_artifacts": []
+    }
+  ]
+}

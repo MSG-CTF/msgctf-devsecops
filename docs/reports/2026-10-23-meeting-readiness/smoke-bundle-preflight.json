@@ -1,0 +1,121 @@
+{
+  "checked_at": "2026-10-23T07:02:12.036703+00:00",
+  "central_source_sha": "5cd9ef6eb43f13af5ff3bb323707df2afdfdd266",
+  "runtime_repository_ref": "a4c1f47d5a96f44222c87cc3fd458943771a61b7",
+  "target_id": "gcp-msg-runtime-k3s",
+  "configuration_uses_placeholder_instance_and_team_ids": true,
+  "authenticated_runtime_called": false,
+  "image_build_or_pull_executed": false,
+  "limitations": [
+    "등록된 서버 정책·CI 토큰·허용 팀·target 검증 아님",
+    "FLAG 주입·실제 생성·접속·삭제 검증 아님",
+    "현재 저장소 정책과 실제 배포 정책의 일치는 Runtime 담당자 확인 필요"
+  ],
+  "checks": [
+    {
+      "repository": "MSG-CTF/2026_MSG_CTF",
+      "run_id": 39367715071,
+      "artifact_id": 12239714660,
+      "artifact_name": "web-grade-tampering-39367715071-1-1c46a10b91c64a4487fb80ae35d166c7-publish-bundle",
+      "challenge_slug": "web-grade-tampering",
+      "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+      "registry_revision": 573,
+      "source_and_bundle_contract": "PASS",
+      "image": "ghcr.io/msg-ctf/challenges/web-grade-tampering/web@sha256:3a3de9c6c3670eed8e4e771ae4d4ad981825144796b80f1d523fba2403652fdb",
+      "runtime_type": "KUBERNETES",
+      "architecture": "AMD64",
+      "isolation_profile": "WEB",
+      "resource_profile": {
+        "cpu_millicores": 300,
+        "memory_mib": 256,
+        "ephemeral_storage_mib": 512
+      },
+      "ports": [
+        8080
+      ],
+      "exposed_ports": [
+        8080
+      ],
+      "run_as_user": 10001,
+      "healthcheck_preserved": true,
+      "internal_connections_sent": false,
+      "expose_sent": false,
+      "repository_policy_found": true,
+      "repository_policy_status": "create_enabled",
+      "repository_ci_smoke_enabled": null,
+      "repository_requires_flag": true,
+      "server_policy_confirmed": false,
+      "runtime_called": false
+    },
+    {
+      "repository": "MSG-CTF/2026_MSG_CTF",
+      "run_id": 39367715071,
+      "artifact_id": 12239792858,
+      "artifact_name": "web-daily-point-39367715071-1-e619d520c535438d9475a3f3b7fecc83-publish-bundle",
+      "challenge_slug": "web-daily-point",
+      "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+      "registry_revision": 573,
+      "source_and_bundle_contract": "PASS",
+      "image": "ghcr.io/msg-ctf/challenges/web-daily-point/web@sha256:fc7c762ba95b154c2b00154ed89aedd1ba5f86020408a5300d06a9f8d92a4816",
+      "runtime_type": "KUBERNETES",
+      "architecture": "AMD64",
+      "isolation_profile": "WEB",
+      "resource_profile": {
+        "cpu_millicores": 500,
+        "memory_mib": 512,
+        "ephemeral_storage_mib": 1024
+      },
+      "ports": [
+        8080
+      ],
+      "exposed_ports": [
+        8080
+      ],
+      "run_as_user": 10001,
+      "healthcheck_preserved": true,
+      "internal_connections_sent": false,
+      "expose_sent": false,
+      "repository_policy_found": true,
+      "repository_policy_status": "create_enabled",
+      "repository_ci_smoke_enabled": null,
+      "repository_requires_flag": true,
+      "server_policy_confirmed": false,
+      "runtime_called": false
+    },
+    {
+      "repository": "MSG-CTF/2026_MSG_CTF",
+      "run_id": 39367715071,
+      "artifact_id": 12239944783,
+      "artifact_name": "web-open-house-39367715071-1-0d959d2e7537426094d7efc5057e2371-publish-bundle",
+      "challenge_slug": "web-open-house",
+      "source_sha": "2330d6dc7e330f8141530cc89b2a97a807016453",
+      "registry_revision": 573,
+      "source_and_bundle_contract": "PASS",
+      "image": "ghcr.io/msg-ctf/challenges/web-open-house/web@sha256:8d8492c1746836790691930c3ae937f01705f9a824ebc821fd939da80b3b5ea7",
+      "runtime_type": "KUBERNETES",
+      "architecture": "AMD64",
+      "isolation_profile": "WEB",
+      "resource_profile": {
+        "cpu_millicores": 500,
+        "memory_mib": 512,
+        "ephemeral_storage_mib": 1024
+      },
+      "ports": [
+        8080
+      ],
+      "exposed_ports": [
+        8080
+      ],
+      "run_as_user": 10001,
+      "healthcheck_preserved": true,
+      "internal_connections_sent": false,
+      "expose_sent": false,
+      "repository_policy_found": true,
+      "repository_policy_status": "create_enabled",
+      "repository_ci_smoke_enabled": null,
+      "repository_requires_flag": true,
+      "server_policy_confirmed": false,
+      "runtime_called": false
+    }
+  ]
+}
