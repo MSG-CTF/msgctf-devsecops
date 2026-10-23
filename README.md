@@ -57,6 +57,10 @@ CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 �
 [노드 이미지 사전 다운로드 연동](docs/node-image-prefetch.md)에 담당별 연결과
 기존 참가자 인스턴스를 유지하는 전환 순서를 정리했습니다.
 
+전체 대상 취합과 이전 목록 비교는 `scripts/collect_node_image_plans.py` 및
+읽기 전용 `node-image-prefetch-plan.yml`로 준비합니다. 문제 저장소의 수동 caller
+예시를 제공하며 실제 노드 연결이나 caller 적용은 이번 변경에서 하지 않습니다.
+
 GHCR 이미지 버전은 [삭제 없는 정리 후보 조회](docs/ghcr-cleanup.md)로 관리합니다.
 active release·실행 중 digest와 KOTH의 별도 사용 목록을 확인하기 전에는 실제
 이미지를 삭제하지 않습니다.

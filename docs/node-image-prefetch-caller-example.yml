@@ -1,0 +1,28 @@
+# 문제 저장소의 .github/workflows/node-image-prefetch.yml 예시입니다.
+# 0으로 된 두 SHA를 PR 리뷰·병합 후 동일한 실제 병합 SHA로 교체해야 합니다.
+# 자동 활성화·노드 호출·이미지 삭제는 하지 않습니다.
+name: 일반 문제 이미지 사전 다운로드 목록 준비
+
+on:
+  workflow_dispatch:
+    inputs:
+      previous_artifact_id:
+        description: 이전 성공 취합 artifact ID, 처음에는 생략
+        type: string
+        required: false
+        default: ""
+
+concurrency:
+  group: node-image-prefetch-${{ github.repository }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  plan:
+    uses: MSG-CTF/msgctf-devsecops/.github/workflows/node-image-prefetch-plan.yml@0000000000000000000000000000000000000000
+    with:
+      devsecops_ref: "0000000000000000000000000000000000000000"
+      previous_artifact_id: ${{ inputs.previous_artifact_id }}

@@ -1,6 +1,6 @@
 # 문서
 
-- [노드 이미지 사전 다운로드 연동](node-image-prefetch.md): publish bundle의 digest 목록과 수집·다운로드·적용의 책임 경계, 기존 인스턴스를 유지하는 전환 제안
+- [노드 이미지 사전 다운로드 연동](node-image-prefetch.md): 문제별·전체 이미지 목록과 변경분 취합, 읽기 전용 Actions와 수집·다운로드·적용의 책임 경계
 - [발행본 독립 Runtime 검증](published-runtime-smoke.md): 성공한 main 발행본의 출처 검증과 발행 실행에 영향을 주지 않는 단일 WEB 생성·삭제 시험
 - [2026-10-21 Backend 개발 서버 전달 자료](reports/2026-10-21-backend-handoff/README.md): 최신 37개 발행 대조와 문제별 revision·run·artifact, 배포 성공 기록 및 서버 확인 요청
 - [2026-10-20 최신 발행 대조](reports/2026-10-20-release-readiness/README.md): 37개 문제 폴더와 성공 산출물 일치, 실패한 Runtime 시험과 수집 계약 구분

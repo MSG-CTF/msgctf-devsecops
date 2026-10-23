@@ -76,7 +76,67 @@ python3 scripts/generate_node_image_plan.py \
 다시 계산·대조해야 합니다. `plan_only`를 지우거나 보조 JSON을 수정해도 실행
 승인으로 인정하지 않습니다.
 
-## 노드 저장 방식
+## 전체 목록과 업데이트 변경분
+
+`scripts/collect_node_image_plans.py`는 현재 main 문제 전체와 성공 발행본을 새로
+대조한 뒤 일반 동적 문제의 원본 `artifact-v2.json`을 가져옵니다. 저장소·공식
+workflow·main·성공 여부·run·revision·commit과 문제 폴더 일치, 전체 컨테이너
+검사 증거를 확인하고 기존 문제별 생성기를 재사용합니다.
+
+출력 예:
+
+```text
+node-prefetch/
+├── prefetch-inventory.json
+├── changes.json
+├── images-amd64.txt
+├── images-arm64.txt  # 해당 아키텍처가 있을 때만 생성
+└── summary.md
+```
+
+아키텍처별 목록은 서로 섞지 않습니다. 전체 대상 중 하나라도 조회·출처·검사에
+실패하면 이미지 목록과 완료 inventory는 발행하지 않습니다. 대신 실패 문제와
+고정된 오류 분류를 담은 `failure-report.json`, `summary.md`만 남기고 종료 코드
+2로 실패합니다. API 응답 본문이나 인증 원문을 오류 보고서에 복사하지 않습니다.
+파일 저장도 임시 디렉터리에 완료한 뒤 이동하므로 중간 저장 실패를 완료로
+취급하지 않습니다. 취합 도중 main이 바뀌어도 실패합니다.
+
+```bash
+python3 -B -m scripts.collect_node_image_plans \
+  --output-dir /absolute/path/to/new-node-prefetch
+
+python3 -B -m scripts.collect_node_image_plans \
+  --previous-plan /absolute/path/to/previous/prefetch-inventory.json \
+  --output-dir /absolute/path/to/next-node-prefetch
+```
+
+`changes.json`은 문제·컨테이너 단위의 신규, digest/아키텍처 변경, 유지와
+현재 목록에서 제외된 항목을 구분합니다. 최초 취합은 비교 기준 없음으로
+표시합니다. 지정한 이전 파일이 없거나 손상됐으면 최초 취합으로 대체하지
+않고 실패합니다. 이전 목록의 문제·컨테이너 경로와 checksum도 검증합니다.
+**현재 목록 제외는 삭제 승인이 아닙니다.** 이전 이미지의 실행·롤백·적용 대기
+여부는 별도로 보호해야 하며 `deletion_authorized`는 항상 `false`입니다.
+
+### Actions 연결
+
+새 reusable workflow는 `.github/workflows/node-image-prefetch-plan.yml`입니다.
+문제 저장소에서 `.github/workflows/node-image-prefetch.yml`이라는 수동 caller로
+호출하는 예시는 [caller 예시](node-image-prefetch-caller-example.yml)에 있습니다.
+두 SHA placeholder는 리뷰·병합된 동일한 실제 commit으로 교체해야 합니다.
+이번 PR은 예시만 제공하며 실제 문제 저장소의 caller를 수정하지 않습니다.
+
+공식 문제 저장소의 수동 main 호출만 허용하고, source 저장소 자신의
+`GITHUB_TOKEN`에 `contents: read`, `actions: read`만 사용합니다. 별도 PAT,
+Backend 서비스 토큰, Runtime 토큰이나 SSH 권한을 추가하지 않습니다.
+실행 commit과 조회한 main이 다르면 실패합니다. Summary와 90일 보관 artifact를
+남기며, 실패한 실행에는 실패 보고서만 보관합니다.
+
+다음 호출에서 `previous_artifact_id`로 이전 성공 취합 artifact를 지정할 수 있습니다.
+이전 artifact도 동일 저장소·공식 caller·main 성공 실행인지 확인합니다. 로컬
+이전 JSON 파일은 구조·checksum 검사만 수행하므로 승인된 원본을 직접 선택해야
+하며, 파일 자체를 서명된 신뢰 근거로 사용하지 않습니다.
+
+## 실제 노드 저장 방식
 
 K3s의 실행 이미지는 노드의 containerd 저장소에 들어가야 합니다. VM에서 별도
 Docker daemon으로 `docker pull`한 것만으로 K3s의 이미지 준비를 판정하지 않습니다.
@@ -151,11 +211,19 @@ Open House 생성·삭제 성공 기록은 cold pull이나 이번 자동화 검�
 
 ## 이번 변경의 확인 결과
 
-- 기존 테스트 237개와 새 목록 검사 21개를 합쳐 로컬 테스트 258개 통과
+- 전체 로컬 단위 테스트 286개 통과
 - 기존 Open House main 발행 run `37349840954`, revision `461`의 실제
   `artifact-v2.json`으로 이미지 목록 생성 확인
 - 출력의 이미지가 원본 bundle의 정확한 digest와 일치하고 원본 파일 hash가 보존됨
 - 실제 workflow의 목록 생성 셸 실행과 기존 Poller의 파일 선택 방식 호환 확인
+- 실제 일반 동적 문제 18개 중 K3s 지원 15개·컨테이너 이미지 22개 취합
+- `misc-reqr`, `pwn-ghost-file`, `pwn-random6`는 현재 `DOCKER` 선언이므로
+  K3s 목록에서 별도 분류하며 실행 방식을 임의로 바꾸지 않음
+- 전체 일반 문제 30개와 정적 12개, KOTH·Windows 제외를 구분해 보고
+
+새 취합 workflow는 reusable 코드와 caller 예시만 준비한 상태입니다. 실제 문제
+저장소의 수동 caller 적용과 해당 경로의 Actions 실행은 리뷰·병합 후 진행합니다.
+PR 자체 CI와 로컬 실제 bundle 취합 성공을 새 caller의 운영 실행 성공으로 기록하지 않습니다.
 
 이 결과는 목록 생성 검증입니다. 실제 Backend 수집, 노드 다운로드, 캐시 hit,
 Runtime HTTP 접속이나 무중단 교체 성공을 의미하지 않습니다.
