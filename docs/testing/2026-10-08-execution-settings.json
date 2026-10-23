@@ -1,0 +1,51 @@
+{
+  "started_at": "2026-10-08T08:34:22.947717+00:00",
+  "scope": "local synthetic fixture, actual Backend/Scheduler/Broker/Runtime/PostgreSQL/K3s",
+  "supply_chain_scans": "synthetic unit fixture, not a Trivy/Gitleaks/registry verification",
+  "checks": [
+    "CI generator schema 2.1 -> Backend registration/activation with encrypted secret versions",
+    "participant cannot set execution settings/create secrets; scheduler v2 and resolver require service authentication",
+    "real app gets ordinary env literally, FLAG and INTERNAL_TOKEN",
+    "immutable Secret only exposes app-specific keys; helper has no secretKeyRef",
+    "same-instance helper communication works",
+    "private helper has no NodePort; only app port is public",
+    "new team uses active revision 2 and new secret version",
+    "same-instance communication allowed; cross-instance private helper blocked",
+    "reset preserves original revision/env/secret version after activation changed",
+    "public metadata and local logs contain no secret plaintext",
+    "delete/reset cleanup removes every fixture namespace and namespace Secret"
+  ],
+  "completed_at": "2026-10-08T08:34:52.363483+00:00",
+  "instance_ids": [
+    "9977f047-d3f1-488c-b903-57178ffa8076",
+    "4ff337fc-feec-40f2-a1a2-a6c48cf5cae2",
+    "2695ee7a-afe7-4412-97c1-3d1f32dcf4c7"
+  ],
+  "release_ids": [
+    "93255370-0b49-490e-8fd7-42bce01821ae",
+    "c4cff16d-88f6-4706-a6eb-ce1d05305054"
+  ],
+  "result": "PASS",
+  "secret_storage_checks": {
+    "execution_backend.challenge_runtime_secrets": {
+      "row_count": 6,
+      "contains_plaintext_secret": false
+    },
+    "execution_backend.challenge_release_containers": {
+      "row_count": 4,
+      "contains_plaintext_secret": false
+    },
+    "execution_scheduler.challenge_instance": {
+      "row_count": 3,
+      "contains_plaintext_secret": false
+    },
+    "execution_runtime.runtime_operations": {
+      "row_count": 6,
+      "contains_plaintext_secret": false
+    },
+    "execution_runtime.runtime_bindings": {
+      "row_count": 3,
+      "contains_plaintext_secret": false
+    }
+  }
+}

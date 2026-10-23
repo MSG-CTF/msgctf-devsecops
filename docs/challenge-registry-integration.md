@@ -1,5 +1,12 @@
 # Challenge Registry 통합 검증
 
+## 실행 설정 계약
+
+env·secret_env가 있으면 schema 2.1로 발행하며 기존 설정은 2.0을 유지합니다
+백엔드는 문제별 비밀값 이름을 불변 버전으로 고정하고 런타임 조회용 UUID를 발급합니다
+CI는 비밀값 원문을 발행하지 않습니다
+계약과 검수표: [문제 실행 설정](challenge-execution-settings.md)
+
 ## 검증 범위
 
 Backend poller 운영 계약에서 `artifact-v2.json`은 성공한
