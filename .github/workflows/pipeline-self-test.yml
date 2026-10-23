@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/challenge-branch-validation.yml"
       - ".github/workflows/challenge-supply-chain.yml"
+      - ".github/workflows/published-runtime-smoke.yml"
       - ".github/workflows/pipeline-self-test.yml"
       - ".github/workflows/ghcr-cleanup-dry-run.yml"
       - "ci/**"
@@ -16,6 +17,7 @@ on:
     paths:
       - ".github/workflows/challenge-branch-validation.yml"
       - ".github/workflows/challenge-supply-chain.yml"
+      - ".github/workflows/published-runtime-smoke.yml"
       - ".github/workflows/pipeline-self-test.yml"
       - ".github/workflows/ghcr-cleanup-dry-run.yml"
       - "ci/**"

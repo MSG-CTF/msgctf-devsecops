@@ -50,7 +50,8 @@ jobs:
           DEVSECOPS_REF: ${{ inputs.devsecops_ref }}
         run: |
           set -euo pipefail
-          test "$GITHUB_EVENT_NAME" = workflow_dispatch && test "$GITHUB_REF" = refs/heads/main
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch || { echo "Runtime 시험은 수동 실행만 허용합니다" >&2; exit 1; }
+          test "$GITHUB_REF" = refs/heads/main || { echo "Runtime 시험은 main 실행만 허용합니다" >&2; exit 1; }
           test "$CONFIRM_DEPLOY" = true || { echo "임시 생성·삭제 승인 확인이 필요합니다" >&2; exit 1; }
           [[ "$SOURCE_RUN_ID" =~ ^[1-9][0-9]{0,18}$ ]] || { echo "run ID 형식을 확인하세요" >&2; exit 1; }
           [[ "$CHALLENGE_SLUG" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]] || { echo "문제 slug 형식을 확인하세요" >&2; exit 1; }

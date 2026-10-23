@@ -10,6 +10,9 @@
 공식 main 성공 실행·전체 artifact pagination·시도 번호·만료·출처·SHA·revision과
 digest 검증을 확인합니다. KOTH·PWN·VM·멀티 컨테이너의 암묵적 승인과 비밀값 노출을
 차단하고, 독립 workflow가 발행·권한 확대·실패 무시를 하지 않는지 검사합니다.
+첫 승인 step의 실제 셸을 이벤트·ref 28개 조합과 승인 누락 입력으로 실행합니다.
+독립 workflow만 바뀌어도 push·PR 자체 검사가 실행되는지 확인하고,
+실패 job만 재실행한 run의 이전 attempt bundle은 자동 재사용하지 않도록 검증합니다.
 
 ### `test_audit_execution_settings.py`
 

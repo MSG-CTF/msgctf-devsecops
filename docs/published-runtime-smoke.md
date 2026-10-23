@@ -65,6 +65,18 @@ caller는 같은 CI target을 쓰는 smoke를 직렬 실행하고 `cancel-in-pro
 설정해야 합니다. 자동 취소로 삭제 절차를 끊지 않도록 합니다. 수동 강제 취소나
 러너 종료까지 정리를 보장하는 것은 아니므로 이 경우 Runtime 리소스를 별도 확인합니다.
 
+## 실패 job만 재실행한 발행본의 제한
+
+`Re-run failed jobs`로 원본 발행 run이 최종 성공했더라도, publish job을 재실행하지
+않았다면 bundle 이름에는 이전 attempt 번호가 남을 수 있습니다. 이 workflow는
+원본 run의 현재 `run_attempt`와 artifact 이름의 attempt가 같은 경우만 선택하므로,
+이전 attempt의 bundle만 남아 있으면 다운로드·Runtime 호출 전에 거절합니다.
+
+이전 attempt를 자동으로 대신 선택하지 않습니다. 같은 승인 소스의 다른 성공 run을
+사용하거나, 문제 저장소 main의 수동 발행에서 해당 문제 하나를 새로 발행한 뒤
+새 성공 run ID를 선택합니다. 새 발행은 비용과 revision 증가가 있으므로 운영 승인에
+따라 진행하며, 이 제한을 해소하려고 실패 실행을 성공으로 표시하지 않습니다.
+
 ## 결과 해석
 
 발행 run ID, artifact ID·이름, SHA, slug, revision을 `selection.json`에 남기고

@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -71,6 +72,14 @@ class PublishedRuntimeSmokeTests(unittest.TestCase):
         for invalid in (pages[:1], [pages[0], pages[0]], [{"total_count": 2, "artifacts": [self.artifact, {**self.artifact, "id": 201}]}]):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 select_source(self.run, invalid, REPOSITORY, 100, "web-test")
+
+    def test_failed_jobs_rerun_does_not_reuse_an_earlier_attempt_bundle(self):
+        run = {**self.run, "run_attempt": 2}
+        with self.assertRaisesRegex(ValueError, "현재 시도"):
+            select_source(run, self.pages, REPOSITORY, 100, "web-test")
+        current = {**self.artifact, "id": 201, "name": "web-test-100-2-abc123-publish-bundle"}
+        pages = [{"total_count": 2, "artifacts": [self.artifact, current]}]
+        self.assertEqual(select_source(run, pages, REPOSITORY, 100, "web-test")["artifact_id"], 201)
 
     def test_manifest_sha_revision_slug_ref_and_scan_gate_must_match(self):
         selection = self.select()
@@ -156,6 +165,41 @@ class PublishedRuntimeSmokeTests(unittest.TestCase):
                 self.assertNotIn("${{ inputs.", step["run"])
                 result = subprocess.run(["bash", "-n"], input=step["run"], text=True, capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
+
+    def run_approval_step(self, event, ref, confirm="true"):
+        workflow = yaml.load((ROOT / ".github/workflows/published-runtime-smoke.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+        step = workflow["jobs"]["smoke"]["steps"][0]
+        env = dict(os.environ, GITHUB_EVENT_NAME=event, GITHUB_REF=ref, CONFIRM_DEPLOY=confirm,
+                   SOURCE_RUN_ID="100", CHALLENGE_SLUG="web-test", DEVSECOPS_REF="a" * 40)
+        return subprocess.run(["bash", "-e", "-c", step["run"] + "\nprintf 'GATE_PASSED\\n'\n"],
+                              env=env, text=True, capture_output=True, timeout=5)
+
+    def test_approval_shell_rejects_non_manual_events_and_non_main_refs(self):
+        events = ("workflow_dispatch", "push", "schedule", "pull_request", "workflow_call", "repository_dispatch", "")
+        refs = ("refs/heads/main", "refs/heads/feature", "refs/tags/main", "")
+        for event in events:
+            for ref in refs:
+                with self.subTest(event=event, ref=ref):
+                    result = self.run_approval_step(event, ref)
+                    allowed = event == "workflow_dispatch" and ref == "refs/heads/main"
+                    self.assertEqual(result.returncode, 0 if allowed else 1, result.stderr)
+                    self.assertEqual("GATE_PASSED" in result.stdout, allowed)
+                    if not allowed:
+                        self.assertIn("수동 실행" if event != "workflow_dispatch" else "main 실행", result.stderr)
+
+    def test_approval_shell_requires_explicit_deployment_consent(self):
+        for confirm in ("false", "", "True", "1"):
+            with self.subTest(confirm=confirm):
+                result = self.run_approval_step("workflow_dispatch", "refs/heads/main", confirm)
+                self.assertEqual(result.returncode, 1)
+                self.assertNotIn("GATE_PASSED", result.stdout)
+                self.assertIn("승인 확인", result.stderr)
+
+    def test_self_test_runs_when_only_the_runtime_workflow_changes(self):
+        workflow = yaml.load((ROOT / ".github/workflows/pipeline-self-test.yml").read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+        for event in ("push", "pull_request"):
+            with self.subTest(event=event):
+                self.assertIn(".github/workflows/published-runtime-smoke.yml", workflow["on"][event]["paths"])
 
 
 if __name__ == "__main__":
