@@ -3,7 +3,7 @@
 ## 2026년 10월 19일 변경
 
 아래 10월 5일의 서버 주소·지원 범위는 당시 기록이며 현재 배포 상태가 아닙니다.
-최신 병합·발행 대조와 남은 일은 [현재 연동 점검](reports/2026-10-19-release-readiness/README.md)을 봅니다.
+최신 병합·발행 대조와 남은 일은 [현재 연동 점검](reports/2026-10-21-backend-handoff/README.md)을 봅니다.
 
 자체 점검 workflow는 예전 GCP IP를 더 이상 고정 호출하지 않습니다.
 `check_gcp_runtime_connection` 입력은 호환성을 위해 유지하며, 승인된 HTTPS 주소를
