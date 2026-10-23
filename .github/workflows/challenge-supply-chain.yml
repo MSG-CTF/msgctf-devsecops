@@ -589,6 +589,15 @@ jobs:
             --artifact-output dist/artifact-v2.json \
             --registry-output dist/registry-publish.json
 
+      - name: 노드 이미지 사전 다운로드 목록 생성
+        if: >-
+          github.ref == 'refs/heads/main' &&
+          (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        run: |
+          python3 .msgctf-ci/scripts/generate_node_image_plan.py \
+            --artifact dist/artifact-v2.json \
+            --output-dir dist/node-prefetch
+
       - name: GHCR digest 발행 결과 요약
         id: summary
         env:

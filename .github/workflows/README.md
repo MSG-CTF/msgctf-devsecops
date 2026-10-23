@@ -5,6 +5,14 @@ workflow를 관리합니다.
 
 ## 파일
 
+### `node-image-prefetch-plan.yml`
+
+문제 저장소의 수동 main caller에서 호출하는 읽기 전용 reusable workflow입니다.
+현재 문제와 성공한 bundle 전체를 대조해 아키텍처별 이미지 목록, 이전 목록과의
+변경분과 Actions Summary를 보관합니다. 누락·조회·입력 실패는 전체 취합 실패로
+처리하며 노드 다운로드, release 활성화나 이미지 삭제는 수행하지 않습니다.
+[연동 기준과 caller 예시](../../docs/node-image-prefetch.md)를 확인합니다.
+
 ### `published-runtime-smoke.yml`
 
 성공한 main 발행본을 선택하는 별도 수동 caller용 reusable workflow입니다.

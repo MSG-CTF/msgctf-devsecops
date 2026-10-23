@@ -463,6 +463,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "pipeline-self-test.yml",
                 "ghcr-cleanup-dry-run.yml",
                 "published-runtime-smoke.yml",
+                "node-image-prefetch-plan.yml",
             },
         )
 

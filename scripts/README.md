@@ -9,6 +9,20 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `collect_node_image_plans.py`
+
+현재 main과 성공한 실제 bundle을 대조해 일반 Linux K3s 문제의 전체 다운로드
+목록을 아키텍처별로 취합합니다. 이전 완료 목록과 신규·변경·유지·현재 목록
+제외를 비교하되 삭제는 하지 않습니다. 일부 실패는 전체 취합 실패이며 부분
+목록을 발행하지 않습니다. [취합·Actions 연결](../docs/node-image-prefetch.md)을 참고합니다.
+
+### `generate_node_image_plan.py`
+
+성공한 main 발행 bundle에서 일반 Linux K3s 문제의 모든 컨테이너 digest 목록과
+출처·아키텍처·파일 checksum을 생성합니다. 기존 artifact JSON은 수정하지 않으며
+노드 접근·다운로드·릴리스 활성화·기존 인스턴스 교체는 하지 않습니다.
+KOTH·VM은 제외합니다. [사전 다운로드 연동 제안](../docs/node-image-prefetch.md)을 참고합니다.
+
 ### `validate_runtime_smoke_source.py`
 
 독립 Runtime 시험에서 성공한 main 발행 run과 전체 artifact 페이지를 대조합니다.
