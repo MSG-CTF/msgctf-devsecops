@@ -5,6 +5,13 @@
 
 ## 테스트 구성
 
+### `test_generate_node_image_plan.py`
+
+기존 발행 자료에서 공개·비공개 컨테이너 전체의 digest와 아키텍처가 보존되는지,
+tag·다른 문제 이미지·검사 증거 불일치·잘못된 출처가 차단되는지 확인합니다.
+기존 bundle 불변, 출력 덮어쓰기 거절, 비밀값 비포함, 실제 workflow 명령과
+KOTH·VM 제외도 검증합니다. 노드 다운로드나 무중단 교체를 시험한 것은 아닙니다.
+
 ### `test_validate_runtime_smoke_source.py`
 
 공식 main 성공 실행·전체 artifact pagination·시도 번호·만료·출처·SHA·revision과

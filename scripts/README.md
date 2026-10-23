@@ -9,6 +9,13 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `generate_node_image_plan.py`
+
+성공한 main 발행 bundle에서 일반 Linux K3s 문제의 모든 컨테이너 digest 목록과
+출처·아키텍처·파일 checksum을 생성합니다. 기존 artifact JSON은 수정하지 않으며
+노드 접근·다운로드·릴리스 활성화·기존 인스턴스 교체는 하지 않습니다.
+KOTH·VM은 제외합니다. [사전 다운로드 연동 제안](../docs/node-image-prefetch.md)을 참고합니다.
+
 ### `validate_runtime_smoke_source.py`
 
 독립 Runtime 시험에서 성공한 main 발행 run과 전체 artifact 페이지를 대조합니다.

@@ -52,6 +52,11 @@ Scheduler가 Challenge Registry의 active revision 조회
 
 CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 소유하지 않습니다. 해당 영역은 Runtime 및 격리보안팀의 책임입니다.
 
+일반 K3s 문제의 main 발행 bundle에는 노드 사전 다운로드용 digest 목록도
+포함합니다. 실제 노드 다운로드와 수집·적용 버튼 연결은 아직 구현 전이며,
+[노드 이미지 사전 다운로드 연동](docs/node-image-prefetch.md)에 담당별 연결과
+기존 참가자 인스턴스를 유지하는 전환 순서를 정리했습니다.
+
 GHCR 이미지 버전은 [삭제 없는 정리 후보 조회](docs/ghcr-cleanup.md)로 관리합니다.
 active release·실행 중 digest와 KOTH의 별도 사용 목록을 확인하기 전에는 실제
 이미지를 삭제하지 않습니다.
@@ -191,6 +196,9 @@ GHCR push, publish bundle 생성과 Runtime smoke는 승인된 `main` 실행에�
 <challenge_slug>-<artifact_scope>-publish-bundle/
 ├ artifact-v2.json
 ├ registry-publish.json
+├ node-prefetch/  # 일반 K3s 문제의 main 발행만 해당
+│  ├ plan.json
+│  └ images.txt
 ├ input/metadata.json
 └ results/<container>/
    ├ timing.json
@@ -324,6 +332,10 @@ pull합니다. 전체 node 사전 pull은 MVP 필수 범위가 아니며, node�
 K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 수 있습니다.
 사전 pull, mirror 또는 별도 Registry 도입은 MVP 이후 결정하며, 이 경우에도
 Runtime에는 digest 고정 reference만 전달합니다.
+
+2026-10-23 추가 요구에 따라 노드 사전 다운로드를 준비하고 있습니다. 위 MVP의
+on-demand pull 설명은 기존 동작이며, 이번 보조 목록 발행만으로 노드 자동
+다운로드나 기존 인스턴스의 무중단 교체가 활성화되지는 않습니다.
 
 신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. Backend poller가 Actions artifact를 수집해 release를 등록하고, Runtime 배포 smoke는 Secure Provisioner API를 경유합니다. OCI mirror와 Terraform/Ansible 인프라는 각 담당 팀의 계약에 맞춰 통합 테스트합니다.
 
