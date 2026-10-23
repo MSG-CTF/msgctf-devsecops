@@ -14,6 +14,11 @@ digest 검증을 확인합니다. KOTH·PWN·VM·멀티 컨테이너의 암묵�
 독립 workflow만 바뀌어도 push·PR 자체 검사가 실행되는지 확인하고,
 실패 job만 재실행한 run의 이전 attempt bundle은 자동 재사용하지 않도록 검증합니다.
 
+### `test_audit_publication_state.py`
+
+정적·동적 문제의 필수 산출물, 실패·실행 중·만료된 artifact 제외, revision 우선순위,
+문제 폴더 변경과 GitHub 페이지 조회를 검증합니다. 배포 성공 판정은 하지 않습니다.
+
 ### `test_audit_execution_settings.py`
 
 설정 이름만 출력하는 비밀값 보호, info.yaml 전용 점검 범위, KOTH 합산 자원 보존과

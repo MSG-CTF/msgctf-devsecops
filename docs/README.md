@@ -1,6 +1,9 @@
 # 문서
 
 - [발행본 독립 Runtime 검증](published-runtime-smoke.md): 성공한 main 발행본의 출처 검증과 발행 실행에 영향을 주지 않는 단일 WEB 생성·삭제 시험
+- [2026-10-21 Backend 개발 서버 전달 자료](reports/2026-10-21-backend-handoff/README.md): 최신 37개 발행 대조와 문제별 revision·run·artifact, 배포 성공 기록 및 서버 확인 요청
+- [2026-10-20 최신 발행 대조](reports/2026-10-20-release-readiness/README.md): 37개 문제 폴더와 성공 산출물 일치, 실패한 Runtime 시험과 수집 계약 구분
+- [2026-10-19 병합 후 연동 점검](reports/2026-10-19-release-readiness/README.md): 실제 main 산출물 대조, Notebook revision 529·정책 확인과 남은 배포 검증
 - [KOTH·Windows 배포 연동](koth-windows-deployment.md): 공용 KOTH 배치·복구와 Windows 제출 실행의 역할 경계, 미확정 계약과 확인 순서
 - [2026-10-19 KOTH 자원·배포 사양 점검](reports/2026-10-19-koth-windows-readiness/README.md): 고정 main의 37개 info.yaml 선언값과 6개 KOTH 자원 비교
 - [2026-10-11 Runtime 후속 조건](reports/2026-10-10-independent-preparation/runtime-followup-2026-10-11.md): 새 Grade digest 미승인·이전 리소스 미확인과 Afterimage/KOTH 네트워크 처리 분리

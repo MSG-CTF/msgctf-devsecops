@@ -64,6 +64,19 @@ class RuntimeHttpsTransportTests(unittest.TestCase):
         self.assertNotIn("secrets", json.dumps(job))
         self.assertNotIn("internal_connections", json.dumps(job))
 
+    def test_preflight_uses_approved_input_or_repository_variable(self):
+        from pathlib import Path
+        import yaml
+        root = Path(__file__).resolve().parents[1]
+        workflow = yaml.load((root / ".github/workflows/pipeline-self-test.yml").read_text(), Loader=yaml.BaseLoader)
+        self.assertEqual(workflow["on"]["workflow_dispatch"]["inputs"]["runtime_api_url"]["default"], "")
+        step = next(row for row in workflow["jobs"]["runtime-https-preflight"]["steps"] if "run" in row)
+        self.assertEqual(step["env"]["RUNTIME_API_URL"], "${{ inputs.runtime_api_url || vars.RUNTIME_API_URL }}")
+        self.assertIn('test -n "$RUNTIME_API_URL"', step["run"])
+        self.assertIn('--api-url "$RUNTIME_API_URL"', step["run"])
+        self.assertNotIn("${{", step["run"])
+        self.assertNotIn("34.67.93.98", step["run"])
+
     def test_probe_accepts_only_401_and_never_sends_authorization(self):
         opener = Mock()
         opener.open.side_effect = HTTPError("https://34.67.93.98", 401, "Unauthorized", {}, io.BytesIO(b"secret response"))

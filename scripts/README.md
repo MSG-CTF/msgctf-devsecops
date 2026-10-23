@@ -16,6 +16,22 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 단일 WEB·KUBERNETES·AMD64 범위에서 기존 요청 변환기를 재사용하며 Runtime은 호출하지 않습니다.
 [독립 시험 운영 절차](../docs/published-runtime-smoke.md)를 참고합니다.
 
+### `audit_publication_state.py`
+
+GitHub CLI의 기존 인증으로 문제 저장소 main의 37개 문제 명세와 실행별 artifact
+목록을 GET으로 조회합니다. 성공·미만료 산출물만 골라 문제 폴더의 Git tree를
+대조하고 `publication-state.json`과 문제별 표를 생성합니다. 전체 commit이
+달라도 문제 폴더가 같으면 이를 구분하며, 실패한 실행에서 먼저 올라온 ZIP은
+성공 산출물로 취급하지 않습니다. FLAG·지문·환경변수 원문은 저장하지 않습니다.
+
+```bash
+python3 -B -m scripts.audit_publication_state --output-dir /absolute/path/to/report
+```
+
+기준일 이후의 발행 메타데이터 점검이며 새 취약점 검사, ZIP 본문 검사, GHCR pull,
+Backend DB 등록이나 실제 배포 검증은 아닙니다. 조회 오류가 있으면 완료 보고서를
+만들지 않으며 이미지 발행·삭제·활성화 기능도 없습니다.
+
 ### `runtime_connection_probe.py`
 
 토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.

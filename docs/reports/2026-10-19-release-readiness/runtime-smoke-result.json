@@ -1,0 +1,45 @@
+{
+  "workflow_run_id": 39151393362,
+  "workflow_run_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/39151393362",
+  "workflow_source_sha": "25e7c6b636ba11b16c77e09274563fe92fbb9003",
+  "runner_source_sha": "c789b55e10d69c3ab2069d4de513e6bc8c2dc8a9",
+  "artifact_origin": "approved_digest_synthetic_smoke_artifact",
+  "result": {
+    "challenge_slug": "web-grade-tampering",
+    "revision": 1,
+    "registry_revision": 1,
+    "target_id": "younhochoi-k3s-test",
+    "instance_id": "a2975840-0860-4009-8192-d0898a5b88e8",
+    "runtime_workload_id": "younhochoi-k3s-test/ctf-a2975840086040098192d0898a5b88e8/challenge",
+    "images": [
+      {
+        "name": "web",
+        "image": "ghcr.io/msg-ctf/challenges/web-grade-tampering/web@sha256:c409e49cf70a58be3ca19553b2db09da9d9607fd3462eaf00bdb29b20a44e39e"
+      }
+    ],
+    "service_url": "http://100.112.35.54:31956",
+    "endpoints": [
+      {
+        "container_name": "web",
+        "port": 8080,
+        "protocol": "HTTP",
+        "service_url": "http://100.112.35.54:31956"
+      }
+    ],
+    "create_status": "SUCCEEDED",
+    "create_elapsed_seconds": 60.68,
+    "delete_status": "SUCCEEDED",
+    "delete_elapsed_seconds": 45.699,
+    "recovered_after_timeout": false
+  },
+  "verification_scope": {
+    "runtime_create_operation_succeeded": true,
+    "runtime_delete_operation_succeeded": true,
+    "public_endpoint_contract_validated": true,
+    "participant_http_from_runner_verified": false,
+    "actual_node_image_id_verified": false,
+    "cold_pull_verified": false,
+    "backend_poller_and_registry_included": false,
+    "physical_kubernetes_inspection": false
+  }
+}
