@@ -1,5 +1,24 @@
 # GCP Runtime 연결과 배포 검증 준비
 
+## 2026년 10월 19일 변경
+
+아래 10월 5일의 서버 주소·지원 범위는 당시 기록이며 현재 배포 상태가 아닙니다.
+최신 병합·발행 대조와 남은 일은 [현재 연동 점검](reports/2026-10-21-backend-handoff/README.md)을 봅니다.
+
+자체 점검 workflow는 예전 GCP IP를 더 이상 고정 호출하지 않습니다.
+`check_gcp_runtime_connection` 입력은 호환성을 위해 유지하며, 승인된 HTTPS 주소를
+`runtime_api_url`로 전달하거나 저장소의 `RUNTIME_API_URL` 변수를 설정합니다.
+주소가 없으면 실패하며, 입력은 환경변수로만 넘겨 셸 명령으로 해석하지 않습니다.
+
+```bash
+gh workflow run pipeline-self-test.yml --repo MSG-CTF/msgctf-devsecops \
+  --ref <검토할_브랜치> -f check_gcp_runtime_connection=true \
+  -f runtime_api_url=https://runtime.example.test
+```
+
+이 점검에는 서비스 토큰이 필요하지 않습니다. TLS를 검증한 401 응답만 연결 확인으로
+기록하며 실제 workload 생성·삭제·새 이미지 pull 성공과 구분합니다.
+
 ## 이번 구현 범위
 
 - 기존 smoke HTTP client에 인증서·hostname 검증을 유지하는 HTTPS 전송 추가.

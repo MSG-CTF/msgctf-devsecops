@@ -24,16 +24,21 @@ on:
   workflow_dispatch:
     inputs:
       check_gcp_runtime_connection:
-        description: GCP Runtime HTTPS 연결·비인증 차단 점검 (생성·삭제 없음)
+        description: Runtime HTTPS 연결·비인증 차단 점검 (생성·삭제 없음)
         type: boolean
         default: false
+      runtime_api_url:
+        description: 승인된 Runtime HTTPS 주소 (생략하면 RUNTIME_API_URL 변수 사용)
+        type: string
+        required: false
+        default: ""
 
 permissions:
   contents: read
 
 jobs:
   runtime-https-preflight:
-    name: GCP Runtime HTTPS 읽기 전용 연결 점검
+    name: Runtime HTTPS 읽기 전용 연결 점검
     if: github.event_name == 'workflow_dispatch' && inputs.check_gcp_runtime_connection
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -47,9 +52,12 @@ jobs:
         with:
           python-version: "3.12"
       - name: HTTPS·인증 차단 확인
+        env:
+          RUNTIME_API_URL: ${{ inputs.runtime_api_url || vars.RUNTIME_API_URL }}
         run: |
+          test -n "$RUNTIME_API_URL" || { echo "승인된 Runtime HTTPS 주소를 입력하거나 RUNTIME_API_URL 변수를 설정하세요" >&2; exit 1; }
           python3 -m scripts.runtime_connection_probe \
-            --api-url https://34.67.93.98:443/internal/v1 \
+            --api-url "$RUNTIME_API_URL" \
             --output dist/gcp-runtime-connection.json
       - name: 연결 결과 보관
         if: always()
