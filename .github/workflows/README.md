@@ -5,6 +5,14 @@ workflow를 관리합니다.
 
 ## 파일
 
+### `published-runtime-smoke.yml`
+
+성공한 main 발행본을 선택하는 별도 수동 caller용 reusable workflow입니다.
+선택한 실행·artifact·bundle의 출처를 검증한 뒤 승인된 단일 WEB 문제의 Runtime
+생성·삭제를 시험합니다. 이미지 재발행이나 Backend 등록은 하지 않으며, 시험이
+실패해도 원래 발행 실행의 상태에는 영향을 주지 않습니다.
+[실행 조건과 검증 범위](../../docs/published-runtime-smoke.md)를 확인합니다.
+
 ### `ghcr-cleanup-dry-run.yml`
 
 수동 실행하는 GHCR 이미지 정리 후보 조회입니다. package 읽기 권한만 사용하고
