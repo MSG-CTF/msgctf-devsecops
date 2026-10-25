@@ -9,6 +9,13 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `validate_publication_request.py`
+
+관리자 수동 발행의 공식 저장소·main·문제 slug·요청 UUID와 실행 SHA를 검사합니다.
+요청 SHA가 다르면 발행 전에 거절하며, 통과 시 run과 연결된 요청 확인 JSON만
+기록합니다. 중복 실행을 막는 DB나 별도 API 서버는 만들지 않습니다.
+[Backend 연동 계약](../docs/backend-publication-dispatch.md)을 참고합니다.
+
 ### `validate_runtime_smoke_source.py`
 
 독립 Runtime 시험에서 성공한 main 발행 run과 전체 artifact 페이지를 대조합니다.
