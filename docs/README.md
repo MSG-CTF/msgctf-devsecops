@@ -1,5 +1,6 @@
 # 문서
 
+- [운영 버전 기준 이미지 사전 다운로드](active-release-prefetch-policy.md): 최초 active release 전체 컨테이너, 업데이트 버전 추가 준비, K3s 선언 전환과 기존 인스턴스 보존 기준
 - [노드 이미지 사전 다운로드 연동](node-image-prefetch.md): 문제별·전체 이미지 목록과 변경분 취합, 읽기 전용 Actions와 수집·다운로드·적용의 책임 경계
 - [관리자 대시보드 검증·발행 연동](backend-publication-dispatch.md): 정확한 main SHA 발행 요청, run 추적·상태·산출물 조회, 기존 성공본 수집과 중복·재시도 책임
 - [발행본 독립 Runtime 검증](published-runtime-smoke.md): 성공한 main 발행본의 출처 검증과 발행 실행에 영향을 주지 않는 단일 WEB 생성·삭제 시험
