@@ -56,6 +56,30 @@ Content-Type: application/json
 Backend가 발급·저장한 소문자 canonical UUID이며 비밀값을 넣지 않습니다.
 `source_ref`는 비우거나 `expected_source_sha`와 같은 전체 SHA만 허용합니다.
 
+### 요청 SHA와 산출물 SHA의 관계
+
+새 발행 요청의 필수 일치 조건은 다음과 같습니다.
+
+```text
+inputs.expected_source_sha
+  == workflow_run.head_sha
+  == artifact-v2.json.source_sha
+```
+
+caller의 사전 검사는 요청 SHA와 `GITHUB_SHA`를 비교해 다르면 빌드 전에
+거절합니다. Backend도 최종 수집 시 독립적으로 위 세 값을 확인해야 합니다.
+SHA 일치 외에 공식 저장소·workflow·main 출처, 완료·성공 상태, 문제 slug,
+미만료 artifact와 GHCR digest 형식 검증도 유지합니다.
+
+요청 SHA는 **문제 소스**의 SHA입니다. DevSecOps 도구 SHA인 `devsecops_sha`나
+workflow 정의의 SHA인 `workflow_sha`와 같은 값이어야 한다는 뜻이 아닙니다.
+dispatch가 선택한 main 소스가 요청과 다르면 임의로 요청을 갱신하지 않습니다.
+
+기존 성공본 수집에는 과거의 요청 UUID나 `expected_source_sha`가 없을 수 있습니다.
+이 경로에서는 `bundle.source_sha == workflow_run.head_sha`를 검증하고, 관리자가
+특정 SHA를 선택했다면 그 SHA까지 같아야 합니다. 재사용할 예전 성공본을 현재
+main SHA와 같게 바꾸거나 새 발행 요청으로 위장하지 않습니다.
+
 검수만 요청할 때는 `publish_images: false`로 기존 `source_ref` 검수 기능을
 사용할 수 있습니다. 이 결과는 GHCR·publish bundle 발행 성공으로 표시하지 않습니다.
 요청 검사는 발행 요청에만 적용하며 일반 push·PR 검수와 자동 main 발행을 유지합니다.
@@ -103,6 +127,30 @@ HTTP 204만 받았거나 응답 시간 초과로 run ID를 못 받았다면 접�
 기존 실행을 찾고 출처를 대조합니다. 0개면 전파 지연을 고려해 재조회하고,
 여러 개면 충돌로 표시합니다. 가장 최신 run을 임의 선택하거나 즉시 재호출하지 않습니다.
 
+### 응답 유실 복구용 요청 ID
+
+Backend는 dispatch **전에** 요청 UUID와 원래 요청 내용, 요청 시각을 저장합니다.
+입력 `request_id`는 [문제 저장소 PR #99](https://github.com/MSG-CTF/2026_MSG_CTF/pull/99)의
+caller에서 다음 실행 제목으로 전달됩니다.
+
+```text
+문제 요청 <challenge_slug> / <request_id>
+```
+
+API 응답을 잃으면 공식 workflow의 `workflow_dispatch` 실행 목록을 모든 필요한
+페이지에서 조회합니다. main·요청 SHA·기준 시간대와 위 **전체 실행 제목**을
+대조해 원래 요청을 찾습니다. UUID 부분 문자열이나 가장 최근 실행만으로 연결하지
+않습니다. 요청 ID가 들어간 JSON receipt는 요청 검사 성공 후에만 생깁니다.
+검사가 실패했거나 아직 시작 전이면 receipt가 없을 수 있으며, receipt가 현재
+attempt에 없다는 이유만으로 새로운 dispatch를 보내지 않습니다.
+
+정확한 run이 하나 확인되면 기존 요청에 연결하고 상태를 조회합니다. 0개인 경우
+전파 지연·조회 범위 부족 가능성을 포함해 접수 여부 미확인으로 보관합니다.
+여러 개가 일치하면 중복 실행 충돌로 보관하고 자동 선택·재발행하지 않습니다.
+run을 찾았다는 것은 요청 추적 복구이지 발행 성공 확인이 아닙니다.
+시간 제한·수동 재시도 정책과 이 영속 상태 처리는 Backend 구현 범위이며,
+GitHub dispatch에 서버측 Idempotency-Key가 구현됐다는 의미가 아닙니다.
+
 ## 4. 진행 상태와 오류
 
 ```http
@@ -137,6 +185,46 @@ artifact 목록은 모든 페이지를 확인합니다. `*-publish-bundle`의 JS
 slug를 다시 검증하고 해당 문제 bundle 하나만 선택합니다. 이름의 attempt가
 현재 `run_attempt`와 같다고 단정하지 않습니다. 실패 job만 재실행한 경우
 이전 attempt에서 성공한 artifact가 남을 수 있습니다.
+
+### 같은 run 재실행과 artifact 식별
+
+| 값 | 같은 run 재실행 시 처리 |
+|---|---|
+| `run_id` | 원래 run ID 유지 |
+| `run_number` | 유지되며 현재 caller의 `registry_revision`과 연결 |
+| `head_sha` | 원래 소스 SHA 유지 |
+| `run_attempt` | 재실행마다 증가. revision이나 artifact ID로 쓰지 않음 |
+| `artifact_id` | 산출물 자체의 식별자. 보존된 기존 artifact는 같은 ID 유지, 새 업로드는 새 ID |
+
+추적용으로 저장소·`run_id`·조회한 `run_attempt`·`artifact_id`·artifact 이름을
+함께 기록합니다. 재수집 중복 방지는 artifact ID, 릴리스 중복 방지는
+`challenge_id + registry_revision`으로 구분합니다.
+
+```text
+<slug>-<run_id>-<scope_attempt>-<nonce>-publish-bundle
+```
+
+이 이름의 `scope_attempt`는 중앙 validate job이 scope를 만들 때의 attempt입니다.
+artifact가 실제로 업로드된 attempt와 같다고 보장하지 않습니다. 예를 들어
+validate가 attempt 1에서 성공하고 build만 attempt 2에서 재실행되면, 뒤에서
+생성된 bundle 이름에도 scope attempt 1이 남을 수 있습니다. 현재 `run_attempt`
+숫자로 artifact 이름을 새로 만들어 조회하거나 이전 scope의 artifact를 일괄
+거절하면 안 됩니다. receipt에도 같은 원칙을 적용합니다.
+
+수집 시 해당 run의 artifact 모든 페이지에서 요청 slug의 후보를 찾고 artifact
+메타데이터의 run ID·SHA와 bundle 안의 slug·source SHA·revision을 대조합니다.
+재실행별 job 진단은 아래 API로 구분할 수 있습니다.
+
+```http
+GET /repos/MSG-CTF/2026_MSG_CTF/actions/runs/{run_id}/attempts/{attempt_number}
+GET /repos/MSG-CTF/2026_MSG_CTF/actions/runs/{run_id}/attempts/{attempt_number}/jobs
+```
+
+관리자 수집·결과 조회는 검증한 bundle 후보가 하나면 그 artifact ID를 저장합니다.
+여러 개면 임의 최신 선택을 하지 않고 명시적인 artifact ID 선택 또는 충돌 확인을
+요구합니다. 같은 revision이 이미 등록됐다면 기존 digest·파일을 덮어쓰지 않습니다.
+기존 등록본과 내용이 다르면 단순 성공으로 숨기지 않고 충돌로 분리해야 합니다.
+새 내용을 정식 등록하려면 새 dispatch·새 revision을 사용합니다.
 
 `artifact-v2.json`의 주요 값은 다음과 같습니다.
 
@@ -190,6 +278,12 @@ Backend의 같은 `challenge_id + registry_revision` 중복 처리와 artifact I
 4. Backend가 인증·요청 DB·상태 조회를 연결한 뒤 승인된 문제 한 개로 새 발행과 기존 성공본 수집을 구분해 검증합니다.
 5. 요청 SHA 불일치·중복 클릭·응답 유실·실패 후 재시도·정확한 artifact 선택을 함께 확인합니다.
 
+운영용 관리자 새 발행 요청은 [문제 저장소 PR #99](https://github.com/MSG-CTF/2026_MSG_CTF/pull/99)
+caller 적용과 Backend 연결 검증 전까지
+비활성으로 유지합니다. 기존 성공본 GET 수집과 기존 main push CI의 동작을
+끈다는 뜻은 아닙니다. 이 문서 보완은 입력·검사 코드 변경이 아니므로 #99의
+승인된 도구 SHA 참조 7곳을 다시 바꾸지 않습니다.
+
 이번 코드 검증은 실제 관리자 버튼 호출, 운영 토큰 권한, 새 GHCR 발행이나
 노드 다운로드의 완료 증거가 아닙니다. 이 검증을 위해 전체 문제를 재발행하지 않습니다.
 
@@ -199,3 +293,5 @@ Backend의 같은 `challenge_id + registry_revision` 중복 처리와 artifact I
 - [Dispatch 응답의 run ID](https://github.blog/changelog/2026-02-19-workflow-dispatch-api-now-returns-run-ids/)
 - [Workflow 상태·job·로그](https://docs.github.com/en/rest/actions/workflow-runs)
 - [Actions artifact 조회·다운로드](https://docs.github.com/en/rest/actions/artifacts)
+- [재실행의 원래 SHA·ref 유지](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs)
+- [run ID·number·attempt 정의](https://docs.github.com/en/actions/reference/workflows-and-actions/contexts)
