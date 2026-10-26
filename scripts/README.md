@@ -21,7 +21,15 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 성공한 main 발행 bundle에서 일반 Linux K3s 문제의 모든 컨테이너 digest 목록과
 출처·아키텍처·파일 checksum을 생성합니다. 기존 artifact JSON은 수정하지 않으며
 노드 접근·다운로드·릴리스 활성화·기존 인스턴스 교체는 하지 않습니다.
-KOTH·VM은 제외합니다. [사전 다운로드 연동 제안](../docs/node-image-prefetch.md)을 참고합니다.
+KOTH·VM은 제외합니다. 이 보조 목록은 Runtime 준비 API의 요청이나 준비 완료
+응답이 아닙니다. [사전 다운로드 연동 제안](../docs/node-image-prefetch.md)을 참고합니다.
+
+### `validate_publication_request.py`
+
+관리자 수동 발행의 공식 저장소·main·문제 slug·요청 UUID와 실행 SHA를 검사합니다.
+요청 SHA가 다르면 발행 전에 거절하며, 통과 시 run과 연결된 요청 확인 JSON만
+기록합니다. 중복 실행을 막는 DB나 별도 API 서버는 만들지 않습니다.
+[Backend 연동 계약](../docs/backend-publication-dispatch.md)을 참고합니다.
 
 ### `validate_runtime_smoke_source.py`
 

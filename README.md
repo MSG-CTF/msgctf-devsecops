@@ -43,7 +43,7 @@ Challenge Repo
 Platform 실행 흐름은 다음과 같습니다.
 
 ```text
-Scheduler가 Challenge Registry의 active revision 조회
+Backend가 Challenge Registry의 active release를 조회해 확정 workload를 Scheduler에 전달
 → Resource Broker가 target 선택
 → Runtime API가 digest workload 수신
 → Runtime이 K3s Namespace·Pod·Service·보안 정책 생성
@@ -56,6 +56,11 @@ CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 �
 포함합니다. 실제 노드 다운로드와 수집·적용 버튼 연결은 아직 구현 전이며,
 [노드 이미지 사전 다운로드 연동](docs/node-image-prefetch.md)에 담당별 연결과
 기존 참가자 인스턴스를 유지하는 전환 순서를 정리했습니다.
+
+Runtime [B안 계약 초안 #70](https://github.com/MSG-CTF/secure-provisioner/pull/70)은
+Backend가 준비를 요청하고 Runtime이 다운로드·관측을 관리하며 Scheduler가
+준비된 target을 선호하는 제안입니다. 이번 목록은 실행 요청이나 준비 완료 증거가
+아니며, 준비 실패만으로 활성화·생성을 막는 gate를 추가하지 않습니다.
 
 전체 대상 취합과 이전 목록 비교는 `scripts/collect_node_image_plans.py` 및
 읽기 전용 `node-image-prefetch-plan.yml`로 준비합니다. 문제 저장소의 수동 caller
@@ -340,6 +345,8 @@ Runtime에는 digest 고정 reference만 전달합니다.
 2026-10-23 추가 요구에 따라 노드 사전 다운로드를 준비하고 있습니다. 위 MVP의
 on-demand pull 설명은 기존 동작이며, 이번 보조 목록 발행만으로 노드 자동
 다운로드나 기존 인스턴스의 무중단 교체가 활성화되지는 않습니다.
+준비 정보가 없거나 만료·조회 실패이면 기존 pull 경로를 유지하는 B안은 아직
+검토 중이며, 실제 실행의 인증·이미지 승인·격리·플랫폼·자원 검사는 계속 필수입니다.
 
 신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. Backend poller가 Actions artifact를 수집해 release를 등록하고, Runtime 배포 smoke는 Secure Provisioner API를 경유합니다. OCI mirror와 Terraform/Ansible 인프라는 각 담당 팀의 계약에 맞춰 통합 테스트합니다.
 

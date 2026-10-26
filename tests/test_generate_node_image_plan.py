@@ -101,6 +101,40 @@ class GenerateNodeImagePlanTests(unittest.TestCase):
         self.assertIs(plan["plan_only"], True)
         self.assertNotIn("create_enabled", plan)
 
+    def test_plan_is_not_a_runtime_preparation_request_or_readiness_result(self):
+        artifact = sample_artifact()
+        artifact["isolation_profile"] = "WEB"
+        before = copy.deepcopy(artifact)
+        plan, _ = generate_plan(artifact, ARTIFACT_SHA)
+        self.assertEqual(artifact, before)
+        for container in plan["containers"]:
+            self.assertEqual(set(container), {"name", "image"})
+        for field in (
+            "release_id", "request_id", "target_ids", "isolation_profile",
+            "operation_id", "image_set_id", "ready", "ready_node_count",
+            "eligible_node_count", "observed_at", "valid_until", "nodes",
+        ):
+            self.assertNotIn(field, plan)
+        self.assertEqual(artifact["isolation_profile"], "WEB")
+        self.assertEqual(artifact["workload"]["containers"][1]["ports"],
+                         [{"port": 5432, "public": False}])
+
+    def test_documented_b_contract_keeps_preparation_optional_and_owners_separate(self):
+        text = (ROOT / "docs/node-image-prefetch.md").read_text(encoding="utf-8")
+        for reference in (
+            "https://github.com/MSG-CTF/secure-provisioner/pull/70",
+            "https://github.com/MSG-CTF/secure-provisioner/issues/69",
+            "https://github.com/MSG-CTF/msg-backend/issues/139",
+            "https://github.com/MSG-CTF/instance-scheduler/issues/75",
+            "https://github.com/MSG-CTF/resource-broker/issues/8",
+        ):
+            self.assertIn(reference, text)
+        self.assertIn("준비 상태는 성능 선호 조건", text)
+        self.assertIn("실제\n실행의 인증·digest 승인·격리·플랫폼·자원 검사는 계속 필수", text)
+        self.assertIn("준비 API에 그대로 POST할 요청이 아닙니다", text)
+        self.assertIn("준비 실패만으로 차단하지 않음", text)
+        self.assertNotIn("준비된 release만 active 전환", text)
+
     def test_excludes_koth_vm_and_non_kubernetes_payloads(self):
         for change in ({"category": "koth"}, {"runtime_type": "VM"}, {"runtime_type": "DOCKER"}):
             with self.subTest(change=change):
