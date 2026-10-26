@@ -1,5 +1,6 @@
 # 문서
 
+- [노드 이미지 사전 다운로드 연동](node-image-prefetch.md): 문제별·전체 이미지 목록과 변경분 취합, 읽기 전용 Actions와 수집·다운로드·적용의 책임 경계
 - [관리자 대시보드 검증·발행 연동](backend-publication-dispatch.md): 정확한 main SHA 발행 요청, run 추적·상태·산출물 조회, 기존 성공본 수집과 중복·재시도 책임
 - [발행본 독립 Runtime 검증](published-runtime-smoke.md): 성공한 main 발행본의 출처 검증과 발행 실행에 영향을 주지 않는 단일 WEB 생성·삭제 시험
 - [2026-10-21 Backend 개발 서버 전달 자료](reports/2026-10-21-backend-handoff/README.md): 최신 37개 발행 대조와 문제별 revision·run·artifact, 배포 성공 기록 및 서버 확인 요청
