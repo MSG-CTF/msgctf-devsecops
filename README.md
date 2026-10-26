@@ -53,18 +53,20 @@ Backend가 Challenge Registry의 active release를 조회해 확정 workload를 
 CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 소유하지 않습니다. 해당 영역은 Runtime 및 격리보안팀의 책임입니다.
 
 일반 K3s 문제의 main 발행 bundle에는 노드 사전 다운로드용 digest 목록도
-포함합니다. 실제 노드 다운로드와 수집·적용 버튼 연결은 아직 구현 전이며,
+포함합니다. 최초 대상은 현재 운영 버전의 전체 컨테이너이고, 업데이트 시 새 버전을
+추가로 준비합니다. 최신 발행본을 현재 운영 버전으로 간주하지 않습니다.
+[운영 버전 기준 정책](docs/active-release-prefetch-policy.md)과
 [노드 이미지 사전 다운로드 연동](docs/node-image-prefetch.md)에 담당별 연결과
 기존 참가자 인스턴스를 유지하는 전환 순서를 정리했습니다.
 
-Runtime [B안 계약 초안 #70](https://github.com/MSG-CTF/secure-provisioner/pull/70)은
-Backend가 준비를 요청하고 Runtime이 다운로드·관측을 관리하며 Scheduler가
-준비된 target을 선호하는 제안입니다. 이번 목록은 실행 요청이나 준비 완료 증거가
-아니며, 준비 실패만으로 활성화·생성을 막는 gate를 추가하지 않습니다.
+Backend는 준비 요청과 운영 버전 선택을, Runtime은 실제 다운로드·관측을 담당합니다.
+단일 WEB의 노드 시범 자료는 확인했지만 전체 운영 이미지 준비와 소비자 서버 설정,
+준비 후 자동 전환은 별도 연동 검증이 필요합니다. 목록 생성은 준비 완료가 아닙니다.
 
 전체 대상 취합과 이전 목록 비교는 `scripts/collect_node_image_plans.py` 및
-읽기 전용 `node-image-prefetch-plan.yml`로 준비합니다. 문제 저장소의 수동 caller
-예시를 제공하며 실제 노드 연결이나 caller 적용은 이번 변경에서 하지 않습니다.
+읽기 전용 `node-image-prefetch-plan.yml`로 준비합니다. 문제 저장소의 수동 caller는
+적용됐으며 최초 취합과 이전 artifact 재취합을 확인했습니다. 이 도구는 Backend의
+active release를 선택하거나 Runtime 준비 API를 호출하지 않습니다.
 
 GHCR 이미지 버전은 [삭제 없는 정리 후보 조회](docs/ghcr-cleanup.md)로 관리합니다.
 active release·실행 중 digest와 KOTH의 별도 사용 목록을 확인하기 전에는 실제

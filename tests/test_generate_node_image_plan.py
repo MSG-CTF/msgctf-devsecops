@@ -119,7 +119,7 @@ class GenerateNodeImagePlanTests(unittest.TestCase):
         self.assertEqual(artifact["workload"]["containers"][1]["ports"],
                          [{"port": 5432, "public": False}])
 
-    def test_documented_b_contract_keeps_preparation_optional_and_owners_separate(self):
+    def test_documented_b_contract_keeps_creation_fallback_and_owners_separate(self):
         text = (ROOT / "docs/node-image-prefetch.md").read_text(encoding="utf-8")
         for reference in (
             "https://github.com/MSG-CTF/secure-provisioner/pull/70",
@@ -130,10 +130,21 @@ class GenerateNodeImagePlanTests(unittest.TestCase):
         ):
             self.assertIn(reference, text)
         self.assertIn("준비 상태는 성능 선호 조건", text)
-        self.assertIn("실제\n실행의 인증·digest 승인·격리·플랫폼·자원 검사는 계속 필수", text)
+        self.assertIn("실제 인증·digest 승인·격리·플랫폼·자원 검사는 필수", " ".join(text.split()))
         self.assertIn("준비 API에 그대로 POST할 요청이 아닙니다", text)
-        self.assertIn("준비 실패만으로 차단하지 않음", text)
-        self.assertNotIn("준비된 release만 active 전환", text)
+        self.assertIn("기존 생성·pull 경로를 유지", text)
+        self.assertIn("자동 활성화", text)
+
+    def test_active_release_policy_does_not_redefine_publication_inventory_as_active(self):
+        text = (ROOT / "docs/active-release-prefetch-policy.md").read_text(encoding="utf-8")
+        self.assertIn("현재 운영 버전(active release)의 전체 컨테이너", text)
+        self.assertIn("Backend DB의 active release를 조회하지 않습니다", " ".join(text.split()))
+        self.assertIn("공개 컨테이너뿐 아니라 DB 등 비공개 보조 컨테이너도 포함", text)
+        self.assertIn("등록·준비만으로 active 변경하지 않음", text)
+        self.assertIn("노드 캐시와 GHCR 이미지를 자동 삭제하지 않습니다", text)
+        self.assertIn("https://github.com/MSG-CTF/msg-backend/pull/178", text)
+        for slug in ("misc-reqr", "pwn-ghost-file", "pwn-random6"):
+            self.assertIn(slug, text)
 
     def test_excludes_koth_vm_and_non_kubernetes_payloads(self):
         for change in ({"category": "koth"}, {"runtime_type": "VM"}, {"runtime_type": "DOCKER"}):

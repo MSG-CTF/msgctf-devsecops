@@ -2,25 +2,31 @@
 
 ## 목표와 현재 범위
 
-이번 변경은 검사를 통과한 publish bundle의 **이미지 목록·출처 대조 보조 도구**입니다.
+이 저장소가 공급하는 것은 검사를 통과한 publish bundle의 **이미지 목록·출처 대조 보조 도구**입니다.
 Backend 수집 버튼 연결, 준비 API 호출, 노드 작업, 준비 상태 저장은 구현하지 않습니다.
 기존 수집·활성화 기능에 사전 다운로드 기능이 이미 있다고 가정하지 않습니다.
 
-연동 기준은 Runtime [B안 계약 초안 PR #70](https://github.com/MSG-CTF/secure-provisioner/pull/70)의
-`a7db66446c678e60bba49ee783d339de030e49a5`입니다. 이 PR도 Draft이며 문서·개발 검증
-도구만 추가합니다. HTTP handler, worker, 노드 관측·pull, 새 설정의 구현·배포를
-뜻하지 않습니다. 확정된 운영 API라고 표시하거나 제안 endpoint를 현재 서버에
-호출하지 않습니다.
+2026-10-27부터 최초 준비 범위는 **현재 운영 버전의 전체 컨테이너**, 업데이트 시에는
+**승인된 새 버전의 전체 컨테이너 추가 준비**로 정리합니다.
+[운영 버전 기준 정책](active-release-prefetch-policy.md)에 active 선택·기존 버전 보존과
+K3s 선언 전환 기준을 기록했습니다. 이 취합 도구는 Backend active release를 조회하지
+않으므로 최신 발행 목록을 현재 운영 목록으로 간주하지 않습니다.
+
+Runtime [B안 계약 초안 PR #70](https://github.com/MSG-CTF/secure-provisioner/pull/70)을
+기준으로 목록 계약을 만들었으며, 실제 준비 구현은
+[Runtime PR #80](https://github.com/MSG-CTF/secure-provisioner/pull/80)에서 진행합니다.
+단일 WEB의 실제 다운로드·실행 자료와 전체 운영 배포는 구분합니다. 준비 API의
+운영 배포 SHA·전용 인증·허용 target·용량이 확인된 범위에서만 연결합니다.
 
 B안에서 Backend는 승인된 release의 준비 요청·진행 추적을, Runtime은 실제
 다운로드·관측·재시도를, Scheduler는 Broker 후보를 받은 뒤 준비 상태 일괄 조회와
 준비된 target 우선순위를 담당합니다. Broker 후보·예약 API는 변경하지 않습니다.
 DevSecOps는 기존 bundle과 보조 목록을 공급하며 노드 agent나 준비 API를 만들지 않습니다.
 
-준비 상태는 성능 선호 조건이며, 준비 실패·미관측·만료·조회 장애만으로 release
-활성화나 정상 생성을 차단하지 않습니다. 기존 생성·pull 경로를 유지하되, 실제
-실행의 인증·digest 승인·격리·플랫폼·자원 검사는 계속 필수입니다. 별도 필수 준비
-gate는 이번 계약에 포함하지 않습니다.
+기존 생성 경로의 준비 상태는 성능 선호 조건입니다. 준비 실패·미관측·만료·조회
+장애 시 기존 생성·pull 경로를 유지하되 실제 인증·digest 승인·격리·플랫폼·자원
+검사는 필수입니다. 이와 별도로 Backend의 선택적 **준비 후 자동 활성화**는 현재
+준비 확인 전까지 이전 active를 유지하는 계약이며, 기존 생성 fallback과 혼동하지 않습니다.
 
 ## 수집과 적용 흐름
 
@@ -29,10 +35,10 @@ gate는 이번 계약에 포함하지 않습니다.
   -> GHCR digest 이미지 + publish bundle
   -> 관리자 수집 또는 Backend Poller
   -> 출처 검증과 새 release 등록 (기존 active 유지)
-  -> Backend가 Runtime에 승인된 release의 준비 작업 요청 [추가 구현·배포 필요]
-  -> Runtime이 노드별 다운로드·전체 이미지 검증·관측 [추가 구현·배포 필요]
+  -> Backend가 Runtime에 승인된 release의 준비 작업 요청 [운영 설정·연동 검증 필요]
+  -> Runtime이 노드별 다운로드·전체 이미지 검증·관측 [전체 운영 대상 검증 필요]
 
-관리자 active 전환은 별도 운영 동작 (준비 실패만으로 차단하지 않음)
+관리자 active 전환 또는 별도 승인한 준비 후 전환 (등록만으로 전환하지 않음)
   -> Backend가 선택된 release의 실행 정보를 Scheduler에 전달
   -> Broker 후보 조회와 기존 예약 경로 유지
   -> Scheduler가 Runtime 준비 상태를 조회해 같은 위험도 안에서 준비 target 선호
@@ -41,7 +47,7 @@ gate는 이번 계약에 포함하지 않습니다.
 ```
 
 수집 자체를 이미지 실행이나 자동 활성화로 해석하지 않습니다. 자동 다운로드는
-위 연동 구현 후 수집에 연결하며, 참가자 문제 인스턴스를 미리 전부 생성하는
+실제 배포된 연동과 승인 범위로 수집에 연결하며, 참가자 문제 인스턴스를 미리 전부 생성하는
 기능이 아닙니다. 파일 생성이나 작업 접수만으로 준비 완료를 표시하지 않습니다.
 
 ## B안 요청과 보조 목록의 구분
@@ -182,7 +188,8 @@ python3 -B -m scripts.collect_node_image_plans \
 문제 저장소에서 `.github/workflows/node-image-prefetch.yml`이라는 수동 caller로
 호출하는 예시는 [caller 예시](node-image-prefetch-caller-example.yml)에 있습니다.
 두 SHA placeholder는 리뷰·병합된 동일한 실제 commit으로 교체해야 합니다.
-이번 PR은 예시만 제공하며 실제 문제 저장소의 caller를 수정하지 않습니다.
+실제 문제 저장소의 caller는 [PR #101](https://github.com/MSG-CTF/2026_MSG_CTF/pull/101)로
+적용됐습니다. 목록 caller 성공은 노드 다운로드 완료나 Backend active 조회 성공이 아닙니다.
 
 공식 문제 저장소의 수동 main 호출만 허용하고, source 저장소 자신의
 `GITHUB_TOKEN`에 `contents: read`, `actions: read`만 사용합니다. 별도 PAT,
@@ -217,8 +224,9 @@ CI에 SSH·root 권한, kubeconfig 또는 GHCR pull 토큰을 새로 전달하�
 4. 기존 인스턴스와 reset은 원래 release 계약을 유지합니다. 강제 재시작하지 않습니다.
 5. A는 실행 중 인스턴스와 승인된 롤백이 참조하는 동안 삭제하지 않습니다.
 
-준비가 실패했다는 이유만으로 3번을 막는 기능은 이번 범위에 넣지 않습니다.
-실제 생성 시에는 캐시 여부와 무관하게 digest 승인과 실행 보안 조건을 검사합니다.
+준비 후 자동 전환을 사용하는 경우에는 준비 실패 시 이전 active를 유지합니다.
+이 전환 기능은 Backend PR #178의 별도 리뷰·배포·활성화가 필요합니다.
+기존 생성의 pull fallback을 변경하지 않으며 캐시 여부와 무관하게 실행 보안 조건을 검사합니다.
 
 이 방식은 기존 참가자 세션을 유지하는 버전 전환입니다. 이미 실행 중인
 인스턴스까지 새 이미지로 실시간 교체하는 무중단 배포를 보장하지 않습니다.
@@ -235,7 +243,7 @@ CI에 SSH·root 권한, kubeconfig 또는 GHCR pull 토큰을 새로 전달하�
 | Scheduler | Broker 후보 조회 후 Runtime 준비 상태 일괄 조회, 준비 target 선호, 장애 시 기존 예약·생성 흐름 유지 |
 | Broker | 기존 후보·예약 API 유지, 후보 target과 Runtime Registry 매핑 확인 |
 
-다음은 #70 초안의 합의·구현·배포가 더 필요한 항목입니다. 다른 팀의 API나 privileged
+다음은 각 담당 구현의 실제 배포·설정·통합 검증을 확인할 항목입니다. 다른 팀의 API나 privileged
 에이전트를 DevSecOps 저장소에서 임의로 만들지 않습니다.
 
 - 제안된 준비·조회·retry API와 Backend 전용 인증 권한. CI smoke 토큰을 준비 권한으로 재사용하지 않음
@@ -265,8 +273,11 @@ CI에 SSH·root 권한, kubeconfig 또는 GHCR pull 토큰을 새로 전달하�
 7. 인증 실패·디스크 부족·부분 실패·새 노드에서도 거짓 준비 완료가 나오지 않는지 확인합니다.
 8. 미준비·만료·준비 조회 장애 시 기존 생성·pull 경로를 유지하고, 실제 보안 거절은 유지되는지 확인합니다.
 
-현재는 위 노드 다운로드·자동 적용 연동을 수행한 상태가 아닙니다. 기존
-Open House 생성·삭제 성공 기록은 cold pull이나 이번 자동화 검증으로 재사용하지 않습니다.
+2026-10-27 수령한 Runtime 시범 자료에서는 단일 WEB의 실제 pull 3.786초,
+Pod Ready·imageID 일치·캐시 재사용·시험 리소스 정리를 확인했습니다.
+전체 현재 운영 버전의 일괄 준비, Backend·Scheduler 운영 설정 설치와 자동 전환은
+이 시범으로 검증됐다고 계산하지 않습니다. 기존 Open House 생성·삭제 기록도
+cold pull이나 새 자동화 검증으로 재사용하지 않습니다.
 
 ## 기존 목록 검증 기록
 
@@ -276,17 +287,18 @@ Open House 생성·삭제 성공 기록은 cold pull이나 이번 자동화 검�
 - 출력의 이미지가 원본 bundle의 정확한 digest와 일치하고 원본 파일 hash가 보존됨
 - 실제 workflow의 목록 생성 셸 실행과 기존 Poller의 파일 선택 방식 호환 확인
 - 실제 일반 동적 문제 18개 중 K3s 지원 15개·컨테이너 이미지 22개 취합
-- `misc-reqr`, `pwn-ghost-file`, `pwn-random6`는 현재 `DOCKER` 선언이므로
-  K3s 목록에서 별도 분류하며 실행 방식을 임의로 바꾸지 않음
+- 당시 `misc-reqr`, `pwn-ghost-file`, `pwn-random6`는 `DOCKER` 선언이어서 별도 분류함.
+  2026-10-27 K3s 전환 결정 이후에도 문제 저장소 변경과 새 bundle 발행 전까지 과거 목록은 그대로 보존
 - 전체 일반 문제 30개와 정적 12개, KOTH·Windows 제외를 구분해 보고
 
 위 결과는 기존 PR 검증 당시의 기록입니다. 현재 전체 문제·노드 상태를 다시
 조회하거나 실제 다운로드한 결과로 재표기하지 않습니다. 최신 main 병합 후의
 회귀 테스트와 CI는 PR 본문에 별도 기록합니다.
 
-새 취합 workflow는 reusable 코드와 caller 예시만 준비한 상태입니다. 실제 문제
-저장소의 수동 caller 적용과 해당 경로의 Actions 실행은 리뷰·병합 후 진행합니다.
-PR 자체 CI와 로컬 실제 bundle 취합 성공을 새 caller의 운영 실행 성공으로 기록하지 않습니다.
+이후 중앙 PR #26과 문제 저장소 PR #101이 병합됐고, 실제 수동 main 취합 run
+`40333744581` 및 이전 artifact를 사용한 재취합 run `40334270971`이 성공했습니다.
+당시 일반 K3s 문제 15개·이미지 22개를 대조했으며 추가·변경·제외는 0개였습니다.
+이는 발행 목록 검증이며 Backend active 선택이나 현재 전체 노드 준비 완료는 아닙니다.
 
 이 결과는 목록 생성 검증입니다. 실제 Backend 수집, 노드 다운로드, 캐시 hit,
 Runtime HTTP 접속이나 무중단 교체 성공을 의미하지 않습니다.
