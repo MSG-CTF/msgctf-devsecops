@@ -75,7 +75,9 @@ readiness 조회로 무조건 보내지 않습니다. 실제 요청은 release·
 `artifact_sha256`은 원본 JSON 파일 hash이고 `image_list.sha256`은 줄 단위 목록의
 checksum입니다. #70의 `image_set_id`는 architecture와 정렬·중복 제거한 전체
 이미지 참조 집합에서 Runtime이 계산하는 별도 식별자입니다. 서로 대체하지 않습니다.
-이번 PR은 제안 단계의 API 요청 생성·hash 계산·HTTP 호출을 추가하지 않습니다.
+목록 생성·취합기는 준비 API 요청이나 HTTP 호출을 추가하지 않습니다. 별도
+[readiness 대조 도구](node-readiness-audit.md)는 기존 bundle과 저장된 조회 응답을
+검수하기 위해 image_set_id만 재계산하며, 준비 요청·조회·노드 작업은 실행하지 않습니다.
 
 ### 현재 준비 상태는 파일 목록이 아님
 
