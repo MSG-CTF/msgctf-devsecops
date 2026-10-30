@@ -5,6 +5,13 @@
 
 ## 테스트 구성
 
+### `test_audit_node_image_readiness.py`
+
+Runtime 공식 예제의 canonical image_set_id, 보조 이미지 포함·대상/architecture
+불일치, 부분 준비·누락·미관측·만료·나노초 경계와 반복 조회 시각 보존을 검사합니다.
+출력 비공개 권한·덮어쓰기 금지·비밀값 비포함·CLI 종료 코드도 확인합니다.
+실제 API·노드 다운로드·Pod·전환을 실행하는 테스트가 아닙니다.
+
 ### `test_collect_node_image_plans.py`
 
 전체 대상과 아키텍처별 취합, 신규·변경·유지 비교, 누락·중복·출처·이전 목록
