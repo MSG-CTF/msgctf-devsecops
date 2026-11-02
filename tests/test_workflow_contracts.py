@@ -464,6 +464,7 @@ class WorkflowContractTests(unittest.TestCase):
                 "ghcr-cleanup-dry-run.yml",
                 "published-runtime-smoke.yml",
                 "node-image-prefetch-plan.yml",
+                "vm-image-prefetch.yml",
             },
         )
 
