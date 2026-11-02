@@ -9,6 +9,14 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `audit_node_image_readiness.py`
+
+기존 발행 bundle과 저장된 Runtime readiness JSON을 오프라인에서 대조합니다.
+전체 이미지·architecture·예상 target·관측 시각/만료를 검사하고, ready1/2 같은
+부분 준비와 전체 적합 노드 준비를 구분합니다. 별도 HTTP 호출·다운로드·활성화는
+하지 않으며 운영 정보를 담은 보고서는0700/0600의 새 비공개 경로에만 기록합니다.
+[판정 범위와 실행 방법](../docs/node-readiness-audit.md)을 참고합니다.
+
 ### `collect_node_image_plans.py`
 
 현재 main과 성공한 실제 bundle을 대조해 일반 Linux K3s 문제의 전체 다운로드

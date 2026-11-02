@@ -506,6 +506,16 @@ class WorkflowContractTests(unittest.TestCase):
                 workflow["jobs"][job_name].get("if", ""),
             )
 
+    def test_self_test_server_fixture_updates_brotli_and_keeps_non_root_user(self):
+        path = ROOT / "tests/fixtures/info-valid/prob/for_organizer/web/Dockerfile"
+        instructions = [line.strip() for line in path.read_text().splitlines() if line.strip()]
+        self.assertEqual(instructions, [
+            "FROM nginxinc/nginx-unprivileged:1.29-alpine",
+            "USER root",
+            "RUN apk upgrade --no-cache brotli-libs",
+            "USER 101",
+        ])
+
     def test_caller_example_separates_branch_validation_from_main_publish(self):
         path = ROOT / "docs/challenge-caller-example.yml"
         workflow = load_workflow(path)
