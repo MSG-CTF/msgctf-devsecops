@@ -83,14 +83,17 @@ class FakeAgent:
     def __init__(self, plan, missing=False, change=None):
         self.plan, self.missing, self.change = plan, missing, change
         self.calls = []
+        self.cached = set()
 
     def __call__(self, node, command, request):
         self.calls.append((node['node_id'], command, dict(request)))
         if command == vm.PREFLIGHT_COMMAND:
             reply = host_reply(node, self.plan)
-        elif self.missing and not request['pull']:
+        elif self.missing and not request['pull'] and (node['node_id'], request['image']) not in self.cached:
             reply = {'error_code': 'CONTENT_INCOMPLETE'}
         else:
+            if request['pull']:
+                self.cached.add((node['node_id'], request['image']))
             reply = evidence(node, request['image'])
         return self.change(node, command, request, reply) if self.change else reply
 
@@ -233,6 +236,54 @@ class VMImagePrefetchTests(unittest.TestCase):
         self.assertFalse(result['runtime_readiness_registered'])
         self.assertFalse(result['backend_operation_registered'])
         self.assertFalse(result['cold_pull_proven'])
+        self.assertTrue(result['final_sweep_complete'])
+        self.assertIn('final_verified_at', result['results'][0])
+
+    def test_eviction_before_final_sweep_is_failure_without_automatic_repull(self):
+        plan, inspections = build(), 0
+        def change(node, command, payload, reply):
+            nonlocal inspections
+            if command == vm.AGENT_COMMAND:
+                inspections += 1
+                if inspections == 2:
+                    return {'error_code': 'CONTENT_INCOMPLETE'}
+            return reply
+        fake = FakeAgent(plan, change=change)
+        result = vm.execute(plan, plan['plan_sha256'], fake, now=NOW)
+        self.assertEqual(result['status'], 'FAILED')
+        self.assertFalse(result['final_sweep_complete'])
+        self.assertEqual(result['failure']['stage'], 'FINAL_CACHE_CHECK')
+        self.assertFalse(any(payload.get('pull') for _, _, payload in fake.calls))
+
+    def test_identity_drift_during_final_sweep_cannot_be_complete(self):
+        plan, observations = build(), 0
+        def change(node, command, payload, reply):
+            nonlocal observations
+            if command == vm.PREFLIGHT_COMMAND:
+                observations += 1
+                if observations >= 4:
+                    reply['boot_id'] = 'changed-after-download'
+            return reply
+        result = vm.execute(plan, plan['plan_sha256'], FakeAgent(plan, change=change), now=NOW)
+        self.assertEqual(result['status'], 'FAILED')
+        self.assertFalse(result['final_sweep_complete'])
+
+    def test_partial_final_sweep_keeps_completed_checks_and_failure_location(self):
+        scope, nodes = inputs()
+        nodes['nodes'].append(dict(nodes['nodes'][0], node_id='vm-two', node_uid='uid-two',
+                                  machine_id='machine-two', ssh_host='192.0.2.11'))
+        plan, inspections = build(scope, nodes), {}
+        def change(node, command, payload, reply):
+            if command == vm.AGENT_COMMAND:
+                count = inspections.get(node['node_id'], 0) + 1
+                inspections[node['node_id']] = count
+                if node['node_id'] == 'vm-two' and count == 2:
+                    return {'error_code': 'CONTENT_INCOMPLETE'}
+            return reply
+        result = vm.execute(plan, plan['plan_sha256'], FakeAgent(plan, change=change), now=NOW)
+        self.assertEqual(result['status'], 'FAILED')
+        self.assertEqual(sum('final_verified_at' in row for row in result['results']), 1)
+        self.assertEqual(result['failure']['node_id'], 'vm-two')
 
     def test_incomplete_content_is_pulled_then_verified_not_claimed_cold(self):
         plan = build()
@@ -339,6 +390,35 @@ class VMImagePrefetchTests(unittest.TestCase):
         fake = FakeAgent(plan, missing=True, change=change)
         self.assertEqual(vm.execute(plan, plan['plan_sha256'], fake, now=NOW)['status'], 'FAILED')
         self.assertFalse(any(payload.get('pull') for _, _, payload in fake.calls))
+
+    def test_approval_expiring_during_inspection_stops_before_pull(self):
+        plan = build()
+        clock = SimpleNamespace(now=lambda _: NOW, fromisoformat=datetime.fromisoformat)
+        def change(node, command, payload, reply):
+            if command == vm.AGENT_COMMAND:
+                clock.now = lambda _: datetime(2026, 11, 3, tzinfo=timezone.utc)
+            return reply
+        fake = FakeAgent(plan, missing=True, change=change)
+        with patch.object(vm, 'datetime', clock):
+            result = vm.execute(plan, plan['plan_sha256'], fake)
+        self.assertEqual(result['status'], 'FAILED')
+        self.assertFalse(any(payload.get('pull') for _, _, payload in fake.calls))
+
+    def test_approval_expiring_during_final_sweep_cannot_report_success(self):
+        plan, inspections = build(), 0
+        clock = SimpleNamespace(now=lambda _: NOW, fromisoformat=datetime.fromisoformat)
+        def change(node, command, payload, reply):
+            nonlocal inspections
+            if command == vm.AGENT_COMMAND:
+                inspections += 1
+                if inspections == 2:
+                    clock.now = lambda _: datetime(2026, 11, 3, tzinfo=timezone.utc)
+            return reply
+        with patch.object(vm, 'datetime', clock):
+            result = vm.execute(plan, plan['plan_sha256'], FakeAgent(plan, change=change))
+        self.assertEqual(result['status'], 'FAILED')
+        self.assertFalse(result['final_sweep_complete'])
+        self.assertNotIn('final_verified_at', result['results'][0])
 
     def test_completed_pairs_are_persisted_before_a_later_failure(self):
         scope, nodes = inputs()

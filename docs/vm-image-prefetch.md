@@ -128,6 +128,9 @@ python3 -B -m scripts.vm_image_prefetch --scope /private/scope.json --nodes /pri
 후자는 cold pull의 증거가 아닙니다. agent_prepare_seconds도 실제 registry 전송 시간만을
 측정한 값이 아닙니다. 실패 시 다음 이미지로 넘어가지 않으며, 캐시 삭제·자동 retry는 없습니다.
 다시 승인해 실행하면 이미 준비된 이미지를 검증·재사용할 수 있습니다.
+마지막에는 전체 이미지/VM 쌍을 pull 없이 다시 검사합니다. 최종 검사에서 GC·내용 누락·
+identity 변경이 발견되면 완료로 표시하지 않고 중단합니다. 최종 관측 시각도 각 쌍에 남깁니다.
+검사 중 승인이 만료되면 실제 pull을 시작하지 않으며, 만료된 최종 검사를 성공으로 기록하지 않습니다.
 
 새 출력 디렉터리는0700, plan/results/summary는0600입니다. 결과가 부분 실패해도 완료한
 쌍과 실패 위치를 남깁니다. Runtime readiness·Backend operation에 결과를 등록하지 않으므로

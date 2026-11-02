@@ -318,6 +318,7 @@ def execute(plan, expected_sha, call, *, now=None, on_result=None):
             and expected_sha == plan['plan_sha256'] == plan_hash(plan))
     require((now or datetime.now(timezone.utc)) < timestamp(plan['valid_until']))
     report = {'schema_version': 1, 'plan_sha256': expected_sha, 'status': 'FAILED', 'results': [],
+              'final_sweep_complete': False,
               'runtime_readiness_registered': False, 'backend_operation_registered': False,
               'pod_started': False, 'active_changed': False, 'cold_pull_proven': False}
     baseline = {}
@@ -339,6 +340,7 @@ def execute(plan, expected_sha, call, *, now=None, on_result=None):
                 if isinstance(reply, dict) and reply.get('error_code') == 'CONTENT_INCOMPLETE' and set(reply) == {'error_code'}:
                     check_host(node, plan, call(node, PREFLIGHT_COMMAND, {}), baseline[node['node_id']],
                                workspace=node['per_image_workspace_bytes'])
+                    require((now or datetime.now(timezone.utc)) < timestamp(plan['valid_until']))
                     request['pull'] = True
                     context['stage'] = 'PULL_OR_REPAIR'
                     started = time.monotonic()
@@ -354,6 +356,20 @@ def execute(plan, expected_sha, call, *, now=None, on_result=None):
                                           'verified_at': datetime.now(timezone.utc).isoformat(), **evidence})
                 if on_result:
                     on_result(report)
+        indexed_nodes = {node['node_id']: node for node in plan['nodes']}
+        for row in report['results']:
+            node = indexed_nodes[row['node_id']]
+            context = {'node_id': node['node_id'], 'image': row['image'], 'stage': 'FINAL_CACHE_CHECK'}
+            require((now or datetime.now(timezone.utc)) < timestamp(plan['valid_until']))
+            check_host(node, plan, call(node, PREFLIGHT_COMMAND, {}), baseline[node['node_id']])
+            checked_evidence(node, row['image'], call(node, AGENT_COMMAND,
+                {'image': row['image'], 'architecture': node['architecture'], 'pull': False}))
+            check_host(node, plan, call(node, PREFLIGHT_COMMAND, {}), baseline[node['node_id']])
+            require((now or datetime.now(timezone.utc)) < timestamp(plan['valid_until']))
+            row['final_verified_at'] = datetime.now(timezone.utc).isoformat()
+            if on_result:
+                on_result(report)
+        report['final_sweep_complete'] = True
         report['status'] = 'SUCCEEDED'
     except (OSError, ValueError, TypeError, KeyError, subprocess.SubprocessError):
         report['error_code'] = 'PREFLIGHT_SSH_OR_AGENT_CHECK_FAILED'
@@ -395,7 +411,8 @@ def main():
             require(args.ssh_key is not None)
             result = execute(plan, args.expected_plan_sha256, SSHAgent(args.ssh_key),
                              on_result=lambda value: save_private(args.output_dir / 'results.json', value))
-            summary.update(applied=True, status=result['status'], checked_pairs=len(result['results']))
+            summary.update(applied=True, status=result['status'], checked_pairs=len(result['results']),
+                           final_verified_pairs=sum('final_verified_at' in row for row in result['results']))
             code = 0 if result['status'] == 'SUCCEEDED' else 1
         save_private(args.output_dir / 'summary.json', summary)
         print(json.dumps(summary))
