@@ -35,6 +35,7 @@ REPOSITORY = sources.publication.REPOSITORY
 AGENT_COMMAND = 'sudo -n /usr/local/libexec/runtime-image-agent'
 PREFLIGHT_COMMAND = 'sudo -n /usr/local/libexec/vm-image-cache-preflight'
 MAX_BYTES = 1024 * 1024
+MAX_PAIRS = 1000
 
 
 def require(condition):
@@ -214,6 +215,7 @@ def build_plan(scope, inventory, *, api=sources.publication.github, fetch=None, 
         if not images:
             held.append({'node_id': node['node_id'], 'reason': 'NO_APPROVED_IMAGES_FOR_NODE'})
         tasks.append({'node_id': node['node_id'], 'images': images})
+    require(sum(len(task['images']) for task in tasks) <= MAX_PAIRS)
     plan = {'schema_version': 1, 'scope': 'PROVIDED_ACTIVE_RELEASES_AND_NODES_ONLY',
             'repository': REPOSITORY, 'source_main_sha': main_sha, 'observed_at': scope['observed_at'],
             'valid_until': scope['valid_until'], 'complete': not held, 'releases': plans,

@@ -105,6 +105,7 @@ NOT_IN_THIS_MAINTENANCE입니다. 제외를 준비 성공으로 집계하지 않
 | per_image_workspace_bytes | 이미지 한 건의 임시·압축 해제 포함 작업 여유 |
 
 동일 architecture의 입력 VM 전체를 각 release의 approved_target_ids가 포함해야 합니다.
+한 정비 계획은 최대50개 VM·100개 release·1000개 이미지/VM 쌍까지 허용합니다.
 VM 주소·Node UID·machine ID 중복이나 누락을 허용하지 않습니다. host key를 현장에서
 무인증 `ssh-keyscan` 결과만으로 신뢰하거나 StrictHostKeyChecking을 끄지 않습니다.
 

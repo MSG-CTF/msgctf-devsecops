@@ -201,6 +201,13 @@ class VMImagePrefetchTests(unittest.TestCase):
         self.assertTrue(result['complete'])
         self.assertEqual(len(result['tasks']), 2)
 
+    def test_oversized_maintenance_is_rejected_before_ssh(self):
+        scope, nodes = inputs()
+        nodes['nodes'].append(dict(nodes['nodes'][0], node_id='vm-two', node_uid='uid-two',
+                                  machine_id='machine-two', ssh_host='192.0.2.11'))
+        with patch.object(vm, 'MAX_PAIRS', 1), self.assertRaises(ValueError):
+            build(scope, nodes)
+
     def test_ssh_injection_duplicate_nodes_and_bad_bounds_are_rejected(self):
         for change in ({'ssh_host': '-oProxyCommand=bad'}, {'ssh_host': 'host;bad'},
                        {'ssh_host': '127.0.0.1'}, {'ssh_user': 'root;bad'},
