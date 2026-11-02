@@ -1,0 +1,163 @@
+name: 승인된 운영 이미지 VM 사전 다운로드
+
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: 검수된 계획으로 실제 다운로드 (기본은 목록 검수만)
+        type: boolean
+        default: false
+      expected_plan_sha256:
+        description: 앞선 목록 검수에서 승인한 plan SHA-256 (실제 실행 시 필수)
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vm-image-prefetch-maintenance
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: 운영 선택·원본 발행·VM 범위 검수 (SSH 없음)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      plan_sha256: ${{ steps.plan.outputs.plan_sha256 }}
+    steps:
+      - name: 공식 저장소 수동 main 실행 확인
+        env:
+          APPLY: ${{ inputs.apply }}
+          ENABLED: ${{ vars.VM_IMAGE_PREFETCH_ENABLED }}
+          EXPECTED_SHA: ${{ inputs.expected_plan_sha256 }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = MSG-CTF/msgctf-devsecops || exit 1
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch || exit 1
+          test "$GITHUB_REF" = refs/heads/main || exit 1
+          if [ "$APPLY" = true ]; then
+            test "$ENABLED" = true || { echo "실제 다운로드는 아직 비활성입니다" >&2; exit 1; }
+            [[ "$EXPECTED_SHA" =~ ^[a-f0-9]{64}$ ]] || exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install -r ci/requirements.txt
+      - name: 비공개 선택 자료와 원본 발행 대조
+        id: plan
+        env:
+          VM_SCOPE: ${{ secrets.VM_IMAGE_PREFETCH_SCOPE }}
+          VM_NODES: ${{ secrets.VM_IMAGE_PREFETCH_NODES }}
+          GH_TOKEN: ${{ secrets.CHALLENGE_ARTIFACT_READ_TOKEN }}
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -rf "$RUNNER_TEMP/vm-prefetch-input" "$RUNNER_TEMP/vm-prefetch-plan"' EXIT
+          mkdir "$RUNNER_TEMP/vm-prefetch-input"
+          python3 -c 'import os,pathlib; r=pathlib.Path(os.environ["RUNNER_TEMP"])/"vm-prefetch-input"; (r/"scope.json").write_text(os.environ["VM_SCOPE"]); (r/"nodes.json").write_text(os.environ["VM_NODES"])'
+          python3 -B -m scripts.vm_image_prefetch \
+            --scope "$RUNNER_TEMP/vm-prefetch-input/scope.json" \
+            --nodes "$RUNNER_TEMP/vm-prefetch-input/nodes.json" \
+            --output-dir "$RUNNER_TEMP/vm-prefetch-plan"
+          python3 -c 'import os,json,pathlib; r=pathlib.Path(os.environ["RUNNER_TEMP"])/"vm-prefetch-plan"; s=json.loads((r/"summary.json").read_text()); open(os.environ["GITHUB_OUTPUT"],"a").write("plan_sha256="+s["plan_sha256"]+"\n"); pathlib.Path("dist").mkdir(exist_ok=True); pathlib.Path("dist/vm-prefetch-plan-summary.json").write_bytes((r/"summary.json").read_bytes())'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vm-prefetch-plan-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/vm-prefetch-plan-summary.json
+          retention-days: 14
+          if-no-files-found: error
+
+  apply:
+    name: 승인된 VM의 이미지 캐시 채우기 (실행·활성화 없음)
+    needs: plan
+    if: inputs.apply
+    environment: vm-image-prefetch
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: 승인한 계획 일치 확인
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_plan_sha256 }}
+          CURRENT_SHA: ${{ needs.plan.outputs.plan_sha256 }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = MSG-CTF/msgctf-devsecops || exit 1
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch || exit 1
+          test "$GITHUB_REF" = refs/heads/main || exit 1
+          test -n "$EXPECTED_SHA" || exit 1
+          test "$EXPECTED_SHA" = "$CURRENT_SHA" || exit 1
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m pip install -r ci/requirements.txt
+      - name: 원본 재검수·전체 VM 사전 검사·순차 다운로드
+        env:
+          VM_SCOPE: ${{ secrets.VM_IMAGE_PREFETCH_SCOPE }}
+          VM_NODES: ${{ secrets.VM_IMAGE_PREFETCH_NODES }}
+          VM_SSH_KEY: ${{ secrets.VM_IMAGE_PREFETCH_SSH_KEY }}
+          REPORT_CERT: ${{ secrets.VM_IMAGE_PREFETCH_REPORT_CERT }}
+          REPORT_CERT_SHA: ${{ vars.VM_IMAGE_PREFETCH_REPORT_CERT_SHA256 }}
+          GH_TOKEN: ${{ secrets.CHALLENGE_ARTIFACT_READ_TOKEN }}
+          EXPECTED_SHA: ${{ inputs.expected_plan_sha256 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          trap 'rm -rf "$RUNNER_TEMP/vm-prefetch-input" "$RUNNER_TEMP/vm-prefetch-apply"' EXIT
+          mkdir "$RUNNER_TEMP/vm-prefetch-input"
+          python3 -c 'import os,pathlib; r=pathlib.Path(os.environ["RUNNER_TEMP"])/"vm-prefetch-input"; (r/"scope.json").write_text(os.environ["VM_SCOPE"]); (r/"nodes.json").write_text(os.environ["VM_NODES"]); (r/"ssh-key").write_text(os.environ["VM_SSH_KEY"])'
+          test -n "$REPORT_CERT" || { echo "상세 결과 수신 인증서를 등록하세요" >&2; exit 1; }
+          [[ "$REPORT_CERT_SHA" =~ ^[a-f0-9]{64}$ ]] || exit 1
+          python3 -c 'import os,pathlib; (pathlib.Path(os.environ["RUNNER_TEMP"])/"vm-prefetch-input/recipient.pem").write_text(os.environ["REPORT_CERT"])'
+          openssl x509 -in "$RUNNER_TEMP/vm-prefetch-input/recipient.pem" -checkend 10800 -noout
+          actual_cert_sha="$(openssl x509 -in "$RUNNER_TEMP/vm-prefetch-input/recipient.pem" -outform DER | sha256sum | cut -d ' ' -f 1)"
+          test "$actual_cert_sha" = "$REPORT_CERT_SHA" || exit 1
+          set +e
+          python3 -B -m scripts.vm_image_prefetch \
+            --scope "$RUNNER_TEMP/vm-prefetch-input/scope.json" \
+            --nodes "$RUNNER_TEMP/vm-prefetch-input/nodes.json" \
+            --output-dir "$RUNNER_TEMP/vm-prefetch-apply" \
+            --ssh-key "$RUNNER_TEMP/vm-prefetch-input/ssh-key" \
+            --expected-plan-sha256 "$EXPECTED_SHA" --apply
+          status=$?
+          set -e
+          if [ -f "$RUNNER_TEMP/vm-prefetch-apply/summary.json" ]; then
+            mkdir -p dist
+            cp "$RUNNER_TEMP/vm-prefetch-apply/summary.json" dist/vm-prefetch-apply-summary.json
+          fi
+          if [ -f "$RUNNER_TEMP/vm-prefetch-apply/plan.json" ]; then
+            mkdir -p dist
+            private_files=(plan.json)
+            if [ -f "$RUNNER_TEMP/vm-prefetch-apply/results.json" ]; then
+              private_files+=(results.json)
+            fi
+            tar -C "$RUNNER_TEMP/vm-prefetch-apply" -cf "$RUNNER_TEMP/vm-prefetch-input/evidence.tar" "${private_files[@]}"
+            openssl cms -encrypt -binary -aes-256-cbc -outform DER \
+              -in "$RUNNER_TEMP/vm-prefetch-input/evidence.tar" \
+              -out dist/vm-prefetch-private-results.cms "$RUNNER_TEMP/vm-prefetch-input/recipient.pem"
+            sha256sum dist/vm-prefetch-private-results.cms > dist/vm-prefetch-private-results.cms.sha256
+          fi
+          exit "$status"
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('dist/vm-prefetch-apply-summary.json') != ''
+        with:
+          name: vm-prefetch-apply-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/vm-prefetch-apply-summary.json
+          retention-days: 14
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always() && hashFiles('dist/vm-prefetch-private-results.cms') != ''
+        with:
+          name: vm-prefetch-encrypted-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            dist/vm-prefetch-private-results.cms
+            dist/vm-prefetch-private-results.cms.sha256
+          retention-days: 14
+          if-no-files-found: error

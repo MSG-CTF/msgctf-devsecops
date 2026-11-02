@@ -9,6 +9,13 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `vm_image_prefetch.py` / `vm_cache_preflight.py`
+
+운영자가 선택한 정확한 release와 VM을 공식 발행 원본에 대조하고, 별도 수동 승인 후
+기존 Runtime agent를 일반 SSH로 호출해 이미지 캐시만 채웁니다. 기본은 SSH 없는
+계획 검수입니다. 실행·활성화·삭제·Runtime 설정은 변경하지 않습니다.
+[운영 준비와 입력 형식](../docs/vm-image-prefetch.md)을 참고합니다.
+
 ### `collect_node_image_plans.py`
 
 현재 main과 성공한 실제 bundle을 대조해 일반 Linux K3s 문제의 전체 다운로드

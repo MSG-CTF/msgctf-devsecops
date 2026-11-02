@@ -5,6 +5,13 @@
 
 ## 테스트 구성
 
+### `test_vm_image_prefetch.py`
+
+운영 선택과 원본 checksum·전체 이미지·architecture·노드 범위를 대조하고, 만료·
+미승인·변조·SSH 인자 주입·host key·identity·디스크·부분 실패를 검사합니다.
+기존 Runtime agent 요청/결과 형식과 캐시 재사용, 실제 Bash main/event 가드도 검사합니다.
+실제 VM 접속·pull·Pod·운영 전환을 실행하는 테스트는 아닙니다.
+
 ### `test_collect_node_image_plans.py`
 
 전체 대상과 아키텍처별 취합, 신규·변경·유지 비교, 누락·중복·출처·이전 목록
