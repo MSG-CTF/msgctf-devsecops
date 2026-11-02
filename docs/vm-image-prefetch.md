@@ -144,7 +144,7 @@ python3 -B -m scripts.vm_image_prefetch --scope /private/scope.json --nodes /pri
 필요합니다. 이를 위해 SSH 방화벽을 인터넷 전체에 열지 않습니다. IAP/VPN 어댑터는 포함하지 않습니다.
 
 - repo Secrets: VM_IMAGE_PREFETCH_SCOPE, VM_IMAGE_PREFETCH_NODES,
-  CHALLENGE_ARTIFACT_READ_TOKEN (문제 저장소 Actions 읽기).
+  CHALLENGE_ARTIFACT_READ_TOKEN (문제 저장소 Contents: Read + Actions: Read).
 - `vm-image-prefetch` Environment Secret: VM_IMAGE_PREFETCH_SSH_KEY,
   VM_IMAGE_PREFETCH_REPORT_CERT (결과 수신자의 공개 PEM 인증서, 개인키 아님).
 - Environment 변수 VM_IMAGE_PREFETCH_REPORT_CERT_SHA256: 인증서 DER SHA-256.
@@ -157,3 +157,4 @@ python3 -B -m scripts.vm_image_prefetch --scope /private/scope.json --nodes /pri
 확인합니다. 공개 artifact에는 집계와 암호화된 CMS 결과만 올립니다. 상세 plan/results는
 수신 인증서로 AES-256-CBC CMS 암호화하고 checksum을 남기며, 원문·키는 러너에서 삭제합니다.
 수신 개인키는 러너나 채팅에 전달하지 않습니다. 실제 실행은 별도 정비 일정에 승인합니다.
+첫 실제 실행은 승인된 WEB1개·VM1곳으로 확인하고, 성공한 뒤 전체 정비 범위로 확대합니다.

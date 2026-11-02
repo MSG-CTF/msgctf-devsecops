@@ -13,6 +13,14 @@ AGENT_CONFIG = Path('/etc/secure-provisioner/image-agent.json')
 AGENT = Path('/usr/local/libexec/runtime-image-agent')
 
 
+def file_digest(path):
+    digest = hashlib.sha256()
+    with path.open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def trusted_file(path):
     if path.is_symlink():
         raise ValueError('UNTRUSTED_INSTALLATION')
@@ -56,7 +64,7 @@ def snapshot():
         'image_fs_path': str(image_fs),
         'available_bytes': disk.f_bavail * disk.f_frsize,
         'total_bytes': disk.f_blocks * disk.f_frsize,
-        'agent_sha256': hashlib.sha256(AGENT.read_bytes()).hexdigest(),
+        'agent_sha256': file_digest(AGENT),
         'preflight_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     }
 
