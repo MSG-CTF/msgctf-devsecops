@@ -1,9 +1,11 @@
+import copy
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
 from scripts.generate_publish_bundle import generate_bundle
+from scripts.render_publish_summary import render_summary
 from scripts.runtime_api_smoke_runner import build_create_request
 
 
@@ -71,6 +73,19 @@ EVIDENCE_ROOT = Path(__file__).parent / "fixtures" / "publish-evidence"
 
 
 class GeneratePublishBundleTests(unittest.TestCase):
+    def test_explicit_tcp_profile_survives_publication_and_runtime_request(self):
+        metadata = copy.deepcopy(METADATA)
+        metadata.update(category="crypto", isolation_profile="PWN")
+        metadata["containers"][0]["ports"] = [31337]
+        del metadata["healthcheck"]
+        bundle = generate_bundle(metadata, RESULTS, SOURCE_REF, SOURCE_SHA, 3, EVIDENCE_ROOT)
+        request = build_create_request(bundle["artifact"], target_id="broker-test2",
+            instance_id="00000000-0000-4000-8000-000000000001",
+            team_id="00000000-0000-4000-8000-000000000002")
+        self.assertEqual(bundle["artifact"]["isolation_profile"], "PWN")
+        self.assertEqual(request["isolation_profile"], "PWN")
+        self.assertIn("PWN", render_summary(bundle["artifact"], "tcp-profile-bundle"))
+
     def test_generated_bundle_preserves_healthcheck_in_runtime_request(self):
         bundle = generate_bundle(METADATA, RESULTS, SOURCE_REF, SOURCE_SHA, 3, EVIDENCE_ROOT)
         artifact = json.loads(json.dumps(bundle["artifact"]))

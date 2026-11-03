@@ -1,0 +1,94 @@
+{
+  "status": "PASS",
+  "backend_sha": "8ed90393220154cd0983a49dd52abf87534d0c9b",
+  "django_version": "5.2.17",
+  "scope": "REAL_ACTIONS_ARTIFACTS_LOCAL_BACKEND_CONSUMER",
+  "database": "isolated_in_memory_sqlite",
+  "storage": "temporary_local_filesystem",
+  "github_transport_mocked": true,
+  "production_db_modified": false,
+  "gcs_verified": false,
+  "runtime_verified": false,
+  "koth_mapping_verified": false,
+  "first_release_poll": {
+    "registered": 2,
+    "duplicate": 0,
+    "unmatched": 0,
+    "invalid": 0,
+    "error": 0
+  },
+  "first_user_poll": {
+    "registered": 4,
+    "duplicate": 0,
+    "unmatched": 0,
+    "invalid": 0,
+    "error": 0
+  },
+  "second_release_poll": {
+    "registered": 0,
+    "duplicate": 0,
+    "unmatched": 0,
+    "invalid": 0,
+    "error": 0
+  },
+  "second_user_poll": {
+    "registered": 0,
+    "duplicate": 0,
+    "unmatched": 0,
+    "invalid": 0,
+    "error": 0
+  },
+  "release_download_calls": 2,
+  "user_download_calls": 4,
+  "previous_active_revision": 330,
+  "new_revision": 455,
+  "active_preserved_until_admin_activation": true,
+  "admin_activation_verified": true,
+  "cases": [
+    {
+      "challenge_slug": "misc-cashout",
+      "registry_revision": 449,
+      "runtime_required": true,
+      "present": false,
+      "registered": true,
+      "detail_files_count": 0
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "registry_revision": 455,
+      "runtime_required": true,
+      "present": true,
+      "registered": true,
+      "detail_files_count": 1,
+      "download_status": 200,
+      "locked_download_status": 403,
+      "sha256": "c79f362a6f2473386405ca09b79705b96cf3d03cc46f05f2e5a747de3c80baae",
+      "checksum_verified": true,
+      "object_key": "participant-files/pwn-random6/455/1dea73b652f9eeb98204c1fda7f66b9afb89505d/c79f362a6f2473386405ca09b79705b96cf3d03cc46f05f2e5a747de3c80baae.zip",
+      "storage_exists": true
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "registry_revision": 466,
+      "runtime_required": false,
+      "present": false,
+      "registered": true,
+      "detail_files_count": 0
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "registry_revision": 469,
+      "runtime_required": false,
+      "present": true,
+      "registered": true,
+      "detail_files_count": 1,
+      "download_status": 200,
+      "locked_download_status": 403,
+      "sha256": "9fbb05a0a4f8b052145cfd0ce26a6e2afe1642e4f7807f527c9a8cc584164f6b",
+      "checksum_verified": true,
+      "object_key": "participant-files/misc-hidden-order/469/1dea73b652f9eeb98204c1fda7f66b9afb89505d/9fbb05a0a4f8b052145cfd0ce26a6e2afe1642e4f7807f527c9a8cc584164f6b.zip",
+      "storage_exists": true
+    }
+  ],
+  "participant_file_visibility_policy": "dynamic_active_release_revision; static_latest_revision"
+}

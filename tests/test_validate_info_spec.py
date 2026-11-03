@@ -16,6 +16,31 @@ KOTH_FIXTURE = Path(__file__).parent / "fixtures" / "koth-template"
 
 
 class ValidateInfoSpecTests(unittest.TestCase):
+    def test_raw_tcp_crypto_and_rev_can_select_pwn_profile(self):
+        for category in ("crypto", "rev"):
+            with self.subTest(category=category):
+                raw = self._raw_fixture()
+                raw["category"] = category
+                raw["deployment"]["isolation_profile"] = "PWN"
+                raw["deployment"]["containers"][0]["ports"] = [31337]
+                del raw["deployment"]["healthcheck"]
+                self.assertEqual(self._validate_raw(raw)["isolation_profile"], "PWN")
+
+    def test_pwn_category_cannot_select_web_profile(self):
+        raw = self._raw_fixture()
+        raw["category"] = "pwn"
+        raw["deployment"]["isolation_profile"] = "WEB"
+        with self.assertRaisesRegex(ValueError, "PWN category"):
+            self._validate_raw(raw)
+
+    def test_explicit_profile_rejects_unknown_values_and_types(self):
+        for value in ("OTHER", False, None, {}, []):
+            with self.subTest(value=value):
+                raw = self._raw_fixture()
+                raw["deployment"]["isolation_profile"] = value
+                with self.assertRaisesRegex(ValueError, "must be WEB or PWN"):
+                    self._validate_raw(raw)
+
     def test_valid_spec_is_sanitized_and_build_path_is_normalized(self):
         metadata = validate_spec(FIXTURE)
 

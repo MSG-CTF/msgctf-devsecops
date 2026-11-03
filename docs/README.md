@@ -1,6 +1,18 @@
 # 문서
 
-- [참가자 파일 GCS 저장](participant-files-gcs.md): 승인된 main 파일 저장과 Backend 영수증 연결 제안
+- [운영 버전 기준 이미지 사전 다운로드](active-release-prefetch-policy.md): 최초 active release 전체 컨테이너, 업데이트 버전 추가 준비, K3s 선언 전환과 기존 인스턴스 보존 기준
+- [노드 이미지 사전 다운로드 연동](node-image-prefetch.md): 문제별·전체 이미지 목록과 변경분 취합, 읽기 전용 Actions와 수집·다운로드·적용의 책임 경계
+- [관리자 대시보드 검증·발행 연동](backend-publication-dispatch.md): 정확한 main SHA 발행 요청, run 추적·상태·산출물 조회, 기존 성공본 수집과 중복·재시도 책임
+- [발행본 독립 Runtime 검증](published-runtime-smoke.md): 성공한 main 발행본의 출처 검증과 발행 실행에 영향을 주지 않는 단일 WEB 생성·삭제 시험
+- [2026-10-21 Backend 개발 서버 전달 자료](reports/2026-10-21-backend-handoff/README.md): 최신 37개 발행 대조와 문제별 revision·run·artifact, 배포 성공 기록 및 서버 확인 요청
+- [2026-10-20 최신 발행 대조](reports/2026-10-20-release-readiness/README.md): 37개 문제 폴더와 성공 산출물 일치, 실패한 Runtime 시험과 수집 계약 구분
+- [2026-10-19 병합 후 연동 점검](reports/2026-10-19-release-readiness/README.md): 실제 main 산출물 대조, Notebook revision 529·정책 확인과 남은 배포 검증
+- [KOTH·Windows 배포 연동](koth-windows-deployment.md): 공용 KOTH 배치·복구와 Windows 제출 실행의 역할 경계, 미확정 계약과 확인 순서
+- [2026-10-19 KOTH 자원·배포 사양 점검](reports/2026-10-19-koth-windows-readiness/README.md): 고정 main의 37개 info.yaml 선언값과 6개 KOTH 자원 비교
+- [2026-10-11 Runtime 후속 조건](reports/2026-10-10-independent-preparation/runtime-followup-2026-10-11.md): 새 Grade digest 미승인·이전 리소스 미확인과 Afterimage/KOTH 네트워크 처리 분리
+- [2026-10-10 독립 연동 준비](reports/2026-10-10-independent-preparation/README.md): 최신 37개 참가자 파일 검사, 문제별 네트워크 검토 후보와 Backend GCS 준비
+- [참가자 파일 GCS 저장](participant-files-gcs.md): Backend 저장 담당과 비활성 CI 업로드 경로
+- [2026-10-07 연동 준비 결과](reports/2026-10-07-integration-readiness/README.md): 실제 산출물의 로컬 Backend 소비 시험, 발행 목록과 남은 요청사항
 
 문제 저장소와 DevSecOps 공급망을 연결할 때 필요한 예제와 운영 문서를
 관리합니다.

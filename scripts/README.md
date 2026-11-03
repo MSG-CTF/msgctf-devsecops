@@ -9,6 +9,66 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `vm_image_prefetch.py` / `vm_cache_preflight.py`
+
+운영자가 선택한 정확한 release와 VM을 공식 발행 원본에 대조하고, 별도 수동 승인 후
+기존 Runtime agent를 일반 SSH로 호출해 이미지 캐시만 채웁니다. 기본은 SSH 없는
+계획 검수입니다. 실행·활성화·삭제·Runtime 설정은 변경하지 않습니다.
+[운영 준비와 입력 형식](../docs/vm-image-prefetch.md)을 참고합니다.
+
+### `audit_node_image_readiness.py`
+
+기존 발행 bundle과 저장된 Runtime readiness JSON을 오프라인에서 대조합니다.
+전체 이미지·architecture·예상 target·관측 시각/만료를 검사하고, ready1/2 같은
+부분 준비와 전체 적합 노드 준비를 구분합니다. 별도 HTTP 호출·다운로드·활성화는
+하지 않으며 운영 정보를 담은 보고서는0700/0600의 새 비공개 경로에만 기록합니다.
+[판정 범위와 실행 방법](../docs/node-readiness-audit.md)을 참고합니다.
+
+### `collect_node_image_plans.py`
+
+현재 main과 성공한 실제 bundle을 대조해 일반 Linux K3s 문제의 전체 다운로드
+목록을 아키텍처별로 취합합니다. 이전 완료 목록과 신규·변경·유지·현재 목록
+제외를 비교하되 삭제는 하지 않습니다. 일부 실패는 전체 취합 실패이며 부분
+목록을 발행하지 않습니다. [취합·Actions 연결](../docs/node-image-prefetch.md)을 참고합니다.
+
+### `generate_node_image_plan.py`
+
+성공한 main 발행 bundle에서 일반 Linux K3s 문제의 모든 컨테이너 digest 목록과
+출처·아키텍처·파일 checksum을 생성합니다. 기존 artifact JSON은 수정하지 않으며
+노드 접근·다운로드·릴리스 활성화·기존 인스턴스 교체는 하지 않습니다.
+KOTH·VM은 제외합니다. 이 보조 목록은 Runtime 준비 API의 요청이나 준비 완료
+응답이 아닙니다. [사전 다운로드 연동 제안](../docs/node-image-prefetch.md)을 참고합니다.
+
+### `validate_publication_request.py`
+
+관리자 수동 발행의 공식 저장소·main·문제 slug·요청 UUID와 실행 SHA를 검사합니다.
+요청 SHA가 다르면 발행 전에 거절하며, 통과 시 run과 연결된 요청 확인 JSON만
+기록합니다. 중복 실행을 막는 DB나 별도 API 서버는 만들지 않습니다.
+[Backend 연동 계약](../docs/backend-publication-dispatch.md)을 참고합니다.
+
+### `validate_runtime_smoke_source.py`
+
+독립 Runtime 시험에서 성공한 main 발행 run과 전체 artifact 페이지를 대조합니다.
+문제·시도별 bundle 하나만 선택하고 source SHA·revision·GHCR digest를 검증합니다.
+단일 WEB·KUBERNETES·AMD64 범위에서 기존 요청 변환기를 재사용하며 Runtime은 호출하지 않습니다.
+[독립 시험 운영 절차](../docs/published-runtime-smoke.md)를 참고합니다.
+
+### `audit_publication_state.py`
+
+GitHub CLI의 기존 인증으로 문제 저장소 main의 37개 문제 명세와 실행별 artifact
+목록을 GET으로 조회합니다. 성공·미만료 산출물만 골라 문제 폴더의 Git tree를
+대조하고 `publication-state.json`과 문제별 표를 생성합니다. 전체 commit이
+달라도 문제 폴더가 같으면 이를 구분하며, 실패한 실행에서 먼저 올라온 ZIP은
+성공 산출물로 취급하지 않습니다. FLAG·지문·환경변수 원문은 저장하지 않습니다.
+
+```bash
+python3 -B -m scripts.audit_publication_state --output-dir /absolute/path/to/report
+```
+
+기준일 이후의 발행 메타데이터 점검이며 새 취약점 검사, ZIP 본문 검사, GHCR pull,
+Backend DB 등록이나 실제 배포 검증은 아닙니다. 조회 오류가 있으면 완료 보고서를
+만들지 않으며 이미지 발행·삭제·활성화 기능도 없습니다.
+
 ### `runtime_connection_probe.py`
 
 토큰 없이 GCP Runtime에 HTTPS GET을 보내 TLS와 비인증 접근 차단을 점검합니다.
@@ -29,6 +89,17 @@ GHCR package와 version을 GET으로 조회하고 최근 이미지·최신 버�
 문제의 Compose 실행 설정과 환경변수 참조 이름만 수집합니다. 값·FLAG·소스 내용은
 출력하지 않으며, 진단 JSON과 문제별 표를 생성합니다. 지원 계약과 사용법은
 [실행 설정 계약](../docs/challenge-execution-settings.md)을 참고합니다.
+
+저장소 루트의 양식용 info.yaml과 실제 문제 폴더가 함께 있으면 문제 폴더를
+우선 점검합니다. 단일 문제 경로도 지원합니다. 점검 완료는 실제 네트워크
+정책 적용·통신 성공을 뜻하지 않습니다.
+
+점검 자료에 category, runtime_type, architecture, 컨테이너 수와 문제 전체의
+CPU·메모리·임시 저장소 선언값도 포함합니다. KOTH 릴리스 연결·배포/복구 담당과
+VM 실행 계약은 확인 항목으로만 표시하며, 새 CI 차단 조건이나 자동 배포 승인이 아닙니다.
+`--deployment-only`는 info.yaml만 읽고 `audit_scope: INFO_ONLY`를 기록합니다.
+이 모드에서는 소스·Compose를 점검했다고 표시하지 않으며 Windows 여부를 추측하지 않습니다.
+[KOTH·Windows 연동 기준](../docs/koth-windows-deployment.md)을 참고합니다.
 
 ### `discover_changed_challenges.py`
 

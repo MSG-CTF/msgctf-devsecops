@@ -64,7 +64,8 @@ def render_summary(artifact, bundle_name):
     category = _required_string(artifact.get("category"), "category").lower()
     expected_profile = "PWN" if category == "pwn" else "WEB"
     isolation_profile = artifact.get("isolation_profile")
-    if isolation_profile != expected_profile:
+    if (not isinstance(isolation_profile, str) or isolation_profile not in {"WEB", "PWN"}
+            or (expected_profile == "PWN" and isolation_profile != "PWN")):
         raise ValueError("isolation_profile must match the challenge category")
     if artifact.get("scan_result") != "PASS":
         raise ValueError("scan_result must be PASS")

@@ -1,0 +1,83 @@
+name: 일반 문제 이미지 사전 다운로드 목록 취합
+
+on:
+  workflow_call:
+    inputs:
+      devsecops_ref:
+        description: 리뷰한 공급망 도구 commit SHA
+        type: string
+        required: true
+      previous_artifact_id:
+        description: 이전 완료 취합 artifact ID, 최초 취합은 생략
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  plan:
+    name: 노드 변경 없는 전체 목록·변경분 생성
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: 공식 저장소의 수동 main 요청 확인
+        env:
+          DEVSECOPS_REF: ${{ inputs.devsecops_ref }}
+          PREVIOUS_ARTIFACT_ID: ${{ inputs.previous_artifact_id }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REPOSITORY" = MSG-CTF/2026_MSG_CTF || { echo "공식 문제 저장소에서 호출하세요" >&2; exit 1; }
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch || { echo "수동 실행만 허용합니다" >&2; exit 1; }
+          test "$GITHUB_REF" = refs/heads/main || { echo "main 실행만 허용합니다" >&2; exit 1; }
+          [[ "$DEVSECOPS_REF" =~ ^[0-9a-f]{40}$ ]] || { echo "검토한 도구 SHA가 필요합니다" >&2; exit 1; }
+          if [ -n "$PREVIOUS_ARTIFACT_ID" ]; then
+            [[ "$PREVIOUS_ARTIFACT_ID" =~ ^[1-9][0-9]{0,18}$ ]] || { echo "이전 artifact ID 형식을 확인하세요" >&2; exit 1; }
+          fi
+
+      - name: 검토한 공급망 도구 가져오기
+        uses: actions/checkout@v4
+        with:
+          repository: MSG-CTF/msgctf-devsecops
+          ref: ${{ inputs.devsecops_ref }}
+          persist-credentials: false
+
+      - name: Python 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 검증 의존성 설치
+        run: python3 -m pip install -r ci/requirements.txt
+
+      - name: 전체 성공 발행본 취합과 변경분 계산
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREVIOUS_ARTIFACT_ID: ${{ inputs.previous_artifact_id }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ -n "$PREVIOUS_ARTIFACT_ID" ]; then
+            args+=(--previous-artifact-id "$PREVIOUS_ARTIFACT_ID")
+          fi
+          python3 -B -m scripts.collect_node_image_plans \
+            --expected-source-sha "$GITHUB_SHA" \
+            --output-dir dist/node-prefetch "${args[@]}"
+
+      - name: 취합 결과 보관
+        if: always() && hashFiles('dist/node-prefetch/summary.md') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-image-prefetch-${{ github.run_id }}-${{ github.run_attempt }}
+          path: dist/node-prefetch/
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: 취합·실패 결과 요약
+        if: always()
+        run: |
+          if [ -f dist/node-prefetch/summary.md ]; then
+            cat dist/node-prefetch/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -1,0 +1,98 @@
+{
+  "repository": "MSG-CTF/2026_MSG_CTF",
+  "backend_sha": "8ed90393220154cd0983a49dd52abf87534d0c9b",
+  "cases": [
+    {
+      "challenge_slug": "misc-cashout",
+      "runtime_required": true,
+      "registry_revision": 449,
+      "run": {
+        "conclusion": "success",
+        "head_branch": "main",
+        "head_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+        "html_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37341655773",
+        "id": 37341655773,
+        "status": "completed"
+      },
+      "publish_artifact": {
+        "id": 11358877179,
+        "name": "misc-cashout-37341655773-1-07d1e51f85d74e4481ddafdfbb55b74c-publish-bundle"
+      },
+      "user_artifact": {
+        "id": 11358034774,
+        "name": "misc-cashout-37341655773-1-07d1e51f85d74e4481ddafdfbb55b74c-user-files-bundle"
+      }
+    },
+    {
+      "challenge_slug": "pwn-random6",
+      "runtime_required": true,
+      "registry_revision": 455,
+      "run": {
+        "conclusion": "success",
+        "head_branch": "main",
+        "head_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+        "html_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37345781390",
+        "id": 37345781390,
+        "status": "completed"
+      },
+      "publish_artifact": {
+        "id": 11360925900,
+        "name": "pwn-random6-37345781390-1-097b7820c05041db8f8c9c8193a965e2-publish-bundle"
+      },
+      "user_artifact": {
+        "id": 11359944048,
+        "name": "pwn-random6-37345781390-1-097b7820c05041db8f8c9c8193a965e2-user-files-bundle"
+      }
+    },
+    {
+      "challenge_slug": "forensic-is-this-job-legit",
+      "runtime_required": false,
+      "registry_revision": 466,
+      "run": {
+        "conclusion": "success",
+        "head_branch": "main",
+        "head_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+        "html_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37353062378",
+        "id": 37353062378,
+        "status": "completed"
+      },
+      "publish_artifact": null,
+      "user_artifact": {
+        "id": 11363875661,
+        "name": "forensic-is-this-job-legit-37353062378-1-e27736309b7844c28cb46be1eda58a59-user-files-bundle"
+      }
+    },
+    {
+      "challenge_slug": "misc-hidden-order",
+      "runtime_required": false,
+      "registry_revision": 469,
+      "run": {
+        "conclusion": "success",
+        "head_branch": "main",
+        "head_sha": "1dea73b652f9eeb98204c1fda7f66b9afb89505d",
+        "html_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/37354078451",
+        "id": 37354078451,
+        "status": "completed"
+      },
+      "publish_artifact": null,
+      "user_artifact": {
+        "id": 11364086714,
+        "name": "misc-hidden-order-37354078451-1-d354e6f9e0d44abf9e5146eb046ba484-user-files-bundle"
+      }
+    }
+  ],
+  "previous_release": {
+    "run": {
+      "conclusion": "success",
+      "head_branch": "main",
+      "head_sha": "e225529e55b9250117e93af36b28f4e82265f1a7",
+      "html_url": "https://github.com/MSG-CTF/2026_MSG_CTF/actions/runs/36388354543",
+      "id": 36388354543,
+      "status": "completed"
+    },
+    "artifact": {
+      "id": 10955805059,
+      "name": "pwn-random6-36388354543-1-edd24b94528e48c8add09b3088c34837-publish-bundle"
+    }
+  }
+}

@@ -491,8 +491,8 @@ class RuntimeApiSmokeRunnerTests(unittest.TestCase):
                 team_id=TEAM_ID,
             )
 
-    def test_rejects_isolation_profile_mismatch_before_runtime_request(self):
-        artifact = dict(ARTIFACT, isolation_profile="PWN")
+    def test_rejects_pwn_category_downgrade_before_runtime_request(self):
+        artifact = dict(ARTIFACT, category="pwn", isolation_profile="WEB")
 
         with self.assertRaisesRegex(ValueError, "isolation_profile"):
             build_create_request(
