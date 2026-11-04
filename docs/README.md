@@ -1,5 +1,6 @@
 # 문서
 
+- [A/B 버전 전환 사전 준비](release-transition.md): 운영 버전·후보 이미지·실행 설정·readiness 대조와 HTTP 관측, 실제 무중단 교체에 필요한 소비자 계약 구분
 - [운영 버전 기준 이미지 사전 다운로드](active-release-prefetch-policy.md): 최초 active release 전체 컨테이너, 업데이트 버전 추가 준비, K3s 선언 전환과 기존 인스턴스 보존 기준
 - [노드 이미지 사전 다운로드 연동](node-image-prefetch.md): 문제별·전체 이미지 목록과 변경분 취합, 읽기 전용 Actions와 수집·다운로드·적용의 책임 경계
 - [관리자 대시보드 검증·발행 연동](backend-publication-dispatch.md): 정확한 main SHA 발행 요청, run 추적·상태·산출물 조회, 기존 성공본 수집과 중복·재시도 책임
