@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 from scripts import vm_image_prefetch as vm
 from scripts import vm_pod_image_bridge as bridge
-from tests.test_vm_image_prefetch import build, evidence, inputs, NOW
+from tests.test_vm_image_prefetch import build, evidence, host_reply, inputs, NOW
 
 
 IMAGE = 'ghcr.io/msg-ctf/challenges/web-one/web@sha256:' + 'b' * 64
@@ -291,6 +291,11 @@ class PodBridgeTests(unittest.TestCase):
         self.assertLessEqual(timeout, 5)
         self.assertEqual(limit, bridge.MAX_JSON)
 
+    def test_expired_bridge_budget_does_not_start_kubectl(self):
+        with patch.object(bridge, 'bounded_process') as run, self.assertRaises(ValueError):
+            bridge.kubectl(['get', 'node', 'node-one'], b'', bridge.time.monotonic() - 1)
+        run.assert_not_called()
+
     def test_child_environment_excludes_auth_proxy_and_python_injection(self):
         with patch.dict(os.environ, {'GH_TOKEN': 'private-token', 'HTTPS_PROXY': 'private-proxy',
                                     'PYTHONPATH': '/user/path', 'KUBECONFIG': '/user/config'}):
@@ -341,6 +346,7 @@ class PodTransportTests(unittest.TestCase):
         self.assertIn('pod_bridge_sha256', plan)
         self.assertNotIn('agent_sha256', plan['nodes'][0])
         self.assertEqual(plan['nodes'][0]['agent_pod_uid'], POD_UID)
+        self.assertNotIn(AGENT, plan['tasks'][0]['images'])
 
     def test_fixed_ssh_commands_use_bridge_without_raw_kubectl_or_install(self):
         scope, nodes = pod_inventory()
@@ -401,6 +407,32 @@ class PodTransportTests(unittest.TestCase):
         nodes['nodes'][0]['agent_sha256'] = 'd'*64
         with self.assertRaises(ValueError):
             build(scope, nodes)
+
+    def test_mixed_host_and_pod_inventory_uses_each_approved_evidence(self):
+        scope, nodes = pod_inventory()
+        host = inputs()[1]['nodes'][0]
+        host.update(node_id='vm-two', target_id='target-two', node_uid='host-uid',
+                    machine_id='host-machine', ssh_host='192.0.2.11')
+        nodes['nodes'].append(host)
+        scope['releases'][0]['approved_target_ids'].append('target-two')
+        plan = build(scope, nodes)
+        def call(node, command, payload):
+            if command == vm.PREFLIGHT_COMMAND:
+                return bridge_reply(node, plan) if node.get('agent_transport') == 'kubernetes' else host_reply(node, plan)
+            return evidence(node, payload['image'])
+        result = vm.execute(plan, plan['plan_sha256'], call, now=NOW)
+        self.assertEqual(result['status'], 'SUCCEEDED')
+        self.assertEqual(len(result['results']), 2)
+        self.assertTrue(result['final_sweep_complete'])
+
+    def test_pod_recreation_requires_new_plan_approval(self):
+        scope, nodes = pod_inventory()
+        old = build(scope, nodes)
+        nodes['nodes'][0]['agent_pod_uid'] = '00000000-0000-4000-8000-000000000099'
+        new = build(scope, nodes)
+        self.assertNotEqual(old['plan_sha256'], new['plan_sha256'])
+        with self.assertRaises(ValueError):
+            vm.execute(new, old['plan_sha256'], lambda *_: self.fail('must not start SSH'), now=NOW)
 
 
 if __name__ == '__main__':

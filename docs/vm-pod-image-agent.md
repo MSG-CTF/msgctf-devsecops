@@ -95,6 +95,16 @@ release·전체 digest·승인 target·예산을 확정하고 기존 `scripts.vm
 plan/approved SHA/apply 순서를 따릅니다. 이 어댑터 때문에 기존 출처·승인·만료·디스크·
 단일 순차 실행·최종 재검사 조건을 제거하지 않습니다. 호스트형으로 자동 fallback하지 않습니다.
 
+리뷰한 파일과 설정의 설치 후, 다운로드 없는 초기 확인 명령은 다음과 같습니다.
+
+```bash
+printf '%s' '{}' | sudo -n /usr/local/libexec/vm-image-pod-bridge preflight
+```
+
+첫 정비는 GitHub에 SSH 키를 등록하지 않고 맥의 기존 CLI로 실행할 수도 있습니다.
+로컬 SSH 키 경로와 비공개 JSON을 사용하며 원래 plan 승인·identity·예산 검사는 같습니다.
+GitHub Actions로 옮길 때만 별도 Environment·Secret·암호화 결과 설정을 준비합니다.
+
 브리지의 매 호출은 live Node/Ready와 host machine/boot/architecture를 대조합니다.
 해당 노드·label에서 Ready agent가 정확히 하나여야 하며 이름·UID·이미지·실제 imageID·
 컨테이너 Running/Ready가 고정값과 일치해야 합니다. prepare 전후에 같은 검사를 합니다.
