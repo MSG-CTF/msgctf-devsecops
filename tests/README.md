@@ -12,6 +12,13 @@
 기존 Runtime agent 요청/결과 형식과 캐시 재사용, 실제 Bash main/event 가드도 검사합니다.
 실제 VM 접속·pull·Pod·운영 전환을 실행하는 테스트는 아닙니다.
 
+### `test_vm_pod_image_bridge.py`
+
+Pod형/호스트형 선택과 고정 SSH 명령, live Node·host identity·Ready·Pod UID·실행
+imageID, 변경·중복·변조·오류 비포함·입출력/시간 제한과 공통 최종 캐시 검사를
+검증합니다. subprocess 시험은 로컬 Python fixture만 사용하고 실제 Kubernetes·
+SSH·GHCR·Pod 변경을 실행하지 않습니다.
+
 ### `test_audit_node_image_readiness.py`
 
 Runtime 공식 예제의 canonical image_set_id, 보조 이미지 포함·대상/architecture

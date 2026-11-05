@@ -27,7 +27,21 @@ Broker 후보 자격·예약·Scheduler fallback도 변경하지 않습니다.
 
 ## VM 설치 조건
 
-다운로드는 기존 Runtime의 [고정 SSH 명령과 agent](https://github.com/MSG-CTF/secure-provisioner/blob/619423a35876d3e823df17b812cb0b1539001c13/docs/operations/image-preparation.md#L93)를 사용합니다.
+다운로드는 기존 Runtime agent를 사용합니다. 호스트형과 Pod형을 명시적으로 선택하며,
+접속한 노드에서 자동 추측하거나 실패 시 다른 경로로 fallback하지 않습니다.
+
+### 기존 Pod형 agent가 설치된 노드
+
+`runtime-image-preparation/runtime-image-agent` DaemonSet이 이미 있는 경우 새 agent를
+중복 설치하지 않습니다. [Pod형 SSH 연결](vm-pod-image-agent.md)의 고정 브리지와
+root 소유 설정을 준비하고 `nodes.json`에 `agent_transport: kubernetes`를 명시합니다.
+해당 모드에는 아래 호스트 Runtime 바이너리나 기존 preflight가 필요하지 않습니다.
+브리지가 기존 Pod에서 `/usr/local/bin/image-agent --kubernetes`를 호출하며 실제
+Node UID·machine/boot·Pod UID·선언 이미지·실행 imageID를 전후에 대조합니다.
+
+### 호스트형 agent
+
+기존 [고정 SSH 명령과 agent](https://github.com/MSG-CTF/secure-provisioner/blob/619423a35876d3e823df17b812cb0b1539001c13/docs/operations/image-preparation.md#L93)를 사용합니다.
 
 - `/usr/local/libexec/runtime-image-agent`: 검토한 Runtime 바이너리. VM별 SHA-256을 고정합니다.
 - `/etc/secure-provisioner/image-agent.json`: 실제 Node UID와 K3s binary 절대경로를 담은 기존 설정.
@@ -98,11 +112,16 @@ NOT_IN_THIS_MAINTENANCE입니다. 제외를 준비 성공으로 집계하지 않
 | architecture | AMD64 또는 ARM64 |
 | ssh_host, ssh_port, ssh_user | 일반 SSH 주소·포트·전용 계정 |
 | ssh_host_key | 별도 보안 경로로 확인한 `ssh-ed25519 BASE64` 공개 host key |
-| agent_sha256 | 설치된 Runtime agent의 검토된 binary SHA-256 |
+| agent_sha256 | 호스트형만: 설치된 Runtime agent의 검토된 binary SHA-256 |
 | image_fs_path | 실제 K3s containerd 데이터 filesystem 경로 |
 | reserve_bytes | 보존·운영용 최소 잔여 공간 |
 | max_additional_bytes | 이번 전체 정비의 추가 공간 예산 |
 | per_image_workspace_bytes | 이미지 한 건의 임시·압축 해제 포함 작업 여유 |
+
+Pod형은 `agent_sha256` 대신 `agent_transport: kubernetes`, node_name,
+agent_pod_name, agent_pod_uid, agent_image, agent_image_id를 모두 지정합니다.
+agent 이미지·실행 imageID는 각각 확인한 정확한 GHCR digest 참조로 고정합니다.
+Pod 재생성으로 UID가 바뀌면 새 identity를 확인한 뒤 계획과 노드 설정을 다시 승인합니다.
 
 동일 architecture의 입력 VM 전체를 각 release의 approved_target_ids가 포함해야 합니다.
 한 정비 계획은 최대50개 VM·100개 release·1000개 이미지/VM 쌍까지 허용합니다.

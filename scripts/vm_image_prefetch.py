@@ -34,6 +34,10 @@ IDENTITY = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$')
 REPOSITORY = sources.publication.REPOSITORY
 AGENT_COMMAND = 'sudo -n /usr/local/libexec/runtime-image-agent'
 PREFLIGHT_COMMAND = 'sudo -n /usr/local/libexec/vm-image-cache-preflight'
+POD_PREFLIGHT_COMMAND = 'sudo -n /usr/local/libexec/vm-image-pod-bridge preflight'
+POD_AGENT_COMMAND = 'sudo -n /usr/local/libexec/vm-image-pod-bridge prepare'
+POD_AGENT_IMAGE = re.compile(r'^ghcr\.io/msg-ctf/secure-provisioner-image-agent@sha256:[a-f0-9]{64}$')
+POD_FIELDS = {'node_name', 'agent_pod_name', 'agent_pod_uid', 'agent_image', 'agent_image_id'}
 MAX_BYTES = 1024 * 1024
 MAX_PAIRS = 1000
 
@@ -94,10 +98,16 @@ def checked_nodes(inventory):
             and 1 <= len(inventory['nodes']) <= 50)
     nodes, ids, machines, uids, hosts = [], set(), set(), set(), set()
     fields = {'node_id', 'target_id', 'node_uid', 'machine_id', 'boot_id', 'architecture',
-              'ssh_host', 'ssh_port', 'ssh_user', 'ssh_host_key', 'agent_sha256',
+              'ssh_host', 'ssh_port', 'ssh_user', 'ssh_host_key',
               'image_fs_path', 'reserve_bytes', 'max_additional_bytes', 'per_image_workspace_bytes'}
     for row in inventory['nodes']:
-        require(isinstance(row, dict) and set(row) == fields)
+        require(isinstance(row, dict))
+        transport = row.get('agent_transport', 'host')
+        require(transport in ('host', 'kubernetes'))
+        expected = fields | (POD_FIELDS | {'agent_transport'} if transport == 'kubernetes' else {'agent_sha256'})
+        if transport == 'host' and 'agent_transport' in row:
+            expected |= {'agent_transport'}
+        require(set(row) == expected)
         for key in ('node_id', 'target_id', 'node_uid', 'machine_id', 'boot_id'):
             require(isinstance(row[key], str) and IDENTITY.fullmatch(row[key]))
         require(NAME.fullmatch(row['node_id']) and row['node_id'] not in ids)
@@ -121,7 +131,18 @@ def checked_nodes(inventory):
         require(len(key) == 2 and key[0] == 'ssh-ed25519')
         decoded = base64.b64decode(key[1], validate=True)
         require(len(decoded) == 51 and decoded[:19] == b'\x00\x00\x00\x0bssh-ed25519\x00\x00\x00\x20')
-        require(isinstance(row['agent_sha256'], str) and SHA.fullmatch(row['agent_sha256']))
+        if transport == 'host':
+            require(isinstance(row['agent_sha256'], str) and SHA.fullmatch(row['agent_sha256']))
+        else:
+            for key in ('node_name', 'agent_pod_name'):
+                value = row[key]
+                require(isinstance(value, str) and len(value) <= 253 and '..' not in value
+                        and re.fullmatch(r'[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?', value))
+            for key in ('agent_pod_uid', 'node_uid', 'boot_id'):
+                require(isinstance(row[key], str) and str(UUID(row[key])) == row[key] and UUID(row[key]).int != 0)
+            require(re.fullmatch(r'[a-f0-9]{32}', row['machine_id']))
+            for key in ('agent_image', 'agent_image_id'):
+                require(isinstance(row[key], str) and POD_AGENT_IMAGE.fullmatch(row[key]))
         path = row['image_fs_path']
         require(isinstance(path, str) and path.startswith('/') and path != '/'
                 and re.fullmatch(r'/[A-Za-z0-9_./-]+', path) and '..' not in Path(path).parts)
@@ -222,6 +243,8 @@ def build_plan(scope, inventory, *, api=sources.publication.github, fetch=None, 
             'nodes': nodes, 'tasks': tasks, 'held': held, 'excluded': excluded,
             'backend_active_independently_queried': False,
             'preflight_sha256': hashlib.sha256(Path(__file__).with_name('vm_cache_preflight.py').read_bytes()).hexdigest()}
+    if any(node.get('agent_transport') == 'kubernetes' for node in nodes):
+        plan['pod_bridge_sha256'] = hashlib.sha256(Path(__file__).with_name('vm_pod_image_bridge.py').read_bytes()).hexdigest()
     plan['plan_sha256'] = plan_hash(plan)
     return plan
 
@@ -272,6 +295,8 @@ class SSHAgent:
 
     def __call__(self, node, command, payload):
         require(command in (AGENT_COMMAND, PREFLIGHT_COMMAND))
+        if node.get('agent_transport') == 'kubernetes':
+            command = POD_AGENT_COMMAND if command == AGENT_COMMAND else POD_PREFLIGHT_COMMAND
         with tempfile.TemporaryDirectory() as temporary:
             known = Path(temporary) / 'known_hosts'
             host = node['ssh_host'] if node['ssh_port'] == 22 else f"[{node['ssh_host']}]:{node['ssh_port']}"
@@ -290,9 +315,17 @@ class SSHAgent:
 
 def check_host(node, plan, reply, initial_free=None, workspace=0):
     require(isinstance(reply, dict) and reply.get('schema_version') == 1)
-    for field in ('node_uid', 'machine_id', 'boot_id', 'architecture', 'image_fs_path', 'agent_sha256'):
+    for field in ('node_uid', 'machine_id', 'boot_id', 'architecture', 'image_fs_path'):
         require(reply.get(field) == node[field])
-    require(reply.get('os') == 'linux' and reply.get('preflight_sha256') == plan['preflight_sha256'])
+    require(reply.get('os') == 'linux')
+    if node.get('agent_transport') == 'kubernetes':
+        require(reply.get('agent_transport') == 'kubernetes'
+                and reply.get('preflight_sha256') == plan['pod_bridge_sha256'])
+        for field in POD_FIELDS:
+            require(reply.get(field) == node[field])
+    else:
+        require(reply.get('agent_sha256') == node['agent_sha256']
+                and reply.get('preflight_sha256') == plan['preflight_sha256'])
     available, total = reply.get('available_bytes'), reply.get('total_bytes')
     require(type(available) is int and positive(total) and 0 <= available <= total)
     reserve = max(node['reserve_bytes'], (total + 4) // 5)
