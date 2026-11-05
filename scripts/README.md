@@ -16,6 +16,13 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 계획 검수입니다. 실행·활성화·삭제·Runtime 설정은 변경하지 않습니다.
 [운영 준비와 입력 형식](../docs/vm-image-prefetch.md)을 참고합니다.
 
+### `vm_pod_image_bridge.py`
+
+노드의 기존 Runtime agent Pod를 재설치하지 않고, 고정 SSH 명령에서 공식
+`image-agent --kubernetes`를 호출합니다. live node/host·Pod UID·선언/실행 imageID를
+전후 대조하고, 기존 파이프라인의 승인·예산·최종 검사 경계를 유지합니다.
+[Pod형 연결·고정 파일 설치 조건](../docs/vm-pod-image-agent.md)을 참고합니다.
+
 ### `audit_node_image_readiness.py`
 
 기존 발행 bundle과 저장된 Runtime readiness JSON을 오프라인에서 대조합니다.

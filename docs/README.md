@@ -57,3 +57,8 @@ Registry 등록의 호환성 증거를 기록합니다.
 
 `prob/for_user/` 참가자 제공 파일의 ZIP 생성, 무결성 manifest, Actions artifact
 전달 방식과 Backend·Object Storage 역할 경계를 정의합니다.
+
+### `vm-pod-image-agent.md`
+
+기존 DaemonSet을 재설치하지 않고 고정 SSH 브리지로 연결합니다. node/Pod UID·
+imageID·root 설정을 검증하며 실제 설치와 운영 실행은 별도 승인으로 진행합니다.
