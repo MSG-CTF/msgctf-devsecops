@@ -5,6 +5,14 @@
 
 ## 테스트 구성
 
+### `test_prepare_release_transition.py` / `test_observe_rollout_http.py`
+
+A/B 전체 이미지·Backend active/승인·실행 설정·관측 만료·명시적 rollback과 API
+인계안의 경계를 검증합니다. HTTP 표본 실패·중단·TLS·Host/SNI·public DNS 고정·
+redirect/metadata/proxy 차단, 비공개 체크포인트와 실제 로컬 GET도 검사합니다.
+운영 API·SSH·pull·Pod·active·트래픽 전환을 실행하지 않으며 HTTP200을 무중단
+성공으로 처리하지 않는지 확인합니다.
+
 ### `test_vm_image_prefetch.py`
 
 운영 선택과 원본 checksum·전체 이미지·architecture·노드 범위를 대조하고, 만료·
