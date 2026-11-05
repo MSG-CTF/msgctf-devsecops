@@ -7,6 +7,9 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
+import time
+import socket
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -317,6 +320,110 @@ class PodBridgeTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(json.loads(output.getvalue()), {'error_code': 'POD_AGENT_CHECK_FAILED'})
         self.assertNotIn('private-config-value', output.getvalue())
+
+    def test_open_stdin_without_bytes_expires(self):
+        reader, writer = os.pipe()
+        try:
+            with os.fdopen(reader, 'rb', buffering=0) as stream:
+                started = time.monotonic()
+                with self.assertRaises(ValueError):
+                    bridge.read_request(stream, started + 0.04)
+                self.assertLess(time.monotonic() - started, 1)
+        finally:
+            os.close(writer)
+
+    def test_partial_stdin_expires_before_sender_closes(self):
+        reader, writer = os.pipe()
+        try:
+            os.write(writer, b'{')
+            with os.fdopen(reader, 'rb', buffering=0) as stream:
+                started = time.monotonic()
+                with self.assertRaises(ValueError):
+                    bridge.read_request(stream, started + 0.04)
+                self.assertLess(time.monotonic() - started, 1)
+        finally:
+            os.close(writer)
+
+    def test_split_request_is_read_until_eof(self):
+        reader, writer = os.pipe()
+        def send():
+            try:
+                os.write(writer, b'{')
+                time.sleep(0.02)
+                os.write(writer, b'}')
+            finally:
+                os.close(writer)
+        sender = threading.Thread(target=send)
+        sender.start()
+        try:
+            with os.fdopen(reader, 'rb', buffering=0) as stream:
+                self.assertEqual(bridge.read_request(stream, time.monotonic() + 2), {})
+        finally:
+            sender.join(timeout=2)
+        self.assertFalse(sender.is_alive())
+
+    def test_regular_file_stdin_is_supported(self):
+        with tempfile.TemporaryFile() as stream:
+            stream.write(b'{}')
+            stream.seek(0)
+            self.assertEqual(bridge.read_request(stream, time.monotonic() + 1), {})
+
+    def test_input_limit_does_not_wait_for_eof(self):
+        receiver, sender = socket.socketpair()
+        try:
+            sender.settimeout(1)
+            sender.sendall(b'x' * (bridge.MAX_REQUEST + 1))
+            with receiver.makefile('rb', buffering=0) as stream:
+                started = time.monotonic()
+                with self.assertRaises(ValueError):
+                    bridge.read_request(stream, started + 1)
+                self.assertLess(time.monotonic() - started, 1)
+        finally:
+            receiver.close()
+            sender.close()
+
+    def test_main_uses_one_deadline_for_configuration_input_and_operations(self):
+        clock = [10.0]
+        seen = []
+        def configuration():
+            clock[0] = 10.4
+            return config()
+        def read(stream, deadline):
+            seen.append(deadline)
+            clock[0] = 10.7
+            return {}
+        def operation(*args, deadline):
+            seen.append(deadline)
+            clock[0] = 10.9
+            return {'schema_version': 1}
+        with patch('sys.argv', ['bridge', 'preflight']), \
+             patch.object(bridge, 'CALL_TIMEOUT_SECONDS', 1), \
+             patch.object(bridge.time, 'monotonic', side_effect=lambda: clock[0]), \
+             patch.object(bridge, 'load_config', side_effect=configuration), \
+             patch.object(bridge, 'read_request', side_effect=read), \
+             patch.object(bridge, 'handle', side_effect=operation), \
+             patch('sys.stdout', new_callable=io.StringIO):
+            self.assertEqual(bridge.main(), 0)
+        self.assertEqual(seen, [11.0, 11.0])
+
+    def test_configuration_time_can_exhaust_budget_before_stdin(self):
+        clock = [10.0]
+        def configuration():
+            clock[0] = 12.0
+            return config()
+        with tempfile.TemporaryFile() as stream:
+            stream.write(b'{}')
+            stream.seek(0)
+            with patch('sys.argv', ['bridge', 'preflight']), \
+                 patch('sys.stdin', SimpleNamespace(buffer=stream)), \
+                 patch.object(bridge, 'CALL_TIMEOUT_SECONDS', 1), \
+                 patch.object(bridge.time, 'monotonic', side_effect=lambda: clock[0]), \
+                 patch.object(bridge, 'load_config', side_effect=configuration), \
+                 patch.object(bridge, 'handle') as operation, \
+                 patch('sys.stdout', new_callable=io.StringIO) as output:
+                self.assertEqual(bridge.main(), 1)
+                self.assertEqual(json.loads(output.getvalue()), {'error_code': 'POD_AGENT_CHECK_FAILED'})
+            operation.assert_not_called()
 
 
 def pod_inventory():

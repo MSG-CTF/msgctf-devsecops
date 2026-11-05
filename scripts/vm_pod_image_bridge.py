@@ -28,6 +28,7 @@ CHALLENGE_IMAGE = re.compile(r'^ghcr\.io/msg-ctf/challenges/[a-z0-9][a-z0-9-]{0,
 DNS_NAME = re.compile(r'^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$')
 MAX_JSON = 1024 * 1024
 MAX_REQUEST = 4096
+CALL_TIMEOUT_SECONDS = 115
 ENVIRONMENT = {'PATH': '/usr/sbin:/usr/bin:/sbin:/bin', 'LANG': 'C.UTF-8', 'HOME': '/root'}
 
 
@@ -47,6 +48,27 @@ def unique_object(pairs):
 def parse_json(raw, limit=MAX_JSON):
     require(len(raw) <= limit)
     return json.loads(raw, object_pairs_hook=unique_object, parse_constant=lambda _: require(False))
+
+
+def read_request(stream, deadline):
+    output = bytearray()
+    descriptor = stream.fileno()
+    # poll supports both SSH pipes and regular-file redirection on Linux.
+    with selectors.PollSelector() as selector:
+        selector.register(descriptor, selectors.EVENT_READ)
+        while True:
+            remaining = deadline - time.monotonic()
+            require(remaining > 0)
+            if not selector.select(remaining):
+                continue
+            try:
+                data = os.read(descriptor, MAX_REQUEST + 1 - len(output))
+            except BlockingIOError:
+                continue
+            if not data:
+                return parse_json(output, MAX_REQUEST)
+            output.extend(data)
+            require(len(output) <= MAX_REQUEST)
 
 
 def trusted_path(path, *, directory=False, private=False):
@@ -196,7 +218,7 @@ def inspect(config, deadline, run=kubectl):
 
 
 def handle(action, request, config, *, run=kubectl, check=inspect, deadline=None):
-    deadline = time.monotonic() + 115 if deadline is None else deadline
+    deadline = time.monotonic() + CALL_TIMEOUT_SECONDS if deadline is None else deadline
     require(action in ('preflight', 'prepare') and isinstance(request, dict))
     if action == 'preflight':
         require(not request)
@@ -229,11 +251,13 @@ def handle(action, request, config, *, run=kubectl, check=inspect, deadline=None
 
 
 def main():
+    deadline = time.monotonic() + CALL_TIMEOUT_SECONDS
     try:
         require(len(sys.argv) == 2 and sys.argv[1] in ('preflight', 'prepare'))
         config = load_config()
-        request = parse_json(sys.stdin.buffer.read(MAX_REQUEST + 1), MAX_REQUEST)
-        reply = handle(sys.argv[1], request, config)
+        request = read_request(sys.stdin.buffer, deadline)
+        reply = handle(sys.argv[1], request, config, deadline=deadline)
+        require(time.monotonic() < deadline)
     except (OSError, ValueError, TypeError, KeyError, AttributeError, OverflowError,
             RecursionError, subprocess.SubprocessError):
         print(json.dumps({'error_code': 'POD_AGENT_CHECK_FAILED'}))
