@@ -1,20 +1,29 @@
-# MSG CTF Challenge DevSecOps
+<div align="center">
+<h1>MSG CTF · DevSecOps</h1>
+<p>문제를 검사하고 실행 이미지·참가자 파일·배포 설정을 발행하는 공통 CI</p>
+<p><a href="https://msg-ctf.github.io/platform.html">플랫폼</a> · <a href="#development">개발 문서</a></p>
+</div>
 
-출제자가 올린 문제를 검사하고, 실행 이미지와 참가자 제공 파일을 발행하는 공통 CI 저장소입니다
-백엔드는 성공한 발행 산출물을 가져와 문제와 배포 버전에 연결합니다
+<h2 align="center">Overview</h2>
 
-[플랫폼 전체 소개](https://github.com/MSG-CTF/msg-ctf.github.io)
+<table align="center">
+<tr><th width="260">검사</th><th width="260">발행</th><th width="260">연결</th></tr>
+<tr><td align="center">문제 명세·취약점·비밀값</td><td align="center">GHCR 이미지·파일 ZIP·SBOM</td><td align="center">발행본·실행 설정·이미지 준비</td></tr>
+</table>
 
-## 맡은 일
+<h2 align="center">Contributors</h2>
 
-- 문제 명세·빌드 경로·컨테이너·실행 설정 검사
-- 이미지 빌드, 취약점·비밀값 검사와 SBOM 생성
-- digest로 고정한 GHCR 이미지와 버전별 발행 bundle 생성
-- 참가자 제공 파일 ZIP과 파일 manifest 발행
-- 환경변수·비밀값 참조·네트워크 실행 프로필 전달
-- 발행과 별도로 실행하는 런타임 시험, SSH·기존 Pod image-agent 연결
+<table align="center">
+<tr><th align="center" colspan="4"><a href="https://github.com/MSG-CTF/msgctf-devsecops">DevSecOps</a></th><th align="center" colspan="4"><a href="https://github.com/MSG-CTF/secure-provisioner/tree/dev">Runtime</a></th><th align="center" colspan="4"><a href="https://github.com/MSG-CTF">PM</a></th></tr>
+<tr>
+<td align="center" valign="top" colspan="4" width="260"><a href="https://github.com/wlsdnd2367"><img src="https://avatars.githubusercontent.com/u/230291092?v=4&amp;s=128" width="52" height="52" alt="wlsdnd2367"></a><br><a href="https://github.com/wlsdnd2367"><b>wlsdnd2367</b></a><br><sub>문제 CI · 검사·발행<br>노드 이미지 준비</sub></td>
+<td align="center" valign="top" colspan="4" width="260"><a href="https://github.com/goldsimchoi"><img src="https://avatars.githubusercontent.com/u/173701392?v=4&amp;s=128" width="52" height="52" alt="goldsimchoi"></a><br><a href="https://github.com/goldsimchoi"><b>goldsimchoi</b></a><br><sub>GCP 런타임<br>HTTPS 배포 시험</sub></td>
+<td align="center" valign="top" colspan="4" width="260"><a href="https://github.com/jongcoding"><img src="https://avatars.githubusercontent.com/u/128033808?v=4&amp;s=128" width="52" height="52" alt="jongcoding"></a><br><a href="https://github.com/jongcoding"><b>jongcoding</b></a><br><sub>환경변수·비밀값 참조<br>Crypto·Rev 실행 연결</sub></td>
+</tr>
+</table>
 
-## 함께 만든 사람들
+<details>
+<summary>기여 기록 · 관련 PR</summary>
 
 | 기여자 | 기여 내용 | 관련 PR |
 | --- | --- | --- |
@@ -22,16 +31,18 @@
 | [jongcoding](https://github.com/jongcoding) | 실행 환경변수·비밀값 참조와 Crypto·Rev TCP 프로필 연동 | [#19](https://github.com/MSG-CTF/msgctf-devsecops/pull/19) · [#22](https://github.com/MSG-CTF/msgctf-devsecops/pull/22) |
 | [goldsimchoi](https://github.com/goldsimchoi) | GCP 런타임 HTTPS 배포 시험 경로 | [#16](https://github.com/MSG-CTF/msgctf-devsecops/pull/16) |
 
-2026-11-09까지 병합된 PR과 커밋을 기준으로 정리했습니다
+</details>
 
-## 기술 구성
+<h2 align="center">Tech Stack</h2>
 
-GitHub Actions · Python · Docker/Buildx · GHCR · Trivy · Gitleaks
+<p align="center"><img src="https://raw.githubusercontent.com/MSG-CTF/msg-ctf.github.io/67e93a09ce630910f98ae56fb118ca1317af78e0/assets/tech/githubactions.svg" width="44" height="44" alt="GitHub Actions" title="GitHub Actions"> &nbsp; <img src="https://raw.githubusercontent.com/MSG-CTF/msg-ctf.github.io/67e93a09ce630910f98ae56fb118ca1317af78e0/assets/tech/docker.svg" width="44" height="44" alt="Docker" title="Docker"> &nbsp; <img src="https://raw.githubusercontent.com/MSG-CTF/msg-ctf.github.io/67e93a09ce630910f98ae56fb118ca1317af78e0/assets/tech/trivy.svg" width="44" height="44" alt="Trivy" title="Trivy"><br><sub>GitHub Actions · Docker · Trivy</sub><br><sub>Python · Buildx · GHCR · Gitleaks · SBOM</sub></p>
 
-## 개발·운영 문서
+## Development
 
 - [참가자 제공 파일 계약](docs/participant-files-contract.md)
 - [문제 저장소 호출 예제](docs/challenge-caller-example.yml)
 - [GCP 런타임 시험](docs/gcp-runtime-https-smoke.md)
 - [기존 Pod image-agent 연결](docs/vm-pod-image-agent.md)
-- [기존 개발·설정 참고 문서](README.reference.md)
+- [설치·실행 안내](README.reference.md)
+
+<p align="center"><sub><a href="https://github.com/MSG-CTF/msg-ctf.github.io/blob/67e93a09ce630910f98ae56fb118ca1317af78e0/docs/tech-icons.md">아이콘 출처</a></sub></p>
