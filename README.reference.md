@@ -1,0 +1,364 @@
+# MSGCTF 출제 문제 검증 CI/CD
+
+참가자 파일의 선택적 GCS 저장과 전체 main 문제 수집 계획은
+[참가자 파일 GCS 저장](docs/participant-files-gcs.md)에 정리했습니다.
+새 기능은 기본 비활성이며 계약·권한 승인 전에는 실제 업로드하지 않습니다.
+
+
+별도 `2026_MSG_CTF` 저장소에 제출된 문제의 `info.yaml`과 Dockerfile을
+검증하고, Runtime이 사용할 digest 고정 workload와 Challenge Registry
+revision 자료를 발행하는 reusable CI/CD 도구 저장소입니다.
+
+## 저장소 구조
+
+| 경로 | 역할 |
+|---|---|
+| [`.github/workflows`](.github/workflows/README.md) | 문제 image build·scan·GHCR 발행 workflow와 자체 검증 workflow |
+| [`ci`](ci/README.md) | CI 실행 의존성과 문제 공급망 운영·보안 기준 |
+| [`docs`](docs/README.md) | 문제 저장소 연동 예제와 DevSecOps 운영 문서 |
+| [`scripts`](scripts/README.md) | 변경 문제 탐색, `info.yaml` 검증, Runtime·Registry 발행 자료 생성 |
+| [`tests`](tests/README.md) | 명세 validator, publish bundle, GitHub Actions 계약 테스트 |
+
+플랫폼 Backend·Frontend, Runtime, Scheduler의 애플리케이션 코드는 각 담당
+저장소에서 관리합니다. 이 저장소에는 출제 문제 검증과 image 공급망에 필요한
+workflow, 도구, 계약 테스트만 둡니다.
+
+## 전체 흐름
+
+```text
+Challenge Repo
+→ GitHub Actions
+→ info.yaml 및 build context 검증
+→ 컨테이너별 Docker build 또는 외부 image pull
+→ Gitleaks
+→ Trivy 취약점·image secret 검사
+→ CycloneDX SBOM 생성
+→ OCI Registry에 commit SHA tag로 push
+→ OCI digest 추출
+→ `artifact-v2.json`과 수동 검증용 `registry-publish.json` 생성
+→ `-publish-bundle` Actions artifact 보관
+→ Backend poller가 artifact를 수집해 release 등록
+```
+
+Platform 실행 흐름은 다음과 같습니다.
+
+```text
+Backend가 Challenge Registry의 active release를 조회해 확정 workload를 Scheduler에 전달
+→ Resource Broker가 target 선택
+→ Runtime API가 digest workload 수신
+→ Runtime이 K3s Namespace·Pod·Service·보안 정책 생성
+→ 참가자 URL 또는 TCP endpoint 반환
+```
+
+CI는 Kubernetes manifest, Namespace, Service, NetworkPolicy 또는 cleanup을 소유하지 않습니다. 해당 영역은 Runtime 및 격리보안팀의 책임입니다.
+
+일반 K3s 문제의 main 발행 bundle에는 노드 사전 다운로드용 digest 목록도
+포함합니다. 최초 대상은 현재 운영 버전의 전체 컨테이너이고, 업데이트 시 새 버전을
+추가로 준비합니다. 최신 발행본을 현재 운영 버전으로 간주하지 않습니다.
+[운영 버전 기준 정책](docs/active-release-prefetch-policy.md)과
+[노드 이미지 사전 다운로드 연동](docs/node-image-prefetch.md)에 담당별 연결과
+기존 참가자 인스턴스를 유지하는 전환 순서를 정리했습니다.
+
+Backend는 준비 요청과 운영 버전 선택을, Runtime은 실제 다운로드·관측을 담당합니다.
+단일 WEB의 노드 시범 자료는 확인했지만 전체 운영 이미지 준비와 소비자 서버 설정,
+준비 후 자동 전환은 별도 연동 검증이 필요합니다. 목록 생성은 준비 완료가 아닙니다.
+
+전체 대상 취합과 이전 목록 비교는 `scripts/collect_node_image_plans.py` 및
+읽기 전용 `node-image-prefetch-plan.yml`로 준비합니다. 문제 저장소의 수동 caller는
+적용됐으며 최초 취합과 이전 artifact 재취합을 확인했습니다. 이 도구는 Backend의
+active release를 선택하거나 Runtime 준비 API를 호출하지 않습니다.
+
+GHCR 이미지 버전은 [삭제 없는 정리 후보 조회](docs/ghcr-cleanup.md)로 관리합니다.
+active release·실행 중 digest와 KOTH의 별도 사용 목록을 확인하기 전에는 실제
+이미지를 삭제하지 않습니다.
+
+의도된 문제 취약점은 [승인된 예외 정책](docs/intentional-vulnerability-exceptions.md)으로
+패키지·버전·취약점 ID를 한정하며, secret 검사나 다른 문제의 보안 기준은 완화하지 않습니다.
+
+이미지 검증 성공과 문제 실행 준비 완료는 다릅니다. 현재 지원 필드, Compose에서
+확인해야 할 환경변수·저장소·네트워크 설정과 담당별 요청은
+[문제 실행 설정 계약](docs/challenge-execution-settings.md)에 정리했습니다.
+미지원 실행 설정은 info.yaml에서 거절하며, 진단 자료에는 설정 값이나 FLAG를 넣지 않습니다.
+
+## 문제 저장소 계약
+
+출제 문제는 다음 구조를 사용합니다.
+
+```text
+2026_MSG_CTF/
+└─ <분야>-<문제명>/
+   ├─ exploit/
+   ├─ README.md
+   ├─ info.yaml
+   └─ prob/
+      ├─ for_organizer/
+      │  └─ <container>/
+      │     └─ Dockerfile
+      └─ for_user/
+```
+
+정적 문제는 `deployment`를 생략하며 metadata만 검증합니다. 서버가 필요한
+문제는 문제 디렉터리 바로 아래의 `info.yaml`에 `deployment`를 작성합니다.
+
+```yaml
+name: Web Notebook
+category: web
+description: |-
+  문제 설명
+flag: msgctf2026{...}
+
+deployment:
+  runtime_type: KUBERNETES
+  architecture: AMD64
+  containers:
+    - name: web
+      build: ./prob/for_organizer/web
+      ports: [8080, 9090]
+      expose: true
+    - name: db
+      image: postgres:16
+      ports: [5432]
+      expose: false
+  healthcheck:
+    container: web
+    port: 9090
+    path: /healthz
+  resource_profile:
+    cpu_millicores: 700
+    memory_mib: 768
+    ephemeral_storage_mib: 1024
+```
+
+주요 규칙:
+
+- `info.yaml`이 문제 사양의 단일 소스이며, 출제자용 `docker-compose.yml`을
+  실행하는 대신 플랫폼이 읽는 제한된 배포 DSL 역할을 합니다.
+- 출제자는 컨테이너, 포트 공개 여부, healthcheck와 합산 resource만 선언합니다.
+  Namespace, Service, Gateway/Ingress, NetworkPolicy 같은 Kubernetes 구현 리소스는
+  Runtime이 생성합니다.
+- `build`와 `image`는 컨테이너마다 하나만 사용합니다.
+- `build`는 문제 디렉터리 내부의 Docker build context만 가리킬 수 있습니다.
+- 외부 `image`는 `latest`나 암묵적 tag를 사용할 수 없으며 명시적 non-latest tag 또는 digest가 필요합니다.
+- `expose: true`인 컨테이너의 포트만 참가자에게 공개합니다.
+- 동일 challenge instance 내부 컨테이너 통신 허용, challenge 간 격리와 팀 간
+  격리는 Runtime의 K3s 네트워크 및 NetworkPolicy가 일관되게 관리합니다.
+- 외부 공개 의도는 컨테이너의 `ports`와 `expose`로만 선언하며 CI가
+  `ports[].public`로 정규화합니다.
+- 출제자는 raw Kubernetes manifest나 `NetworkPolicy`를 입력하지 않습니다. CI는
+  문제 category를 `WEB` 또는 `PWN` `isolation_profile`로 정규화하고 Runtime이
+  승인된 정책을 생성합니다.
+- 외부 egress는 Runtime `STANDARD@v2` 기본 정책 `NONE`을 따릅니다. 현재 별도
+  egress DSL을 제공하지 않으며 `network_policy` 입력을 거절합니다.
+- `resource_profile`은 문제의 모든 컨테이너를 합산한 값입니다.
+- `flag`는 존재 여부만 검증하며 로그, output, artifact에 기록하지 않습니다.
+- `deployment`가 없는 정적 문제는 Docker build와 image 발행을 수행하지 않습니다.
+- 현재 Linux `AMD64`, `ARM64`만 지원하며 Windows container는 정책 확정 전까지 거부합니다.
+
+로컬 검증:
+
+```bash
+python3 -m pip install -r ci/requirements.txt
+python3 scripts/validate_info_spec.py path/to/challenge \
+  --metadata-output metadata.json \
+  --matrix-output matrix.json
+```
+
+## Pipeline
+
+### Challenge Branch Validation
+
+[`.github/workflows/challenge-branch-validation.yml`](.github/workflows/challenge-branch-validation.yml)은
+출제자 branch와 PR에서 호출하는 읽기 전용 reusable workflow입니다. `info.yaml`,
+Docker build context와 secret을 검사하고 image를 build한 뒤 Trivy와 CycloneDX SBOM을
+생성합니다. GHCR push, publish bundle, Challenge Registry와 Runtime 호출은 포함하지
+않습니다.
+
+입력은 `challenge_path`, 검사할 commit 또는 branch인 `source_ref`, 도구 version인
+`devsecops_ref`입니다. 기존 문제 branch를 다시 검사할 때 caller의 수동 실행 입력으로
+`source_ref`를 전달할 수 있습니다.
+
+### Challenge Supply Chain
+
+[`.github/workflows/challenge-supply-chain.yml`](.github/workflows/challenge-supply-chain.yml)은 문제 저장소가 호출하는 reusable workflow입니다.
+
+입력:
+
+- `challenge_path`: `info.yaml`이 있는 문제 디렉터리
+- `revision`: 새 Challenge Registry revision
+- `devsecops_ref`: 공급망 도구 version, 기본값 `main`
+- `publish_images`: 검사한 image를 GHCR에 발행하고 publish bundle을 생성할지 여부, 기본값 `true`
+- `enable_k3s_smoke_deploy`: Secure Provisioner API 경유 임시 K3s 배포 검증 여부, 기본값 `false`
+- `runtime_target_id`: Secure Provisioner Registry의 K3s target ID
+
+운영 문제 저장소는 `devsecops_ref: main`을 사용합니다. DevSecOps 기능 브랜치의
+자체 검증에서는 workflow와 script가 같은 commit을 사용하도록 `github.sha`를
+전달합니다.
+
+출제자 branch와 PR 검증에서는 `publish_images: false`를 사용하고 Secret을 전달하지
+않습니다. 이 모드는 Docker build, Gitleaks, Trivy와 SBOM 생성까지만 수행합니다.
+GHCR push, publish bundle 생성과 Runtime smoke는 승인된 `main` 실행에서만
+활성화합니다. release 등록은 Backend poller가 성공한 Actions artifact를 수집해
+처리하므로 caller와 reusable workflow에 Backend URL 또는 service token을 두지
+않습니다.
+
+출력 artifact:
+
+```text
+<challenge_slug>-<artifact_scope>-publish-bundle/
+├ artifact-v2.json
+├ registry-publish.json
+├ node-prefetch/  # 일반 K3s 문제의 main 발행만 해당
+│  ├ plan.json
+│  └ images.txt
+├ input/metadata.json
+└ results/<container>/
+   ├ timing.json
+   └ sbom/<container>.cdx.json
+```
+
+참가자 제공 파일은 deployment 유무와 관계없이 별도 artifact로 발행합니다.
+
+```text
+<challenge_slug>-<artifact_scope>-user-files-bundle/
+├ user-files.json
+└ user-files.zip
+```
+
+`prob/for_user/`가 없거나 비어 있으면 ZIP 없이 `present: false`인 manifest만
+생성합니다. ZIP은 GHCR이나 DB에 직접 저장하지 않으며 Backend poller가 이 artifact를
+수집해 Object Storage와 문제 릴리스에 연결합니다. 상세 계약은
+[`docs/participant-files-contract.md`](docs/participant-files-contract.md)를 참고합니다.
+
+publish bundle은 GitHub Actions artifact로 90일 보관합니다. 성공한 실행의
+Summary에는 문제 slug, revision, 보안 검사 결과, 컨테이너별 GHCR 경로,
+OCI digest와 단계별 소요 시간이 표시됩니다. reusable workflow 호출자는 `challenge_slug`와
+`publish_bundle_name`, `user_files_bundle_name` output을 후속 job에서 사용할 수 있습니다.
+
+`artifact_scope`는 workflow 호출마다 생성되는 고유값입니다. 같은 문제를 한
+Actions run에서 중복 호출하거나 job을 재실행해도 metadata, 컨테이너 결과와 최종
+publish bundle 이름이 충돌하지 않습니다.
+
+측정 시간은 컨테이너별 `Build/Pull`, `Scan`, `GHCR Push`와 세 구간의 합계입니다.
+GitHub runner 대기 시간과 job 준비 시간은 포함하지 않습니다. 원본 수치는
+`artifact-v2.json`의 `evidence.containers[].timing`에도 기록합니다.
+
+최종 image 경로:
+
+```text
+ghcr.io/msg-ctf/challenges/<challenge_slug>/<container>@sha256:<digest>
+```
+
+`latest`는 생성하지 않습니다.
+
+문제 저장소 caller 예시는 [`docs/challenge-caller-example.yml`](docs/challenge-caller-example.yml)에 있습니다.
+
+## KOTH 문제
+
+백엔드팀의 `koth-template`은 일반 문제와 동일한 `info.yaml` 공급망 계약을
+사용합니다. `category: koth`, `deployment.containers[].build`, 참가자 포트,
+healthcheck 포트와 `resource_profile`을 검증한 뒤 다음 경로로 발행합니다.
+
+```text
+ghcr.io/msg-ctf/challenges/<koth_slug>/service@sha256:<digest>
+```
+
+`prob/for_organizer/docker-compose.yml`은 출제자 로컬 테스트용입니다. GHCR에는
+`info.yaml`의 `deployment.containers`에 선언된 컨테이너만 발행하므로 Compose의
+보조 `checker`는 자동 발행하지 않습니다.
+
+## Publish Bundle과 Backend poller
+
+`artifact-v2.json`은 Backend poller의 자동 수집과 Runtime이 공통으로 사용하는
+공식 입력이며, digest 고정 workload입니다. `registry-publish.json`은 같은
+artifact를 감싼 수동 API 검증용 wrapper로만 보관합니다.
+
+두 파일에는 `revision`과 같은 값인 `registry_revision`, `isolation_profile`,
+`workload.containers[]`가 포함됩니다. 모든 최종 image는
+`ghcr.io/msg-ctf/challenges/<slug>/<container>@sha256:<digest>` 형식만 허용하며
+tag와 `latest`는 발행 자료 생성 단계에서 거절합니다.
+
+발행 조건:
+
+- 모든 container image가 존재합니다.
+- 모든 image가 digest로 고정돼 있습니다.
+- Gitleaks와 Trivy 검사가 통과했습니다.
+- 모든 container의 CycloneDX SBOM이 생성됐습니다.
+- 위 조건을 모두 만족한 bundle만 Backend poller 수집 대상입니다.
+
+DevSecOps는 `artifact-v2.json`과 GHCR digest image를 발행하고, Backend poller는
+`-publish-bundle` artifact 수집, challenge 매핑, release 등록, 동일
+`registry_revision`의 중복 처리를 소유합니다. Backend/admin은 active release
+전환과 롤백을 소유합니다. Runtime/Secure Provisioner는 active workload의 K3s
+배포와 정리를 소유합니다. 선택형 Runtime smoke는 `ports[].public`을 신규 Runtime
+계약의 `ports`와 `exposed_ports`로 변환하며 `expose`는 전송하지 않습니다.
+
+Backend 운영 환경의 `RELEASE_POLL_REPO`와 `RELEASE_POLL_GITHUB_TOKEN`은 Backend
+팀이 관리합니다. CI는 Backend DB, Scheduler 또는 Broker를 직접 조작하지 않으며,
+선택형 K3s smoke job만 SSM 또는 HTTPS로 Secure Provisioner API를 호출합니다.
+
+## Runtime K3s Smoke
+
+`enable_k3s_smoke_deploy: true`이면 GitHub Actions가 AWS OIDC와 SSM을 사용해 K3s
+노드 내부의 Secure Provisioner API에 임시 instance 생성을 요청합니다. 생성
+Operation이 성공하면 같은 API로 즉시 삭제하고, 두 결과를 Actions Summary에
+기록합니다. CI는 Kubernetes manifest, Namespace, Service와 보안 정책을 직접
+만들지 않습니다.
+
+필요한 Secret은 `AWS_ROLE_TO_ASSUME`, `AWS_REGION`, `AWS_K3S_INSTANCE_ID`,
+`AWS_CD_ARTIFACT_BUCKET`입니다. caller는 `runtime_target_id`도 전달해야 합니다.
+자세한 설정은 [`docs/aws-k3s-cd-smoke.md`](docs/aws-k3s-cd-smoke.md)에 있습니다.
+
+GCP Runtime HTTPS 경로는 별도 `enable_runtime_https_smoke: true`로 켭니다. caller는
+`runtime_api_url`(인증서 검증 가능한 HTTPS 주소), `runtime_ci_team_id`,
+`runtime_target_id`와 Secret `RUNTIME_API_TOKEN`을 전달합니다. 발행 bundle의
+`artifact-v2.json`을 GitHub 호스팅 runner에서 기존 smoke runner로 실행해 create와
+delete Operation 성공을 확인합니다. 토큰은 임시 파일에 넣고 종료 시 삭제합니다.
+이 성공 판정은 Runtime Operation 응답 기준이며, 반환된 문제 URL의 실제 HTTP 응답과
+K3s Namespace·Pod·Service 정리를 직접 확인하는 검사는 포함하지 않습니다.
+Provisioner가 승인한 정확한 digest만 생성할 수 있으므로 새 digest는 정책 갱신 전
+실패합니다. AWS 경로는 그대로 남으며 HTTPS 경로에 문제가 생기면 caller의
+`enable_runtime_https_smoke`를 꺼서 중단합니다. 설정과 검증 절차는
+[`docs/gcp-runtime-https-smoke.md`](docs/gcp-runtime-https-smoke.md)에 있습니다.
+
+## 보안 기준
+
+- Gitleaks는 현재 branch의 `HEAD`에 도달 가능한 전체 Git 이력과 현재 파일을 모두 검사합니다.
+- Git 이력에서 secret이 발견되면 해당 credential을 폐기·회전하고 이력을 정리한 뒤 재검증합니다.
+- Gitleaks 예외는 운영 승인자, 사유와 만료일이 기록된 경우에만 허용합니다.
+- Critical 취약점 발견 시 발행을 차단합니다.
+- High 또는 Critical image secret 발견 시 발행을 차단합니다.
+- `latest` 기반 Runtime 배포를 금지합니다.
+- secret을 Docker build arg, image layer, GitHub Actions 로그에 남기지 않습니다.
+- Runtime·격리보안 계약은 challenge Namespace에 Kubernetes Pod Security `restricted`를 강제해야 합니다.
+- 실행 중 instance가 참조하는 이전 revision과 digest는 삭제하지 않습니다.
+
+## Image 저장소와 architecture 정책
+
+2026년 8월 MVP의 원본 OCI Registry는 GHCR입니다. 출제자는 Registry 주소를
+`info.yaml`의 `build` 항목에 적지 않으며, CI가 검사한 image만 GHCR에 push하고
+digest로 고정합니다. Runtime은 instance 생성 시 선택된 node에서 해당 digest를
+pull합니다. 전체 node 사전 pull은 MVP 필수 범위가 아니며, node에 같은 digest가
+있으면 container runtime cache를 재사용할 수 있습니다.
+
+K3s는 향후 containerd mirror 설정을 통해 내부 OCI mirror를 사용할 수 있습니다.
+사전 pull, mirror 또는 별도 Registry 도입은 MVP 이후 결정하며, 이 경우에도
+Runtime에는 digest 고정 reference만 전달합니다.
+
+2026-10-23 추가 요구에 따라 노드 사전 다운로드를 준비하고 있습니다. 위 MVP의
+on-demand pull 설명은 기존 동작이며, 이번 보조 목록 발행만으로 노드 자동
+다운로드나 기존 인스턴스의 무중단 교체가 활성화되지는 않습니다.
+준비 정보가 없거나 만료·조회 실패이면 기존 pull 경로를 유지하는 B안은 아직
+검토 중이며, 실제 실행의 인증·이미지 승인·격리·플랫폼·자원 검사는 계속 필수입니다.
+
+신규 아키텍처 기준 공급망은 `info.yaml`, 멀티 컨테이너, digest, SBOM, publish bundle을 지원합니다. Backend poller가 Actions artifact를 수집해 release를 등록하고, Runtime 배포 smoke는 Secure Provisioner API를 경유합니다. OCI mirror와 Terraform/Ansible 인프라는 각 담당 팀의 계약에 맞춰 통합 테스트합니다.
+
+Windows container는 Linux image와 같은 build job에서 처리하지 않습니다.
+Windows runner, node pool, Runtime 및 Registry 계약이 확정된 뒤 별도 workflow로
+추가합니다.
+
+## 검증
+
+```bash
+python3 -m unittest discover -s tests -v
+python3 -m py_compile scripts/*.py
+```
