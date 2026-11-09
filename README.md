@@ -13,8 +13,8 @@
 | [**Challenge pipeline**](https://github.com/MSG-CTF/msgctf-devsecops) | info.yaml 검증 → 이미지 빌드·Trivy·Gitleaks → GHCR·SBOM·발행본 제공 |
 | [**Platform pipeline**](https://github.com/MSG-CTF/jm_devsecops/tree/main) | 테스트·보안 검사 → 이미지 빌드 → VM 배포·헬스체크·앱 롤백 |
 
-백엔드는 발행본을 읽어 버전·참가자 파일·환경변수를 등록합니다
-실행 노드에는 image-agent·SSH 브리지로 이미지를 미리 준비합니다
+백엔드가 발행본의 버전·참가자 파일·환경변수를 등록합니다
+image-agent·SSH 브리지로 노드에 이미지를 미리 준비합니다
 
 [발행 계약](docs/challenge-registry-integration.md) · [노드 이미지 준비](docs/node-image-prefetch.md) · [플랫폼 흐름 보기](https://msg-ctf.github.io/platform.html#architecture)
 
