@@ -1,6 +1,6 @@
 <div align="center">
 <h1>MSG CTF · DevSecOps</h1>
-<p>문제를 검사하고 실행 이미지·참가자 파일·배포 설정을 발행하는 공통 CI</p>
+<p>문제 검사 · 이미지·파일·배포 설정 발행</p>
 <p><a href="https://msg-ctf.github.io/platform.html">플랫폼</a> · <a href="#development">개발 문서</a></p>
 </div>
 
