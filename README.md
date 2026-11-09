@@ -6,10 +6,17 @@
 
 <h2 align="center">Overview</h2>
 
-<table align="center">
-<tr><th width="260">검사</th><th width="260">발행</th><th width="260">연결</th></tr>
-<tr><td align="center">문제 명세·취약점·비밀값</td><td align="center">GHCR 이미지·파일 ZIP·SBOM</td><td align="center">발행본·실행 설정·이미지 준비</td></tr>
-</table>
+![MSG CTF 전체 아키텍처: 문제 발행, 플랫폼, 자원 예약, 런타임, KOTH와 SLA](docs/showcase/platform-architecture.svg)
+
+| 담당 저장소 | 구현 |
+| --- | --- |
+| [**Challenge pipeline**](https://github.com/MSG-CTF/msgctf-devsecops) | info.yaml 검증 → 이미지 빌드·Trivy·Gitleaks → GHCR·SBOM·발행본 제공 |
+| [**Platform pipeline**](https://github.com/MSG-CTF/jm_devsecops/tree/main) | 테스트·보안 검사 → 이미지 빌드 → VM 배포·헬스체크·앱 롤백 |
+
+백엔드는 발행본을 읽어 버전·참가자 파일·환경변수를 등록합니다
+실행 노드에는 image-agent·SSH 브리지로 이미지를 미리 준비합니다
+
+[발행 계약](docs/challenge-registry-integration.md) · [노드 이미지 준비](docs/node-image-prefetch.md) · [플랫폼 흐름 보기](https://msg-ctf.github.io/platform.html#architecture)
 
 <h2 align="center">Contributors</h2>
 
