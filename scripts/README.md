@@ -9,6 +9,14 @@ Provisioner API 요청으로 변환합니다. 생성 Operation을 조회한 뒤 
 
 ## 파일
 
+### `prepare_release_transition.py` / `observe_rollout_http.py`
+
+A/B 원본 bundle·Backend 운영 선택·실행 설정·B readiness를 오프라인에서 대조하고,
+별도 승인된 공개 WEB URL의 HTTP 상태·지연을 관측합니다. 기존 준비/관리자 테스트
+API 인계안만 만들며 호출하지 않습니다. active·Pod·트래픽·기존 인스턴스는 바꾸지
+않고 HTTP200을 무중단 성공으로 계산하지 않습니다.
+[준비 범위·실행법·소비자 계약](../docs/release-transition.md)을 참고합니다.
+
 ### `vm_image_prefetch.py` / `vm_cache_preflight.py`
 
 운영자가 선택한 정확한 release와 VM을 공식 발행 원본에 대조하고, 별도 수동 승인 후
